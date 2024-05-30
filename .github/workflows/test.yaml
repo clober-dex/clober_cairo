@@ -23,6 +23,7 @@ jobs:
         scarb-version: ${{ env.SCARB_VERSION }}
     - name: Cairo lint
       run: scarb fmt --check
+    - uses: foundry-rs/setup-snfoundry@v3
     - name: Cairo test
       run: scarb test
 
