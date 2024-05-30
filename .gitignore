@@ -1,1 +1,9 @@
+#compiled output
 target
+
+.idea/
+.DS_Store
+.vscode/
+
+#vim
+**/.*.swp
