@@ -26,4 +26,3 @@ jobs:
     - uses: foundry-rs/setup-snfoundry@v3
     - name: Cairo test
       run: scarb test
-
