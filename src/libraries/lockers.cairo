@@ -16,7 +16,9 @@ mod Lockers {
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
         fn push(
-            ref self: ComponentState<TContractState>, locker: ContractAddress, lock_caller: ContractAddress
+            ref self: ComponentState<TContractState>,
+            locker: ContractAddress,
+            lock_caller: ContractAddress
         ) {
             let mut length = self.length.read();
             self.lockers.write(length, locker);
@@ -31,8 +33,7 @@ mod Lockers {
             // let locker = self.lockers.read(length);
             // let lock_caller = self.lock_callers.read(length);
             self.length.write(length - 1);
-
-            // check if it's better to reset locker and lock_caller
+        // check if it's better to reset locker and lock_caller
         }
 
         fn lock_data(ref self: ComponentState<TContractState>) -> (u128, u128) {
@@ -49,22 +50,22 @@ mod Lockers {
             self.lockers.read(index)
         }
 
-        fn get_lock_caller(ref self: ComponentState<TContractState>, index: u128) -> ContractAddress {
+        fn get_lock_caller(
+            ref self: ComponentState<TContractState>, index: u128
+        ) -> ContractAddress {
             self.lock_callers.read(index)
         }
 
         fn get_current_locker(ref self: ComponentState<TContractState>) -> ContractAddress {
             let length = self.length.read();
-            if length == 0 {
-                // return ContractAddress::zero();
+            if length == 0 {// return ContractAddress::zero();
             }
             self.lockers.read(length - 1)
         }
 
         fn get_current_lock_caller(ref self: ComponentState<TContractState>) -> ContractAddress {
             let length = self.length.read();
-            if length == 0 {
-                // return ContractAddress::zero();
+            if length == 0 {// return ContractAddress::zero();
             }
             self.lock_callers.read(length - 1)
         }
