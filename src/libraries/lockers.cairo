@@ -58,14 +58,14 @@ mod Lockers {
 
         fn get_current_locker(ref self: ComponentState<TContractState>) -> ContractAddress {
             let length = self.length.read();
-            if length == 0 {// return ContractAddress::zero();
+            if length == 0 { // return ContractAddress::zero();
             }
             self.lockers.read(length - 1)
         }
 
         fn get_current_lock_caller(ref self: ComponentState<TContractState>) -> ContractAddress {
             let length = self.length.read();
-            if length == 0 {// return ContractAddress::zero();
+            if length == 0 { // return ContractAddress::zero();
             }
             self.lock_callers.read(length - 1)
         }
