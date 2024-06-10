@@ -26,7 +26,9 @@ mod CurrencyDelta {
             sign: bool,
             delta: u256,
         ) {
-            let (sign_delta, currency_delta): (bool, u256) = self.currency_delta.read((locker, currency));
+            let (sign_delta, currency_delta): (bool, u256) = self
+                .currency_delta
+                .read((locker, currency));
             if sign_delta == sign {
                 self.currency_delta.write((locker, currency), (sign, currency_delta + delta))
             } else if currency_delta == delta {
