@@ -4,7 +4,7 @@ mod CurrencyDelta {
 
     #[storage]
     struct Storage {
-        currency_delta: LegacyMap::<(ContractAddress, ContractAddress), i128>
+        currency_delta: LegacyMap::<(ContractAddress, ContractAddress), (bool, u256)>
     }
 
     #[generate_trait]
@@ -15,7 +15,7 @@ mod CurrencyDelta {
             ref self: ComponentState<TContractState>,
             locker: ContractAddress,
             currency: ContractAddress,
-        ) -> i128 {
+        ) -> (bool, u256) {
             self.currency_delta.read((locker, currency))
         }
 
@@ -23,10 +23,19 @@ mod CurrencyDelta {
             ref self: ComponentState<TContractState>,
             locker: ContractAddress,
             currency: ContractAddress,
-            delta: i128,
+            sign: bool,
+            delta: u256,
         ) {
-            let mut currency_delta = self.currency_delta.read((locker, currency));
-            self.currency_delta.write((locker, currency), currency_delta + delta)
+            let (sign_delta, currency_delta): (bool, u256) = self.currency_delta.read((locker, currency));
+            if sign_delta == sign {
+                self.currency_delta.write((locker, currency), (sign, currency_delta + delta))
+            } else if currency_delta == delta {
+                self.currency_delta.write((locker, currency), (false, 0))
+            } else if currency_delta < delta {
+                self.currency_delta.write((locker, currency), (sign, delta - currency_delta))
+            } else {
+                self.currency_delta.write((locker, currency), (sign_delta, currency_delta - delta))
+            }
         }
     }
 }
