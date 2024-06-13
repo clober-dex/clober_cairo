@@ -137,7 +137,9 @@ mod tests {
         _calculate_fee((true, 1500), 1000, true, (true, 2));
     }
 
-    fn _calculate_fee(rate: (bool, u32), amount: u256, reverse_rounding: bool, expected: (bool, u256)) {
+    fn _calculate_fee(
+        rate: (bool, u32), amount: u256, reverse_rounding: bool, expected: (bool, u256)
+    ) {
         let (s, r) = rate;
         let fee_policy: FeePolicy = FeePolicy { uses_quote: true, sign: s, rate: r, };
         let result = fee_policy.calculate_fee(amount, reverse_rounding);
