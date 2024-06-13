@@ -20,14 +20,14 @@ mod Lockers {
             locker: ContractAddress,
             lock_caller: ContractAddress
         ) {
-            let mut length = self.length.read();
+            let length = self.length.read();
             self.lockers.write(length, locker);
             self.lock_callers.write(length, locker);
             self.length.write(length + 1);
         }
 
         fn pop(ref self: ComponentState<TContractState>) {
-            let mut length = self.length.read();
+            let length = self.length.read();
             assert(length > 0, 'LOCKER_POP_FAILED');
 
             // let locker = self.lockers.read(length);
@@ -71,12 +71,12 @@ mod Lockers {
         }
 
         fn increment_nonzero_delta_count(ref self: ComponentState<TContractState>) {
-            let mut non_zero_delta_count = self.non_zero_delta_count.read();
+            let non_zero_delta_count = self.non_zero_delta_count.read();
             self.non_zero_delta_count.write(non_zero_delta_count + 1);
         }
 
         fn decrement_nonzero_delta_count(ref self: ComponentState<TContractState>) {
-            let mut non_zero_delta_count = self.non_zero_delta_count.read();
+            let non_zero_delta_count = self.non_zero_delta_count.read();
             // assert(non_zero_delta_count > 0, 'NON_ZERO_DELTA_COUNT_DECREMENT_FAILED');
             self.non_zero_delta_count.write(non_zero_delta_count - 1);
         }
