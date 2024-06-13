@@ -13,7 +13,7 @@ repository = "https://github.com/clober-dex/clober_cairo"
 starknet = "2.6.3"
 
 [dev-dependencies]
-snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.24.0" }
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.25.0" }
 
 [tool.snforge]
 fuzzer_runs = 1000
