@@ -63,3 +63,60 @@ impl FeePolicyStorePacking of StorePacking<FeePolicy, u32> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::FeePolicy;
+    use super::StorePacking;
+
+    #[test]
+    fn pack() {
+        let fee_policy: FeePolicy = FeePolicy { uses_quote: true, sign: true, rate: 100000, };
+        let packed: u32 = StorePacking::pack(fee_policy);
+        assert_eq!(packed, 8788608);
+
+        let fee_policy: FeePolicy = FeePolicy { uses_quote: true, sign: false, rate: 100000, };
+        let packed: u32 = StorePacking::pack(fee_policy);
+        assert_eq!(packed, 8988608);
+
+        let fee_policy: FeePolicy = FeePolicy { uses_quote: false, sign: true, rate: 100000, };
+        let packed: u32 = StorePacking::pack(fee_policy);
+        assert_eq!(packed, 400000);
+
+        let fee_policy: FeePolicy = FeePolicy { uses_quote: false, sign: false, rate: 100000, };
+        let packed: u32 = StorePacking::pack(fee_policy);
+        assert_eq!(packed, 600000);
+
+        let fee_policy: FeePolicy = FeePolicy { uses_quote: false, sign: false, rate: 0, };
+        let packed: u32 = StorePacking::pack(fee_policy);
+        assert_eq!(packed, 500000);
+    }
+
+    #[test]
+    fn unpack() {
+        let fee_policy: FeePolicy = StorePacking::unpack(8788608);
+        assert_eq!(fee_policy.uses_quote, true);
+        assert_eq!(fee_policy.sign, true);
+        assert_eq!(fee_policy.rate, 100000);
+
+        let fee_policy: FeePolicy = StorePacking::unpack(8988608);
+        assert_eq!(fee_policy.uses_quote, true);
+        assert_eq!(fee_policy.sign, false);
+        assert_eq!(fee_policy.rate, 100000);
+
+        let fee_policy: FeePolicy = StorePacking::unpack(400000);
+        assert_eq!(fee_policy.uses_quote, false);
+        assert_eq!(fee_policy.sign, true);
+        assert_eq!(fee_policy.rate, 100000);
+
+        let fee_policy: FeePolicy = StorePacking::unpack(600000);
+        assert_eq!(fee_policy.uses_quote, false);
+        assert_eq!(fee_policy.sign, false);
+        assert_eq!(fee_policy.rate, 100000);
+
+        let fee_policy: FeePolicy = StorePacking::unpack(500000);
+        assert_eq!(fee_policy.uses_quote, false);
+        assert_eq!(fee_policy.sign, false);
+        assert_eq!(fee_policy.rate, 0);
+    }
+}
