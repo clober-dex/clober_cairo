@@ -7,3 +7,6 @@ target
 
 #vim
 **/.*.swp
+
+#cache
+.snfoundry_cache/
