@@ -67,6 +67,7 @@ impl FeePolicyStorePacking of StorePacking<FeePolicy, u32> {
 #[cfg(test)]
 mod tests {
     use super::FeePolicy;
+    use super::FeePolicyImpl;
     use super::StorePacking;
 
     #[test]
@@ -118,5 +119,28 @@ mod tests {
         assert_eq!(fee_policy.uses_quote, false);
         assert_eq!(fee_policy.sign, false);
         assert_eq!(fee_policy.rate, 0);
+    }
+
+    #[test]
+    fn calculate_fee() {
+        _calculate_fee((false, 1000), 1000000, false, (false, 1000));
+        _calculate_fee((true, 1000), 1000000, false, (true, 1000));
+        _calculate_fee((false, 1000), 1000000, true, (false, 1000));
+        _calculate_fee((true, 1000), 1000000, true, (true, 1000));
+        // zero value tests
+        _calculate_fee((false, 0), 1000000, false, (false, 0));
+        _calculate_fee((false, 1000), 0, false, (false, 0));
+        // rounding tests
+        _calculate_fee((false, 1500), 1000, false, (false, 2));
+        _calculate_fee((true, 1500), 1000, false, (true, 1));
+        _calculate_fee((false, 1500), 1000, true, (false, 1));
+        _calculate_fee((true, 1500), 1000, true, (true, 2));
+    }
+
+    fn _calculate_fee(rate: (bool, u32), amount: u256, reverse_rounding: bool, expected: (bool, u256)) {
+        let (s, r) = rate;
+        let fee_policy: FeePolicy = FeePolicy { uses_quote: true, sign: s, rate: r, };
+        let result = fee_policy.calculate_fee(amount, reverse_rounding);
+        assert_eq!(result, expected);
     }
 }
