@@ -1,11 +1,11 @@
 use starknet::storage_access::{StorePacking};
 
-const MASK_BOOK_ID: u256 = consteval_int!(2**192);
-const MASK_TICK: u256 = consteval_int!(2**32);
-const MASK_INDEX: u256 = consteval_int!(2**40);
+const MASK_BOOK_ID: u256 = consteval_int!(2 * *192);
+const MASK_TICK: u256 = consteval_int!(2 * *32);
+const MASK_INDEX: u256 = consteval_int!(2 * *40);
 
-const TWO_POW_72: u256 = consteval_int!(2**72);
-const TWO_POW_40: u256 = consteval_int!(2**40);
+const TWO_POW_72: u256 = consteval_int!(2 * *72);
+const TWO_POW_40: u256 = consteval_int!(2 * *40);
 
 #[derive(Copy, Drop, Serde, Debug)]
 pub struct OrderId {
