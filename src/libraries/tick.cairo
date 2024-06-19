@@ -1,7 +1,7 @@
-use starknet::storage_access::{StorePacking};
-use clober_cairo::utils::math::{Math};
+const TWO_POW_96: u256 = 0x1000000000000000000000000; // 2**96
+const TWO_POW_192: u256 = 0x1000000000000000000000000000000000000000000000000; // 2**192
 
-const MAX_TICK: i32 = consteval_int!(2 ^ 19 - 1);
+const MAX_TICK: i32 = 0x7ffff;
 const MIN_TICK: i32 = -MAX_TICK;
 
 const MIN_PRICE: u256 = 1350587;
@@ -27,77 +27,84 @@ const R16: u256 = 0x5d6af8dedb81196699c329;
 const R17: u256 = 0x2216e584f5fa1ea92604;
 const R18: u256 = 0x48a170391f7dc42;
 
+#[derive(Copy, Drop, Serde)]
+pub struct Tick {
+    pub value: i32,
+}
+
 #[generate_trait]
 impl TickImpl of TickTrait {
-    fn to_price(tick: i32) -> u256 {
-        assert(tick < MIN_TICK || tick > MAX_TICK, 'invalid_tick');
+    fn to_price(tick: Tick) -> u256 {
+        assert(tick.value < MIN_TICK || tick.value > MAX_TICK, 'invalid_tick');
 
-        let absTick: u32 = (if (tick < 0) {
-            -tick
+        let absTick: u32 = (if (tick.value < 0) {
+            -tick.value
         } else {
-            tick
+            tick.value
         }).try_into().unwrap();
 
         let mut price: u256 = if (absTick & 0x1 != 0) {
             R0
         } else {
-            consteval_int!(2 ^ 96)
+            TWO_POW_96
         };
         if (absTick & 0x2 != 0) {
-            price = (price * R1) / consteval_int!(2 ^ 96);
+            price = (price * R1) / TWO_POW_96;
         }
         if (absTick & 0x4 != 0) {
-            price = (price * R2) / consteval_int!(2 ^ 96);
+            price = (price * R2) / TWO_POW_96;
         }
         if (absTick & 0x8 != 0) {
-            price = (price * R3) / consteval_int!(2 ^ 96);
+            price = (price * R3) / TWO_POW_96;
         }
         if (absTick & 0x10 != 0) {
-            price = (price * R4) / consteval_int!(2 ^ 96);
+            price = (price * R4) / TWO_POW_96;
         }
         if (absTick & 0x20 != 0) {
-            price = (price * R5) / consteval_int!(2 ^ 96);
+            price = (price * R5) / TWO_POW_96;
         }
         if (absTick & 0x40 != 0) {
-            price = (price * R6) / consteval_int!(2 ^ 96);
+            price = (price * R6) / TWO_POW_96;
         }
         if (absTick & 0x80 != 0) {
-            price = (price * R7) / consteval_int!(2 ^ 96);
+            price = (price * R7) / TWO_POW_96;
         }
         if (absTick & 0x100 != 0) {
-            price = (price * R8) / consteval_int!(2 ^ 96);
+            price = (price * R8) / TWO_POW_96;
         }
         if (absTick & 0x200 != 0) {
-            price = (price * R9) / consteval_int!(2 ^ 96);
+            price = (price * R9) / TWO_POW_96;
         }
         if (absTick & 0x400 != 0) {
-            price = (price * R10) / consteval_int!(2 ^ 96);
+            price = (price * R10) / TWO_POW_96;
         }
         if (absTick & 0x800 != 0) {
-            price = (price * R11) / consteval_int!(2 ^ 96);
+            price = (price * R11) / TWO_POW_96;
         }
         if (absTick & 0x1000 != 0) {
-            price = (price * R12) / consteval_int!(2 ^ 96);
+            price = (price * R12) / TWO_POW_96;
         }
         if (absTick & 0x2000 != 0) {
-            price = (price * R13) / consteval_int!(2 ^ 96);
+            price = (price * R13) / TWO_POW_96;
         }
         if (absTick & 0x4000 != 0) {
-            price = (price * R14) / consteval_int!(2 ^ 96);
+            price = (price * R14) / TWO_POW_96;
         }
         if (absTick & 0x8000 != 0) {
-            price = (price * R15) / consteval_int!(2 ^ 96);
+            price = (price * R15) / TWO_POW_96;
         }
         if (absTick & 0x10000 != 0) {
-            price = (price * R16) / consteval_int!(2 ^ 96);
+            price = (price * R16) / TWO_POW_96;
         }
         if (absTick & 0x20000 != 0) {
-            price = (price * R17) / consteval_int!(2 ^ 96);
+            price = (price * R17) / TWO_POW_96;
         }
         if (absTick & 0x40000 != 0) {
-            price = (price * R18) / consteval_int!(2 ^ 96);
+            price = (price * R18) / TWO_POW_96;
         }
-
+        if (tick.value > 0) {
+            return TWO_POW_192 / price;
+        }
         price
     }
 // fn from_price(price: u256) -> i32 {
