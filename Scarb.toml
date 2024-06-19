@@ -11,6 +11,7 @@ repository = "https://github.com/clober-dex/clober_cairo"
 
 [dependencies]
 starknet = "2.6.3"
+alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria.git" }
 
 [dev-dependencies]
 snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.25.0" }
