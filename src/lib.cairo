@@ -3,6 +3,7 @@ pub mod libraries {
     pub mod fee_policy;
     pub mod lockers;
     pub mod order_id;
+    pub mod packed_u256;
     pub mod tick;
 }
 
