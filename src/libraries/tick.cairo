@@ -41,7 +41,9 @@ impl TickImpl of TickTrait {
             -tick.value
         } else {
             tick.value
-        }).try_into().unwrap();
+        })
+            .try_into()
+            .unwrap();
 
         let mut price: u256 = if (absTick & 0x1 != 0) {
             R0
