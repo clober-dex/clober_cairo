@@ -37,7 +37,7 @@ pub impl TickImpl of TickTrait {
     fn to_price(tick: Tick) -> u256 {
         assert(tick.value < MIN_TICK || tick.value > MAX_TICK, 'invalid_tick');
 
-        let absTick: u32 = (if (tick.value < 0) {
+        let absTick: u32 = (if tick.value < 0 {
             -tick.value
         } else {
             tick.value
@@ -45,73 +45,68 @@ pub impl TickImpl of TickTrait {
             .try_into()
             .unwrap();
 
-        let mut price: u256 = if (absTick & 0x1 != 0) {
+        let mut price: u256 = if absTick & 0x1 != 0 {
             R0
         } else {
             TWO_POW_96
         };
-        if (absTick & 0x2 != 0) {
+        if absTick & 0x2 != 0 {
             price = (price * R1) / TWO_POW_96;
         }
-        if (absTick & 0x4 != 0) {
+        if absTick & 0x4 != 0 {
             price = (price * R2) / TWO_POW_96;
         }
-        if (absTick & 0x8 != 0) {
+        if absTick & 0x8 != 0 {
             price = (price * R3) / TWO_POW_96;
         }
-        if (absTick & 0x10 != 0) {
+        if absTick & 0x10 != 0 {
             price = (price * R4) / TWO_POW_96;
         }
-        if (absTick & 0x20 != 0) {
+        if absTick & 0x20 != 0 {
             price = (price * R5) / TWO_POW_96;
         }
-        if (absTick & 0x40 != 0) {
+        if absTick & 0x40 != 0 {
             price = (price * R6) / TWO_POW_96;
         }
-        if (absTick & 0x80 != 0) {
+        if absTick & 0x80 != 0 {
             price = (price * R7) / TWO_POW_96;
         }
-        if (absTick & 0x100 != 0) {
+        if absTick & 0x100 != 0 {
             price = (price * R8) / TWO_POW_96;
         }
-        if (absTick & 0x200 != 0) {
+        if absTick & 0x200 != 0 {
             price = (price * R9) / TWO_POW_96;
         }
-        if (absTick & 0x400 != 0) {
+        if absTick & 0x400 != 0 {
             price = (price * R10) / TWO_POW_96;
         }
-        if (absTick & 0x800 != 0) {
+        if absTick & 0x800 != 0 {
             price = (price * R11) / TWO_POW_96;
         }
-        if (absTick & 0x1000 != 0) {
+        if absTick & 0x1000 != 0 {
             price = (price * R12) / TWO_POW_96;
         }
-        if (absTick & 0x2000 != 0) {
+        if absTick & 0x2000 != 0 {
             price = (price * R13) / TWO_POW_96;
         }
-        if (absTick & 0x4000 != 0) {
+        if absTick & 0x4000 != 0 {
             price = (price * R14) / TWO_POW_96;
         }
-        if (absTick & 0x8000 != 0) {
+        if absTick & 0x8000 != 0 {
             price = (price * R15) / TWO_POW_96;
         }
-        if (absTick & 0x10000 != 0) {
+        if absTick & 0x10000 != 0 {
             price = (price * R16) / TWO_POW_96;
         }
-        if (absTick & 0x20000 != 0) {
+        if absTick & 0x20000 != 0 {
             price = (price * R17) / TWO_POW_96;
         }
-        if (absTick & 0x40000 != 0) {
+        if absTick & 0x40000 != 0 {
             price = (price * R18) / TWO_POW_96;
         }
-        if (tick.value > 0) {
+        if tick.value > 0 {
             return TWO_POW_192 / price;
         }
         price
     }
-// fn from_price(price: u256) -> i32 {
-//     int24 tick = int24((int256(price).lnWad() * 42951820407860) / 2 ** 128);
-//     if (toPrice(Tick.wrap(tick)) > price) return Tick.wrap(tick - 1);
-//     return Tick.wrap(tick);
-// }
 }
