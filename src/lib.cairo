@@ -5,6 +5,8 @@ pub mod libraries {
     pub mod order_id;
     pub mod packed_u256;
     pub mod tick;
+    pub mod tick_bitmap;
+    pub mod significant_bit;
 }
 
 pub mod utils {
