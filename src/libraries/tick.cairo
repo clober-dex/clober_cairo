@@ -33,7 +33,7 @@ pub struct Tick {
 }
 
 #[generate_trait]
-impl TickImpl of TickTrait {
+pub impl TickImpl of TickTrait {
     fn to_price(tick: Tick) -> u256 {
         assert(tick.value < MIN_TICK || tick.value > MAX_TICK, 'invalid_tick');
 
