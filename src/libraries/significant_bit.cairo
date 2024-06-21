@@ -268,8 +268,24 @@ pub impl SignificantBitImpl of SignificantBitTrait {
         let index = (x & (~x + 1))
             * DEBRUIJN_SEQ
             / 0x100000000000000000000000000000000000000000000000000000000000000;
-        return 1;
-    // let arr = DEBRUIJN_INDEX.span();
-    // arr[index]
+        *DEBRUIJN_INDEX.span()[index.try_into().unwrap()]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::SignificantBitImpl;
+    use clober_cairo::alexandria::fast_power::fast_power;
+
+    #[test]
+    fn test_least_significant_bit() {
+        let mut i: u256 = 0;
+        while i < 256 {
+            assert_eq!(
+                SignificantBitImpl::least_significant_bit(fast_power(2_u256, i)),
+                i.try_into().unwrap()
+            );
+            i += 1;
+        }
     }
 }
