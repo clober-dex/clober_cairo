@@ -110,3 +110,31 @@ pub impl TickImpl of TickTrait {
         price
     }
 }
+
+impl TickPartialEq of PartialEq<Tick> {
+    fn eq(lhs: @Tick, rhs: @Tick) -> bool {
+        lhs.value == rhs.value
+    }
+
+    fn ne(lhs: @Tick, rhs: @Tick) -> bool {
+        !Self::eq(lhs, rhs)
+    }
+}
+
+impl TickPartialOrd of PartialOrd<Tick> {
+    fn le(lhs: Tick, rhs: Tick) -> bool {
+        !Self::gt(lhs, rhs)
+    }
+    fn ge(lhs: Tick, rhs: Tick) -> bool {
+        Self::gt(lhs, rhs) || lhs == rhs
+    }
+
+    fn lt(lhs: Tick, rhs: Tick) -> bool {
+        !Self::gt(lhs, rhs) && lhs != rhs
+    }
+
+    fn gt(lhs: Tick, rhs: Tick) -> bool {
+        lhs.value > rhs.value
+    }
+}
+
