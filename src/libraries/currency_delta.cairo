@@ -1,6 +1,8 @@
 #[starknet::component]
 mod CurrencyDelta {
     use starknet::ContractAddress;
+    use clober_cairo::alexandria::i257::i257;
+    use clober_cairo::alexandria::i257::I257Impl;
 
     #[storage]
     struct Storage {
@@ -15,29 +17,22 @@ mod CurrencyDelta {
             ref self: ComponentState<TContractState>,
             locker: ContractAddress,
             currency: ContractAddress,
-        ) -> (bool, u256) {
-            self.currency_delta.read((locker, currency))
+        ) -> i257 {
+            let (sign, abs) = self.currency_delta.read((locker, currency));
+            I257Impl::new(abs, sign)
         }
 
         fn add(
             ref self: ComponentState<TContractState>,
             locker: ContractAddress,
             currency: ContractAddress,
-            sign: bool,
-            delta: u256,
+            mut delta: i257,
         ) {
-            let (sign_delta, currency_delta): (bool, u256) = self
+            let (sign, abs): (bool, u256) = self
                 .currency_delta
                 .read((locker, currency));
-            if sign_delta == sign {
-                self.currency_delta.write((locker, currency), (sign, currency_delta + delta))
-            } else if currency_delta == delta {
-                self.currency_delta.write((locker, currency), (false, 0))
-            } else if currency_delta < delta {
-                self.currency_delta.write((locker, currency), (sign, delta - currency_delta))
-            } else {
-                self.currency_delta.write((locker, currency), (sign_delta, currency_delta - delta))
-            }
+            delta += I257Impl::new(abs, sign);
+            self.currency_delta.write((locker, currency), (delta.is_negative(), delta.abs()))
         }
     }
 }
