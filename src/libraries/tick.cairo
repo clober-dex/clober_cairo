@@ -109,6 +109,22 @@ pub impl TickImpl of TickTrait {
         }
         price
     }
+
+    fn base_to_quote(tick: Tick, base: u256, rounding_up: bool) -> u256 {
+        let price: u256 = Self::to_price(tick);
+        if rounding_up {
+            return (base * price + TWO_POW_96 - 1) / TWO_POW_96;
+        }
+        base * price / TWO_POW_96
+    }
+
+    fn quote_to_base(tick: Tick, quote: u256, rounding_up: bool) -> u256 {
+        let price: u256 = Self::to_price(tick);
+        if rounding_up {
+            return (quote * TWO_POW_96 + price - 1) / price;
+        }
+        quote * TWO_POW_96 / price
+    }
 }
 
 impl TickPartialEq of PartialEq<Tick> {
