@@ -28,9 +28,7 @@ mod CurrencyDelta {
             currency: ContractAddress,
             mut delta: i257,
         ) {
-            let (sign, abs): (bool, u256) = self
-                .currency_delta
-                .read((locker, currency));
+            let (sign, abs): (bool, u256) = self.currency_delta.read((locker, currency));
             delta += I257Impl::new(abs, sign);
             self.currency_delta.write((locker, currency), (delta.is_negative(), delta.abs()))
         }
