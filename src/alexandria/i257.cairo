@@ -350,9 +350,36 @@ impl U256IntoI257 of Into<u256, i257> {
     }
 }
 
+// Convert i128 to i257
+impl I128IntoI257 of Into<i128, i257> {
+    fn into(self: i128) -> i257 {
+        if self < 0 {
+            let abs: u128 = self.try_into().unwrap();
+            i257 { abs: abs.into(), is_negative: true }
+        } else {
+            let abs: u128 = self.try_into().unwrap();
+            i257 { abs: abs.into(), is_negative: false }
+        }
+    }
+}
+
 // Convert felt252 to i257
 impl FeltIntoI257 of Into<felt252, i257> {
     fn into(self: felt252) -> i257 {
         i257 { abs: self.into(), is_negative: false }
+    }
+}
+
+// Convert i257 to i128
+impl I257TryIntoI128 of TryInto<i257, i128> {
+    fn try_into(self: i257) -> Option<i128> {
+        let abs: u128 = self.abs.try_into().unwrap();
+        let abs: i128 = abs.try_into().unwrap();
+
+        if self.is_negative {
+            Option::Some(-abs)
+        } else {
+            Option::Some(abs)
+        }
     }
 }
