@@ -1,4 +1,9 @@
+use clober_cairo::utils::math::Math::ln_wad;
+use clober_cairo::alexandria::i257::i257;
+use clober_cairo::alexandria::i257::I257Impl;
+
 const TWO_POW_96: u256 = 0x1000000000000000000000000; // 2**96
+const TWO_POW_128: u256 = 0x100000000000000000000000000000000; // 2**128
 const TWO_POW_192: u256 = 0x1000000000000000000000000000000000000000000000000; // 2**192
 
 const MAX_TICK: i32 = 0x7ffff;
@@ -108,6 +113,19 @@ pub impl TickImpl of TickTrait {
             return TWO_POW_192 / price;
         }
         price
+    }
+
+    fn from_price(price: u256) -> Tick {
+        let tick: i128 = (I257Impl::new(42951820407860, false)
+            * ln_wad(price).into()
+            / TWO_POW_128.into())
+            .try_into()
+            .unwrap();
+        let tick: i32 = tick.try_into().unwrap();
+        if Self::to_price(Tick { value: tick }) > price {
+            return Tick { value: tick - 1 };
+        }
+        Tick { value: tick }
     }
 
     fn base_to_quote(tick: Tick, base: u256, rounding_up: bool) -> u256 {
