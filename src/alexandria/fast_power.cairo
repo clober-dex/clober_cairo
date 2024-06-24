@@ -9,7 +9,6 @@
 /// * ` T ` - The result of base ^ power
 /// # Panics
 /// * ` base ` is 0
-#[feature("deprecated-op-assign-traits")]
 pub fn fast_power<
     T,
     +Div<T>,
@@ -52,7 +51,6 @@ pub fn fast_power<
 /// * ` T ` - The result of ( base ^ power ) mod modulus
 /// # Panics
 /// * ` base ` is 0
-#[feature("deprecated-op-assign-traits")]
 pub fn fast_power_mod<
     T,
     +Div<T>,
