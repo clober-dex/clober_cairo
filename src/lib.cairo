@@ -7,6 +7,7 @@ pub mod libraries {
     pub mod tick;
     pub mod tick_bitmap;
     pub mod significant_bit;
+    pub mod segmented_segment_tree;
 }
 
 pub mod alexandria {
