@@ -1,3 +1,5 @@
+use core::integer::u256_overflow_mul;
+
 // http://supertech.csail.mit.edu/papers/debruijn.pdf
 const DEBRUIJN_SEQ: u256 = 0x818283848586878898A8B8C8D8E8F929395969799A9B9D9E9FAAEB6BEDEEFF;
 const DEBRUIJN_INDEX: [
@@ -263,11 +265,11 @@ const DEBRUIJN_INDEX: [
 
 #[generate_trait]
 pub impl SignificantBitImpl of SignificantBitTrait {
+
     fn least_significant_bit(x: u256) -> u8 {
         assert!(x != 0, "x must be non-zero");
-        let index = (x & (~x + 1))
-            * DEBRUIJN_SEQ
-            / 0x100000000000000000000000000000000000000000000000000000000000000;
+        let (mul, _) = u256_overflow_mul(x & (~x + 1), DEBRUIJN_SEQ);
+        let index = mul / 0x100000000000000000000000000000000000000000000000000000000000000;
         *DEBRUIJN_INDEX.span()[index.try_into().unwrap()]
     }
 }
