@@ -27,6 +27,11 @@ pub fn update_62(packed: felt252, mut n: u8, value: u64) -> felt252 {
     ((_packed & ~mask) + data).try_into().unwrap()
 }
 
+pub fn add_u62(packed: felt252, n: u8, value: u64) -> felt252 {
+    assert(n < 4, 'Index out of bounds');
+    update_62(packed, n, get_u62(packed, n) + value)
+}
+
 pub fn sub_u62(packed: felt252, n: u8, value: u64) -> felt252 {
     assert(n < 4, 'Index out of bounds');
     update_62(packed, n, get_u62(packed, n) - value)

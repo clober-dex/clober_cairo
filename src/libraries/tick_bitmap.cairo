@@ -97,7 +97,7 @@ impl TickBitmapImpl of TickBitmapTrait {
     }
 
     fn _get(ref bitmap: TickBitmap, key: felt252) -> u256 {
-        bitmap.hi.get(key).into() * TWO_POW_128 + bitmap.low.get(key).into()
+        bitmap.hi[key].into() * TWO_POW_128 + bitmap.low[key].into()
     }
 
     fn _set(ref bitmap: TickBitmap, key: felt252, value: u256) {
