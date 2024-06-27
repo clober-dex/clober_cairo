@@ -9,7 +9,7 @@ use core::ops::RemAssign;
 // i257 represents a 129-bit integer.
 // The abs field holds the absolute value of the integer.
 // The is_negative field is true for negative integers, and false for non-negative integers.
-#[derive(Serde, Copy, Drop, Hash)]
+#[derive(Serde, Copy, Drop, Hash, starknet::Store)]
 pub struct i257 {
     abs: u256,
     is_negative: bool,
