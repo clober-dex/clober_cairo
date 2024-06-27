@@ -9,7 +9,7 @@ mod CurrencyDelta {
 
     #[storage]
     struct Storage {
-        currency_delta: Map<(ContractAddress, ContractAddress), (u256, bool)>
+        currency_delta: Map<(ContractAddress, ContractAddress), i257>
     }
 
     #[generate_trait]
@@ -21,20 +21,18 @@ mod CurrencyDelta {
             locker: ContractAddress,
             currency: ContractAddress,
         ) -> i257 {
-            let (abs, sign) = self.currency_delta.read((locker, currency));
-            I257Impl::new(abs, sign)
+            self.currency_delta.read((locker, currency))
         }
 
         fn add(
             ref self: ComponentState<TContractState>,
             locker: ContractAddress,
             currency: ContractAddress,
-            mut delta: i257,
+            delta: i257,
         ) -> i257 {
             let entry = self.currency_delta.entry((locker, currency));
-            let (abs, sign) = entry.read();
-            delta += I257Impl::new(abs, sign);
-            entry.write((delta.abs(), delta.is_negative()));
+            let delta = delta + entry.read();
+            entry.write(delta);
             delta
         }
     }
