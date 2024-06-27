@@ -265,7 +265,6 @@ const DEBRUIJN_INDEX: [
 
 #[generate_trait]
 pub impl SignificantBitImpl of SignificantBitTrait {
-
     fn least_significant_bit(x: u256) -> u8 {
         assert!(x != 0, "x must be non-zero");
         let (mul, _) = u256_overflow_mul(x & (~x + 1), DEBRUIJN_SEQ);

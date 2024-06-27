@@ -1,11 +1,12 @@
 #[starknet::component]
 mod Lockers {
     use starknet::ContractAddress;
+    use starknet::storage::Map;
 
     #[storage]
     struct Storage {
-        lockers: LegacyMap::<u128, ContractAddress>, // use Array<ContractAddress>,
-        lock_callers: LegacyMap::<u128, ContractAddress>,
+        lockers: Map<u128, ContractAddress>, // use Array<ContractAddress>,
+        lock_callers: Map<u128, ContractAddress>,
         // optimistic storage
         length: u128,
         non_zero_delta_count: u128
@@ -33,7 +34,7 @@ mod Lockers {
             // let locker = self.lockers.read(length);
             // let lock_caller = self.lock_callers.read(length);
             self.length.write(length - 1);
-        // check if it's better to reset locker and lock_caller
+            // check if it's better to reset locker and lock_caller
         }
 
         fn lock_data(ref self: ComponentState<TContractState>) -> (u128, u128) {
