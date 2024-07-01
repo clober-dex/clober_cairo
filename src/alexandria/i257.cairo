@@ -354,7 +354,7 @@ impl U256IntoI257 of Into<u256, i257> {
 impl I128IntoI257 of Into<i128, i257> {
     fn into(self: i128) -> i257 {
         if self < 0 {
-            let abs: u128 = self.try_into().unwrap();
+            let abs: u128 = (-self).try_into().unwrap();
             i257 { abs: abs.into(), is_negative: true }
         } else {
             let abs: u128 = self.try_into().unwrap();
