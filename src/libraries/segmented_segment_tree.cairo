@@ -25,17 +25,17 @@ pub mod SegmentedSegmentTree {
     const MAX_NODES: u256 = 0x8000; // (R * P) * ((C * P) ** (L - 1)) = `32768`
     const MAX_NODES_P_MINUS_ONE: u256 = 14; // MAX_NODES / R = 2 ** `14`
 
-    fn get(mut layers: Felt252Dict<felt252>, index: u256) -> u64 {
+    pub fn get(ref layers: Felt252Dict<felt252>, index: u256) -> u64 {
         assert(index < MAX_NODES, 'INDEX_ERROR');
         let key: felt252 = ((L.into() - 1) * MAX_NODES + index / P.into()).try_into().unwrap();
         get_u62(layers[key], (index & P_M).try_into().unwrap())
     }
 
-    fn total(mut layers: Felt252Dict<felt252>) -> u256 {
+    pub fn total(mut layers: Felt252Dict<felt252>) -> u256 {
         sum_u62(layers[0], 0, 4) + sum_u62(layers[1], 0, 4)
     }
 
-    fn _get_layer_indices(index: u256) -> Array<LayerIndex> {
+    pub fn _get_layer_indices(index: u256) -> Array<LayerIndex> {
         let mut indices: Array<LayerIndex> = ArrayTrait::new();
         let mut shifter: u256 = MAX_NODES / 2;
         let mut l = 0;
@@ -53,7 +53,7 @@ pub mod SegmentedSegmentTree {
         indices
     }
 
-    fn query(mut layers: Felt252Dict<felt252>, left: u256, right: u256) -> u256 {
+    pub fn query(ref layers: Felt252Dict<felt252>, left: u256, right: u256) -> u256 {
         if left == right {
             return 0;
         }
@@ -141,15 +141,15 @@ pub mod SegmentedSegmentTree {
         ret - deficit
     }
 
-    fn update(ref layers: Felt252Dict<felt252>, index: u256, value: u64) -> u64 {
+    pub fn update(ref layers: Felt252Dict<felt252>, index: u256, value: u64) -> u64 {
         assert(index < MAX_NODES, 'INDEX_ERROR');
         let indices: Array<LayerIndex> = _get_layer_indices(index);
         let bottom_index: LayerIndex = *indices.at((L - 1).try_into().unwrap()).try_into().unwrap();
         let key: felt252 = (MAX_NODES * (L.into() - 1) + bottom_index.group).try_into().unwrap();
         let replaced = get_u62(layers[key], bottom_index.node);
+        let mut l: u8 = 0;
         if replaced >= value {
             let diff = replaced - value;
-            let l: u8 = 0;
             while l < L {
                 let layer_index: LayerIndex = *indices.at(l.into());
                 let key: felt252 = (l.into() * MAX_NODES + layer_index.group).try_into().unwrap();
@@ -159,10 +159,10 @@ pub mod SegmentedSegmentTree {
                         key,
                         update_62(node, layer_index.node, get_u62(node, layer_index.node) - diff)
                     );
+                l += 1;
             }
         } else {
             let diff = value - replaced;
-            let l: u8 = 0;
             while l < L {
                 let layer_index: LayerIndex = *indices.at(l.into());
                 let key: felt252 = (l.into() * MAX_NODES + layer_index.group).try_into().unwrap();
@@ -172,6 +172,7 @@ pub mod SegmentedSegmentTree {
                         key,
                         update_62(node, layer_index.node, get_u62(node, layer_index.node) + diff)
                     );
+                l += 1;
             }
         }
         replaced
