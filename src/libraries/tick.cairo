@@ -40,7 +40,7 @@ pub struct Tick {
 #[generate_trait]
 pub impl TickImpl of TickTrait {
     fn to_price(tick: Tick) -> u256 {
-        assert(tick.value < MIN_TICK || tick.value > MAX_TICK, 'invalid_tick');
+        assert(tick.value >= MIN_TICK || tick.value <= MAX_TICK, 'invalid_tick');
 
         let absTick: u32 = (if tick.value < 0 {
             -tick.value
