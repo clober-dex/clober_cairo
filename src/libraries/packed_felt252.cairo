@@ -46,7 +46,6 @@ pub fn sum_u62(packed: felt252, mut s: u8, e: u8) -> u256 {
         if n >= s {
             sum += (packed & MASK_62).try_into().unwrap();
         };
-        n += 1;
         packed /= TWO_POW_62;
         n += 1;
     };
