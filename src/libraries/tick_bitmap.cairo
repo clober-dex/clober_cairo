@@ -11,8 +11,14 @@ pub struct TickBitmap {
     pub low: Felt252Dict<u128>,
 }
 
+impl TickBitmapDefaultImpl of Default<TickBitmap> {
+    fn default() -> TickBitmap {
+        TickBitmap { hi: Default::default(), low: Default::default() }
+    }
+}
+
 #[generate_trait]
-impl TickBitmapImpl of TickBitmapTrait {
+pub impl TickBitmapImpl of TickBitmapTrait {
     fn has(ref bitmap: TickBitmap, tick: Tick) -> bool {
         let (b0b1, b2) = Self::_split(tick);
         let mask: u256 = fast_power(2, (b2)).into();
