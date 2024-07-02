@@ -1,7 +1,4 @@
 pub mod SegmentedSegmentTree {
-    use core::traits::TryInto;
-    use core::array::ArrayTrait;
-    use core::traits::Into;
     use clober_cairo::libraries::packed_felt252::get_u62;
     use clober_cairo::libraries::packed_felt252::sum_u62;
     use clober_cairo::libraries::packed_felt252::update_62;
@@ -181,7 +178,6 @@ pub mod SegmentedSegmentTree {
 
 #[cfg(test)]
 mod tests {
-    use core::traits::Into;
     use super::SegmentedSegmentTree;
 
     fn _init(ref layers: Felt252Dict<felt252>) {
