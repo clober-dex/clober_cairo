@@ -1,6 +1,6 @@
 #[starknet::component]
 mod Lockers {
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, contract_address_const};
     use starknet::storage::Map;
 
     #[storage]
@@ -59,16 +59,20 @@ mod Lockers {
 
         fn get_current_locker(ref self: ComponentState<TContractState>) -> ContractAddress {
             let length = self.length.read();
-            if length == 0 { // return ContractAddress::zero();
+            if length == 0 {
+                contract_address_const::<0>()
+            } else {
+                self.lockers.read(length - 1)
             }
-            self.lockers.read(length - 1)
         }
 
         fn get_current_lock_caller(ref self: ComponentState<TContractState>) -> ContractAddress {
             let length = self.length.read();
-            if length == 0 { // return ContractAddress::zero();
+            if length == 0 {
+                contract_address_const::<0>()
+            } else {
+                self.lock_callers.read(length - 1)
             }
-            self.lock_callers.read(length - 1)
         }
 
         fn increment_nonzero_delta_count(ref self: ComponentState<TContractState>) {
