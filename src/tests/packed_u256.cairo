@@ -1,4 +1,4 @@
-use clober_cairo::libraries::packed_u256::{get_u64, update_64, sub_u64};
+use clober_cairo::utils::packed_u256::{get_u64, update_64, sub_u64};
 
 #[test]
 fn test_get_u64() {

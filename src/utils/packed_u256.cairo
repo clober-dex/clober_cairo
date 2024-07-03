@@ -1,4 +1,3 @@
-use starknet::storage_access::{StorePacking};
 use clober_cairo::utils::constants::{TWO_POW_64, MASK_64};
 
 pub fn get_u64(packed: u256, n: u8) -> u64 {

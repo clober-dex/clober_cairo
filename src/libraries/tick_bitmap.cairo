@@ -1,6 +1,6 @@
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::alexandria::fast_power::fast_power;
-use clober_cairo::libraries::significant_bit::{SignificantBitImpl};
+use clober_cairo::utils::math::Math::least_significant_bit;
 use clober_cairo::utils::constants::{TWO_POW_128};
 
 const B0_BITMAP_KEY: felt252 = 'TickBitmap';
@@ -33,15 +33,10 @@ pub impl TickBitmapImpl of TickBitmapTrait {
     fn highest(ref bitmap: TickBitmap) -> Tick {
         assert(!Self::is_empty(ref bitmap), 'EmptyError');
 
-        let b0: u32 = SignificantBitImpl::least_significant_bit(
-            Self::_get(ref bitmap, B0_BITMAP_KEY)
-        )
-            .into();
+        let b0: u32 = least_significant_bit(Self::_get(ref bitmap, B0_BITMAP_KEY)).into();
         let b0b1: u32 = (b0 * 256)
-            | SignificantBitImpl::least_significant_bit(Self::_get(ref bitmap, (~b0).into()))
-                .into();
-        let b2: u32 = SignificantBitImpl::least_significant_bit(Self::_get(ref bitmap, b0b1.into()))
-            .into();
+            | least_significant_bit(Self::_get(ref bitmap, (~b0).into())).into();
+        let b2: u32 = least_significant_bit(Self::_get(ref bitmap, b0b1.into())).into();
         Self::_to_tick(b0b1, b2)
     }
 

@@ -1,4 +1,4 @@
-use clober_cairo::libraries::packed_felt252::{get_u62, update_62, add_u62, sub_u62};
+use clober_cairo::utils::packed_felt252::{get_u62, update_62, add_u62, sub_u62};
 
 #[test]
 fn test_get_u62() {

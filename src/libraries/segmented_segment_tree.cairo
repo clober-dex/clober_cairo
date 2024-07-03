@@ -1,7 +1,7 @@
 pub mod SegmentedSegmentTree {
-    use clober_cairo::libraries::packed_felt252::get_u62;
-    use clober_cairo::libraries::packed_felt252::sum_u62;
-    use clober_cairo::libraries::packed_felt252::update_62;
+    use clober_cairo::utils::packed_felt252::get_u62;
+    use clober_cairo::utils::packed_felt252::sum_u62;
+    use clober_cairo::utils::packed_felt252::update_62;
 
     #[derive(Copy, Drop, Serde, Debug)]
     struct LayerIndex {

@@ -7,7 +7,7 @@ pub mod packed_felt252;
 #[cfg(test)]
 pub mod segmented_segment_tree;
 #[cfg(test)]
-pub mod significant_bit;
+pub mod math;
 #[cfg(test)]
 pub mod tick_bitmap;
 #[cfg(test)]

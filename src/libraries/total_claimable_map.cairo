@@ -1,8 +1,8 @@
 use clober_cairo::libraries::tick::Tick;
-use clober_cairo::libraries::packed_felt252::update_62;
-use clober_cairo::libraries::packed_felt252::get_u62;
-use clober_cairo::libraries::packed_felt252::add_u62;
-use clober_cairo::libraries::packed_felt252::sub_u62;
+use clober_cairo::utils::packed_felt252::update_62;
+use clober_cairo::utils::packed_felt252::get_u62;
+use clober_cairo::utils::packed_felt252::add_u62;
+use clober_cairo::utils::packed_felt252::sub_u62;
 
 #[generate_trait]
 pub impl TotalClaimableMapImpl of TotalClaimableMapTrait {

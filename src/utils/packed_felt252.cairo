@@ -1,4 +1,3 @@
-use core::traits::Into;
 use clober_cairo::utils::constants::{TWO_POW_62, MASK_62};
 
 pub fn get_u62(packed: felt252, mut n: u8) -> u64 {
