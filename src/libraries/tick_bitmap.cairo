@@ -6,13 +6,13 @@ const B0_BITMAP_KEY: felt252 = 'TickBitmap';
 
 #[derive(Destruct)]
 pub struct TickBitmap {
-    pub hi: Felt252Dict<u128>,
+    pub high: Felt252Dict<u128>,
     pub low: Felt252Dict<u128>,
 }
 
 impl TickBitmapDefaultImpl of Default<TickBitmap> {
     fn default() -> TickBitmap {
-        TickBitmap { hi: Default::default(), low: Default::default() }
+        TickBitmap { high: Default::default(), low: Default::default() }
     }
 }
 
@@ -94,11 +94,11 @@ pub impl TickBitmapImpl of TickBitmapTrait {
     }
 
     fn _get(ref bitmap: TickBitmap, key: felt252) -> u256 {
-        bitmap.hi[key].into() * TWO_POW_128 + bitmap.low[key].into()
+        bitmap.high[key].into() * TWO_POW_128 + bitmap.low[key].into()
     }
 
     fn _set(ref bitmap: TickBitmap, key: felt252, value: u256) {
-        bitmap.hi.insert(key, (value / TWO_POW_128).try_into().unwrap());
+        bitmap.high.insert(key, (value / TWO_POW_128).try_into().unwrap());
         bitmap.low.insert(key, (value % TWO_POW_128).try_into().unwrap());
     }
 }
