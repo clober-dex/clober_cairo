@@ -1,6 +1,7 @@
 #[starknet::component]
 mod Lockers {
-    use starknet::{ContractAddress, contract_address_const};
+    use clober_cairo::utils::constants::ZERO_ADDRESS;
+    use starknet::ContractAddress;
     use starknet::storage::Map;
 
     #[storage]
@@ -60,7 +61,7 @@ mod Lockers {
         fn get_current_locker(ref self: ComponentState<TContractState>) -> ContractAddress {
             let length = self.length.read();
             if length == 0 {
-                contract_address_const::<0>()
+                ZERO_ADDRESS()
             } else {
                 self.lockers.read(length - 1)
             }
@@ -69,7 +70,7 @@ mod Lockers {
         fn get_current_lock_caller(ref self: ComponentState<TContractState>) -> ContractAddress {
             let length = self.length.read();
             if length == 0 {
-                contract_address_const::<0>()
+                ZERO_ADDRESS()
             } else {
                 self.lock_callers.read(length - 1)
             }
