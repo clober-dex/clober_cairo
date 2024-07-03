@@ -42,14 +42,14 @@ pub impl TickBitmapImpl of TickBitmapTrait {
     fn set(ref bitmap: TickBitmap, tick: Tick) {
         let (b0b1, b2) = Self::_split(tick);
         let mut mask: u256 = fast_power(2_u256, b2.into()).into();
-        let mut b2Bitmap = Self::_get(ref bitmap, b0b1.into());
+        let b2Bitmap = Self::_get(ref bitmap, b0b1.into());
         assert(b2Bitmap & mask == 0, 'AlreadyExistsError');
 
         Self::_set(ref bitmap, b0b1.into(), b2Bitmap | mask);
         if b2Bitmap == 0 {
             mask = fast_power(2_u256, (b0b1 & 0xff).into()).into();
             let b1BitmapKey = ~(b0b1 / 256);
-            let mut b1Bitmap = Self::_get(ref bitmap, b1BitmapKey.into());
+            let b1Bitmap = Self::_get(ref bitmap, b1BitmapKey.into());
             Self::_set(ref bitmap, b1BitmapKey.into(), b1Bitmap | mask);
             if b1Bitmap == 0 {
                 Self::_set(
@@ -65,12 +65,12 @@ pub impl TickBitmapImpl of TickBitmapTrait {
     fn clear(ref bitmap: TickBitmap, tick: Tick) {
         let (b0b1, b2) = Self::_split(tick);
         let mut mask: u256 = fast_power(2_u256, b2.into()).into();
-        let mut b2Bitmap = Self::_get(ref bitmap, b0b1.into());
+        let b2Bitmap = Self::_get(ref bitmap, b0b1.into());
         Self::_set(ref bitmap, b0b1.into(), b2Bitmap & (~mask));
         if b2Bitmap == mask {
             mask = fast_power(2_u256, (b0b1 & 0xff).into()).into();
             let b1BitmapKey = ~(b0b1 / 256);
-            let mut b1Bitmap = Self::_get(ref bitmap, b1BitmapKey.into());
+            let b1Bitmap = Self::_get(ref bitmap, b1BitmapKey.into());
             Self::_set(ref bitmap, b1BitmapKey.into(), b1Bitmap & (~mask));
             if mask == b1Bitmap {
                 mask = fast_power(2_u256, (~b1BitmapKey).into()).into();
@@ -82,7 +82,7 @@ pub impl TickBitmapImpl of TickBitmapTrait {
     }
 
     fn _split(tick: Tick) -> (u32, u32) {
-        let mut raw: u32 = (0x800000 - tick.value).try_into().unwrap();
+        let raw: u32 = (0x800000 - tick.value).try_into().unwrap();
         let b0b1 = (raw & 0xffff00) / 256;
         let b2 = raw & 0xff;
         (b0b1, b2)
