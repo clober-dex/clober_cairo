@@ -11,3 +11,7 @@ pub(crate) const MASK_64: u64 = 0xFFFFFFFFFFFFFFFF; // 2**64 - 1
 pub(crate) const MASK_62: u64 = 0x3fffffffffffffff; // 2**62 - 1
 
 pub(crate) const RATE_PRECISION: u32 = 1000000;
+
+pub(crate) const MAX_TICK: i32 = 0x7ffff;
+pub(crate) const MIN_TICK: i32 = -MAX_TICK;
+

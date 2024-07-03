@@ -2,10 +2,7 @@ use core::traits::Into;
 use clober_cairo::utils::math::Math::ln_wad;
 use clober_cairo::alexandria::i257::i257;
 use clober_cairo::alexandria::i257::I257Impl;
-use clober_cairo::utils::constants::{TWO_POW_192, TWO_POW_128, TWO_POW_96};
-
-const MAX_TICK: i32 = 0x7ffff;
-const MIN_TICK: i32 = -MAX_TICK;
+use clober_cairo::utils::constants::{TWO_POW_192, TWO_POW_128, TWO_POW_96, MIN_TICK, MAX_TICK};
 
 const MIN_PRICE: u256 = 1350587;
 const MAX_PRICE: u256 = 4647684107270898330752324302845848816923571339324334;
@@ -167,39 +164,5 @@ impl TickPartialOrd of PartialOrd<Tick> {
 
     fn gt(lhs: Tick, rhs: Tick) -> bool {
         lhs.value > rhs.value
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::Tick;
-    use super::TickImpl;
-    use super::MIN_TICK;
-    use super::MAX_TICK;
-
-    #[test]
-    fn test_tick_to_price() {
-        let tick = Tick { value: MIN_TICK };
-        let mut last_price = TickImpl::to_price(tick);
-        let mut price: u256 = 0;
-        let mut index = MIN_TICK + 1;
-        while index < MIN_TICK + 100 {
-            price = TickImpl::to_price(Tick { value: index });
-
-            let tick = TickImpl::from_price(price - 1);
-            assert_eq!(tick.value, index - 1, "LOWER_PRICE");
-
-            let tick = TickImpl::from_price(price);
-            assert_eq!(tick.value, index, "EXACT_PRICE");
-
-            let tick = TickImpl::from_price(price + 1);
-            assert_eq!(tick.value, index, "HIGHER_PRICE");
-
-            let spread = (price - last_price) * 1000000 / last_price;
-            assert!(spread >= 99);
-            assert!(spread <= 100);
-            last_price = price;
-            index += 1;
-        }
     }
 }

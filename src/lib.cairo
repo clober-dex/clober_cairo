@@ -18,7 +18,9 @@ pub mod alexandria {
 
 pub mod utils {
     pub mod math;
+    pub mod constants;
 }
 
 pub mod book_manager;
+pub mod tests;
 
