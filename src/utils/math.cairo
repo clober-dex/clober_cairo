@@ -2,8 +2,7 @@ pub mod Math {
     use clober_cairo::alexandria::i257::i257;
     use clober_cairo::alexandria::i257::I257Impl;
     use clober_cairo::alexandria::fast_power::fast_power;
-
-    const TWO_POW_96: u256 = 0x1000000000000000000000000; // 2**96
+    use clober_cairo::utils::constants::{TWO_POW_96};
 
     pub fn divide(a: u256, b: u256, rounding_up: bool) -> u256 {
         let mut result = a / b;
@@ -67,12 +66,12 @@ pub mod Math {
         // We leave p in 2**192 basis so we don't need to scale it back up for the division.
         // q is monic by convention.
         let mut q = x + 5573035233440673466300451813936;
-        q = (q * x) / TWO_POW_96 + 71694874799317883764090561454958;
-        q = (q * x) / TWO_POW_96 + 283447036172924575727196451306956;
-        q = (q * x) / TWO_POW_96 + 401686690394027663651624208769553;
-        q = (q * x) / TWO_POW_96 + 204048457590392012362485061816622;
-        q = (q * x) / TWO_POW_96 + 31853899698501571402653359427138;
-        q = (q * x) / TWO_POW_96 + 909429971244387300277376558375;
+        q = (q * x) / TWO_POW_96.into() + 71694874799317883764090561454958;
+        q = (q * x) / TWO_POW_96.into() + 283447036172924575727196451306956;
+        q = (q * x) / TWO_POW_96.into() + 401686690394027663651624208769553;
+        q = (q * x) / TWO_POW_96.into() + 204048457590392012362485061816622;
+        q = (q * x) / TWO_POW_96.into() + 31853899698501571402653359427138;
+        q = (q * x) / TWO_POW_96.into() + 909429971244387300277376558375;
 
         let x: i257 = x.into();
 

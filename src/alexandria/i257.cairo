@@ -350,6 +350,13 @@ impl U256IntoI257 of Into<u256, i257> {
     }
 }
 
+// Convert u128 to i257
+impl U128IntoI257 of Into<u128, i257> {
+    fn into(self: u128) -> i257 {
+        i257 { abs: self.into(), is_negative: false }
+    }
+}
+
 // Convert i128 to i257
 impl I128IntoI257 of Into<i128, i257> {
     fn into(self: i128) -> i257 {
