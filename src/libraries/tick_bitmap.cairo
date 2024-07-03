@@ -1,6 +1,5 @@
 use clober_cairo::libraries::tick::Tick;
-use clober_cairo::alexandria::fast_power::fast_power;
-use clober_cairo::utils::math::Math::least_significant_bit;
+use clober_cairo::utils::math::Math::{least_significant_bit, fast_power};
 use clober_cairo::utils::constants::{TWO_POW_128};
 
 const B0_BITMAP_KEY: felt252 = 'TickBitmap';

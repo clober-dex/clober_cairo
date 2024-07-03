@@ -1,8 +1,8 @@
 #[starknet::component]
 mod CurrencyDelta {
     use starknet::ContractAddress;
-    use clober_cairo::alexandria::i257::i257;
-    use clober_cairo::alexandria::i257::I257Impl;
+    use clober_cairo::libraries::i257::i257;
+    use clober_cairo::libraries::i257::I257Impl;
     use starknet::storage::Map;
     use core::starknet::storage::StoragePointerReadAccess;
     use core::starknet::storage::StoragePathEntry;
