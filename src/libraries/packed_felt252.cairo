@@ -1,27 +1,24 @@
 use core::traits::Into;
-use starknet::storage_access::{StorePacking};
-
-const TWO_POW_62: u256 = 0x4000000000000000; // 2**62
-const MASK_62: u256 = 0x3fffffffffffffff; // 2**62 - 1
+use clober_cairo::utils::constants::{TWO_POW_62, MASK_62};
 
 pub fn get_u62(packed: felt252, mut n: u8) -> u64 {
     assert(n < 4, 'Index out of bounds');
     let mut _packed: u256 = packed.into();
     while n > 0 {
-        _packed /= TWO_POW_62;
+        _packed /= TWO_POW_62.into();
         n -= 1;
     };
-    (_packed & MASK_62).try_into().unwrap()
+    (_packed & MASK_62.into()).try_into().unwrap()
 }
 
 pub fn update_62(packed: felt252, mut n: u8, value: u64) -> felt252 {
     assert(n < 4, 'Index out of bounds');
     let mut _packed: u256 = packed.into();
     let mut data: u256 = value.into();
-    let mut mask: u256 = MASK_62;
+    let mut mask: u256 = MASK_62.into();
     while n > 0 {
-        data *= TWO_POW_62;
-        mask *= TWO_POW_62;
+        data *= TWO_POW_62.into();
+        mask *= TWO_POW_62.into();
         n -= 1;
     };
     ((_packed & ~mask) + data).try_into().unwrap()
@@ -44,9 +41,9 @@ pub fn sum_u62(packed: felt252, mut s: u8, e: u8) -> u256 {
     let mut sum: u256 = 0;
     while n < e {
         if n >= s {
-            sum += (packed & MASK_62).try_into().unwrap();
+            sum += (packed & MASK_62.into()).try_into().unwrap();
         };
-        packed /= TWO_POW_62;
+        packed /= TWO_POW_62.into();
         n += 1;
     };
     sum

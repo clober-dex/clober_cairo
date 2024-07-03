@@ -1,10 +1,8 @@
+use core::traits::Into;
 use clober_cairo::utils::math::Math::ln_wad;
 use clober_cairo::alexandria::i257::i257;
 use clober_cairo::alexandria::i257::I257Impl;
-
-const TWO_POW_96: u256 = 0x1000000000000000000000000; // 2**96
-const TWO_POW_128: u256 = 0x100000000000000000000000000000000; // 2**128
-const TWO_POW_192: u256 = 0x1000000000000000000000000000000000000000000000000; // 2**192
+use clober_cairo::utils::constants::{TWO_POW_192, TWO_POW_128, TWO_POW_96};
 
 const MAX_TICK: i32 = 0x7ffff;
 const MIN_TICK: i32 = -MAX_TICK;
@@ -53,61 +51,61 @@ pub impl TickImpl of TickTrait {
         let mut price: u256 = if absTick & 0x1 != 0 {
             R0
         } else {
-            TWO_POW_96
+            TWO_POW_96.into()
         };
         if absTick & 0x2 != 0 {
-            price = (price * R1) / TWO_POW_96;
+            price = (price * R1) / TWO_POW_96.into();
         }
         if absTick & 0x4 != 0 {
-            price = (price * R2) / TWO_POW_96;
+            price = (price * R2) / TWO_POW_96.into();
         }
         if absTick & 0x8 != 0 {
-            price = (price * R3) / TWO_POW_96;
+            price = (price * R3) / TWO_POW_96.into();
         }
         if absTick & 0x10 != 0 {
-            price = (price * R4) / TWO_POW_96;
+            price = (price * R4) / TWO_POW_96.into();
         }
         if absTick & 0x20 != 0 {
-            price = (price * R5) / TWO_POW_96;
+            price = (price * R5) / TWO_POW_96.into();
         }
         if absTick & 0x40 != 0 {
-            price = (price * R6) / TWO_POW_96;
+            price = (price * R6) / TWO_POW_96.into();
         }
         if absTick & 0x80 != 0 {
-            price = (price * R7) / TWO_POW_96;
+            price = (price * R7) / TWO_POW_96.into();
         }
         if absTick & 0x100 != 0 {
-            price = (price * R8) / TWO_POW_96;
+            price = (price * R8) / TWO_POW_96.into();
         }
         if absTick & 0x200 != 0 {
-            price = (price * R9) / TWO_POW_96;
+            price = (price * R9) / TWO_POW_96.into();
         }
         if absTick & 0x400 != 0 {
-            price = (price * R10) / TWO_POW_96;
+            price = (price * R10) / TWO_POW_96.into();
         }
         if absTick & 0x800 != 0 {
-            price = (price * R11) / TWO_POW_96;
+            price = (price * R11) / TWO_POW_96.into();
         }
         if absTick & 0x1000 != 0 {
-            price = (price * R12) / TWO_POW_96;
+            price = (price * R12) / TWO_POW_96.into();
         }
         if absTick & 0x2000 != 0 {
-            price = (price * R13) / TWO_POW_96;
+            price = (price * R13) / TWO_POW_96.into();
         }
         if absTick & 0x4000 != 0 {
-            price = (price * R14) / TWO_POW_96;
+            price = (price * R14) / TWO_POW_96.into();
         }
         if absTick & 0x8000 != 0 {
-            price = (price * R15) / TWO_POW_96;
+            price = (price * R15) / TWO_POW_96.into();
         }
         if absTick & 0x10000 != 0 {
-            price = (price * R16) / TWO_POW_96;
+            price = (price * R16) / TWO_POW_96.into();
         }
         if absTick & 0x20000 != 0 {
-            price = (price * R17) / TWO_POW_96;
+            price = (price * R17) / TWO_POW_96.into();
         }
         if absTick & 0x40000 != 0 {
-            price = (price * R18) / TWO_POW_96;
+            price = (price * R18) / TWO_POW_96.into();
         }
         if tick.value > 0 {
             return TWO_POW_192 / price;
@@ -131,17 +129,17 @@ pub impl TickImpl of TickTrait {
     fn base_to_quote(tick: Tick, base: u256, rounding_up: bool) -> u256 {
         let price: u256 = Self::to_price(tick);
         if rounding_up {
-            return (base * price + TWO_POW_96 - 1) / TWO_POW_96;
+            return (base * price + TWO_POW_96.into() - 1) / TWO_POW_96.into();
         }
-        base * price / TWO_POW_96
+        base * price / TWO_POW_96.into()
     }
 
     fn quote_to_base(tick: Tick, quote: u256, rounding_up: bool) -> u256 {
         let price: u256 = Self::to_price(tick);
         if rounding_up {
-            return (quote * TWO_POW_96 + price - 1) / price;
+            return (quote * TWO_POW_96.into() + price - 1) / price;
         }
-        quote * TWO_POW_96 / price
+        quote * TWO_POW_96.into() / price
     }
 }
 

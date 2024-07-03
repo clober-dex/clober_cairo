@@ -1,9 +1,8 @@
 use starknet::storage_access::{StorePacking};
 use clober_cairo::utils::math::{Math};
+use clober_cairo::utils::constants::{RATE_PRECISION};
 
 const MAX_FEE_RATE: u32 = 500000;
-const RATE_PRECISION: u32 = 1000000;
-
 #[derive(Copy, Drop, Serde, Debug)]
 pub struct FeePolicy {
     pub uses_quote: bool,

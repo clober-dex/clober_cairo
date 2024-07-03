@@ -1,8 +1,8 @@
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::alexandria::fast_power::fast_power;
 use clober_cairo::libraries::significant_bit::{SignificantBitImpl};
+use clober_cairo::utils::constants::{TWO_POW_128};
 
-const TWO_POW_128: u256 = 0x100000000000000000000000000000000; // 2**128
 const B0_BITMAP_KEY: felt252 = 'TickBitmap';
 
 #[derive(Destruct)]

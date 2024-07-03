@@ -1,8 +1,5 @@
 use starknet::storage_access::{StorePacking};
-
-const TWO_POW_192: u256 = 0x1000000000000000000000000000000000000000000000000; // 2**192
-const TWO_POW_64: u256 = 0x10000000000000000; // 2**64
-const TWO_POW_40: u64 = 0x10000000000; // 2**40
+use clober_cairo::utils::constants::{TWO_POW_192, TWO_POW_64, TWO_POW_40};
 
 #[derive(Copy, Drop, Serde, Debug)]
 pub struct OrderId {

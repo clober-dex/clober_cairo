@@ -1,28 +1,26 @@
 use starknet::storage_access::{StorePacking};
-
-const TWO_POW_64: u256 = 0x10000000000000000; // 2**64
-const MASK_64: u256 = 0xFFFFFFFFFFFFFFFF; // 2**64 - 1
+use clober_cairo::utils::constants::{TWO_POW_64, MASK_64};
 
 pub fn get_u64(packed: u256, n: u8) -> u64 {
     assert(n < 4, 'Index out of bounds');
     let mut _packed = packed;
     let mut index = n;
     while index > 0 {
-        _packed /= TWO_POW_64;
+        _packed /= TWO_POW_64.into();
         index -= 1;
     };
-    (_packed & MASK_64).try_into().unwrap()
+    (_packed & MASK_64.into()).try_into().unwrap()
 }
 
 pub fn update_64(packed: u256, n: u8, value: u64) -> u256 {
     assert(n < 4, 'Index out of bounds');
     let mut _packed = packed;
     let mut data: u256 = value.into();
-    let mut mask: u256 = MASK_64;
+    let mut mask: u256 = MASK_64.into();
     let mut index = n;
     while index > 0 {
-        data *= TWO_POW_64;
-        mask *= TWO_POW_64;
+        data *= TWO_POW_64.into();
+        mask *= TWO_POW_64.into();
         index -= 1;
     };
     (packed & ~mask) + data

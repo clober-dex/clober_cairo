@@ -9,8 +9,6 @@ pub mod SegmentedSegmentTree {
         pub node: u8
     }
 
-    const TWO_POW_16: u256 = 0x10000; // 2**16
-
     //    const R: u256 = 2; // There are `2` root node groups
     //    const C: u256 = 4; // There are `4` children (each child is a node group of its own) for
     //    each node
