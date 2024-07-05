@@ -24,8 +24,9 @@ pub impl TotalClaimableMapImpl of TotalClaimableMapTrait {
     }
 
     fn _split_tick(tick: Tick) -> (felt252, u8) {
-        let groupIndex: felt252 = (tick.value / 4).into();
-        let elementIndex: u8 = (tick.value % 4).try_into().unwrap();
+        let value: u32 = (tick.value + 0x80000).try_into().unwrap();
+        let groupIndex: felt252 = (value / 4).into();
+        let elementIndex: u8 = (value % 4).try_into().unwrap();
         (groupIndex, elementIndex)
     }
 }

@@ -11,6 +11,7 @@ pub fn get_u62(packed: felt252, mut n: u8) -> u64 {
 }
 
 pub fn update_62(packed: felt252, mut n: u8, value: u64) -> felt252 {
+    assert(value < TWO_POW_62, 'Invalid value');
     assert(n < 4, 'Index out of bounds');
     let mut _packed: u256 = packed.into();
     let mut data: u256 = value.into();

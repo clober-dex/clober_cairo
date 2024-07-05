@@ -82,14 +82,14 @@ pub impl TickBitmapImpl of TickBitmapTrait {
     }
 
     fn _split(tick: Tick) -> (u32, u32) {
-        let raw: u32 = (0x800000 - tick.value).try_into().unwrap();
+        let raw: u32 = (0x80000 - tick.value).try_into().unwrap();
         let b0b1 = (raw & 0xffff00) / 256;
         let b2 = raw & 0xff;
         (b0b1, b2)
     }
 
     fn _to_tick(b0b1: u32, b2: u32) -> Tick {
-        let value: i32 = 0x800000 - (b0b1 * 256 + b2).try_into().unwrap();
+        let value: i32 = 0x80000 - (b0b1 * 256 + b2).try_into().unwrap();
         Tick { value }
     }
 
