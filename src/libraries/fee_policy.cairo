@@ -4,7 +4,7 @@ use clober_cairo::utils::constants::{RATE_PRECISION};
 
 const MAX_FEE_RATE: u32 = 500000;
 
-#[derive(Copy, Drop, Serde, Debug)]
+#[derive(Copy, Drop, Serde, Debug, Hash)]
 pub struct FeePolicy {
     pub uses_quote: bool,
     pub sign: bool,

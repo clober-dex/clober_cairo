@@ -8,6 +8,7 @@ pub mod components {
 }
 
 pub mod libraries {
+    pub mod book_key;
     pub mod fee_policy;
     pub mod order_id;
     pub mod tick;
