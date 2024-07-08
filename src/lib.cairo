@@ -10,6 +10,7 @@ pub mod components {
 pub mod libraries {
     pub mod book_key;
     pub mod fee_policy;
+    pub mod hooks;
     pub mod order_id;
     pub mod tick;
     pub mod tick_bitmap;
