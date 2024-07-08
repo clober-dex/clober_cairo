@@ -26,7 +26,7 @@ fn sort<T, +Copy<T>, +Drop<T>, +PartialOrd<T>>(mut array: Span<T>) -> Array<T> {
             idx2 = 1;
             sorted_iteration = true;
         } else {
-            if *array[idx1] <= *array[idx2] {
+            if *array[idx1] >= *array[idx2] {
                 sorted_array.append(*array[idx1]);
                 idx1 = idx2;
                 idx2 += 1;
@@ -227,9 +227,16 @@ fn test_clear() {
     let mut i = 0;
     while i < length {
         let number = *elements.at(i);
+        let max_less_than = TickBitmapImpl::max_less_than(ref bitmap, Tick { value: number }).value;
         assert!(TickBitmapImpl::has(ref bitmap, Tick { value: number }), "BEFORE_CLEAR");
         TickBitmapImpl::clear(ref bitmap, Tick { value: number });
         assert!(!TickBitmapImpl::has(ref bitmap, Tick { value: number }), "AFTER_CLEAR");
+        if !TickBitmapImpl::is_empty(ref bitmap) {
+            let highest = TickBitmapImpl::highest(ref bitmap).value;
+            assert_eq!(max_less_than, highest, "ASSERT_MAX_LESS_THAN");
+        } else {
+            assert_eq!(max_less_than, -524288, "ASSERT_MAX_LESS_THAN");
+        }
         i += 1;
     }
 }
@@ -265,7 +272,7 @@ fn _set(ref bitmap: TickBitmap, numbers: Array<i32>) -> Array<i32> {
         elements.append(number);
         assert!(TickBitmapImpl::has(ref bitmap, Tick { value: number }), "AFTER_PUSH");
         let highest = TickBitmapImpl::highest(ref bitmap).value;
-        assert_eq!(max, highest, "ASSERT_MIN");
+        assert_eq!(max, highest, "ASSERT_MAX");
         i += 1;
     };
     elements

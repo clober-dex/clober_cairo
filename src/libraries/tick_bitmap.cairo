@@ -1,6 +1,6 @@
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::utils::math::Math::{least_significant_bit, fast_power};
-use clober_cairo::utils::constants::{TWO_POW_128};
+use clober_cairo::utils::constants::{TWO_POW_128, MIN_TICK};
 
 const B0_BITMAP_KEY: felt252 = 'TickBitmap';
 
@@ -79,6 +79,31 @@ pub impl TickBitmapImpl of TickBitmapTrait {
                 );
             }
         }
+    }
+
+    fn max_less_than(ref bitmap: TickBitmap, tick: Tick) -> Tick {
+        let (mut b0b1, b2) = Self::_split(tick);
+        let mut mask: u256 = ~((fast_power(2_u256, b2.into()) - 1) * 2 + 1);
+        let mut b2Bitmap = Self::_get(ref bitmap, b0b1.into()) & mask;
+        if b2Bitmap == 0 {
+            let mut b0: u32 = b0b1 / 256;
+            let b1: u32 = b0b1 & 0xff;
+            mask = ~((fast_power(2_u256, b1.into()) - 1) * 2 + 1);
+            let mut b1Bitmap = Self::_get(ref bitmap, (~b0).into()) & mask;
+            if b1Bitmap == 0 {
+                mask = ~((fast_power(2_u256, b0.into()) - 1) * 2 + 1);
+                let b0Bitmap = Self::_get(ref bitmap, B0_BITMAP_KEY) & mask;
+                if b0Bitmap == 0 {
+                    return Tick { value: MIN_TICK - 1 };
+                }
+                b0 = least_significant_bit(b0Bitmap).into();
+                b1Bitmap = Self::_get(ref bitmap, (~b0).into());
+            }
+            b0b1 = (b0 * 256) | least_significant_bit(b1Bitmap).into();
+            b2Bitmap = Self::_get(ref bitmap, b0b1.into());
+        }
+        let b2 = least_significant_bit(b2Bitmap).into();
+        Self::_to_tick(b0b1, b2)
     }
 
     fn _split(tick: Tick) -> (u32, u32) {
