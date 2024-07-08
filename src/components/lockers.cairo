@@ -8,7 +8,6 @@ mod Lockers {
     struct Storage {
         lockers: Map<u128, ContractAddress>, // use Array<ContractAddress>,
         lock_callers: Map<u128, ContractAddress>,
-        // optimistic storage
         length: u128,
         non_zero_delta_count: u128
     }
@@ -29,13 +28,12 @@ mod Lockers {
         }
 
         fn pop(ref self: ComponentState<TContractState>) {
-            let length = self.length.read();
-            assert(length > 0, 'LOCKER_POP_FAILED');
+            let length = self.length.read() - 1;
+            // assert(length > 0, 'LOCKER_POP_FAILED');
 
-            // let locker = self.lockers.read(length);
-            // let lock_caller = self.lock_callers.read(length);
-            self.length.write(length - 1);
-            // check if it's better to reset locker and lock_caller
+            self.lockers.write(length, ZERO_ADDRESS());
+            self.lock_callers.write(length, ZERO_ADDRESS());
+            self.length.write(length);
         }
 
         fn lock_data(ref self: ComponentState<TContractState>) -> (u128, u128) {
