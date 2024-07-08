@@ -26,7 +26,7 @@ const R16: u256 = 0x5d6af8dedb81196699c329;
 const R17: u256 = 0x2216e584f5fa1ea92604;
 const R18: u256 = 0x48a170391f7dc42;
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Debug)]
 pub struct Tick {
     pub value: i32,
 }
