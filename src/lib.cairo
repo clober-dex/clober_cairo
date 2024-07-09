@@ -9,6 +9,7 @@ pub mod components {
 }
 
 pub mod interfaces {
+    pub mod currency_delta;
     pub mod hook_caller;
     pub mod params;
 }
