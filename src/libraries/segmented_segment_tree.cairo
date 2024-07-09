@@ -27,7 +27,7 @@ pub mod SegmentedSegmentTree {
     }
 
     pub fn total(ref layers: Felt252Dict<felt252>) -> u256 {
-        sum_u62(layers[0], 0, 4) + sum_u62(layers[1], 0, 4)
+        sum_u62(layers[0], 0, P.into()) + sum_u62(layers[1], 0, P.into())
     }
 
     pub fn _get_layer_indices(index: u256) -> Array<LayerIndex> {
