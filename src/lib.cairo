@@ -4,10 +4,12 @@ pub mod contracts {
 
 pub mod components {
     pub mod currency_delta;
+    pub mod hook_caller;
     pub mod lockers;
 }
 
 pub mod interfaces {
+    pub mod hook_caller;
     pub mod params;
 }
 
