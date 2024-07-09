@@ -7,6 +7,10 @@ pub mod components {
     pub mod lockers;
 }
 
+pub mod interfaces {
+    pub mod params;
+}
+
 pub mod libraries {
     pub mod book_key;
     pub mod fee_policy;

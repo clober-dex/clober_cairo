@@ -4,7 +4,7 @@ use core::hash::{HashStateTrait, HashStateExTrait};
 use clober_cairo::libraries::fee_policy::FeePolicy;
 use clober_cairo::libraries::hooks::Hooks;
 
-#[derive(Copy, Drop, Hash)]
+#[derive(Copy, Drop, Hash, Serde)]
 pub struct BookKey {
     base: ContractAddress,
     unit_size: u64,
