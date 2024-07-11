@@ -39,8 +39,8 @@ pub mod BookManager {
     impl HookCallerImpl = HookCaller::HookCallerImpl<ContractState>;
     impl HookCallerInternalImpl = HookCaller::InternalImpl<ContractState>;
 
-    // #[abi(embed_v0)]
-    // impl LockersImpl = Lockers::LockersImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl LockersImpl = Lockers::LockersImpl<ContractState>;
     impl LockersInternalImpl = Lockers::InternalImpl<ContractState>;
 
     #[storage]

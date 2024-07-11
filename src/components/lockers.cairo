@@ -1,6 +1,7 @@
 #[starknet::component]
 pub mod Lockers {
     use clober_cairo::utils::constants::ZERO_ADDRESS;
+    use clober_cairo::interfaces::lockers::ILockers;
     use starknet::ContractAddress;
     use starknet::storage::Map;
 
@@ -10,6 +11,21 @@ pub mod Lockers {
         lock_callers: Map<u128, ContractAddress>,
         length: u128,
         non_zero_delta_count: u128
+    }
+
+    #[embeddable_as(Lockers)]
+    pub impl LockersImpl<
+        TContractState, +HasComponent<TContractState>
+    > of ILockers<ComponentState<TContractState>> {
+        fn get_lock(
+            self: @ComponentState<TContractState>, i: u128
+        ) -> (ContractAddress, ContractAddress) {
+            (self.get_locker(i), self.get_lock_caller(i))
+        }
+
+        fn get_lock_data(self: @ComponentState<TContractState>) -> (u128, u128) {
+            self.lock_data()
+        }
     }
 
     #[generate_trait]
