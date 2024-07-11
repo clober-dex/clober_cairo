@@ -1,25 +1,22 @@
-fn main() -> u32 {
-    fib(16)
+pub mod libraries {
+    pub mod currency_delta;
+    pub mod fee_policy;
+    pub mod lockers;
+    pub mod order_id;
+    pub mod packed_u256;
+    pub mod tick;
+    pub mod tick_bitmap;
+    pub mod significant_bit;
 }
 
-fn fib(mut n: u32) -> u32 {
-    let mut a: u32 = 0;
-    let mut b: u32 = 1;
-    while n != 0 {
-        n = n - 1;
-        let temp = b;
-        b = a + b;
-        a = temp;
-    };
-    a
+pub mod alexandria {
+    pub mod fast_power;
+    pub mod i257;
 }
 
-#[cfg(test)]
-mod tests {
-    use super::fib;
-
-    #[test]
-    fn it_works() {
-        assert(fib(16) == 987, 'it works!');
-    }
+pub mod utils {
+    pub mod math;
 }
+
+pub mod book_manager;
+

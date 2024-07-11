@@ -2,7 +2,28 @@
 name = "clober_cairo"
 version = "0.1.0"
 edition = "2023_11"
-
-# See more keys and their definitions at https://docs.swmansion.com/scarb/docs/reference/manifest.html
+cairo-version = "2.6.3"
+authors = ["Clober <dev@clober.io>"]
+description = "Core Contracts written in Cairo for StarkNet"
+readme = "README.md"
+repository = "https://github.com/clober-dex/clober_cairo"
+# license-file = "LICENSE"
 
 [dependencies]
+starknet = "2.6.3"
+
+[dev-dependencies]
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.25.0" }
+
+[tool.snforge]
+fuzzer_runs = 1000
+# exit_first = true # Exit on first error.
+
+# Use with `--profile myprofile`
+# [sncast.myprofile] # or [sncast.default].
+# account = "user"
+# accounts-file = "~/my_accounts.json"
+# url = "http://127.0.0.1:5050/rpc"
+
+[scripts]
+test = "snforge test"
