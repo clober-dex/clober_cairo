@@ -1,7 +1,3 @@
-pub mod contracts {
-    pub mod book_manager;
-}
-
 pub mod components {
     pub mod currency_delta;
     pub mod hook_caller;
@@ -52,3 +48,4 @@ pub mod tests {
     pub mod total_claimable_map;
 }
 
+pub mod book_manager;
