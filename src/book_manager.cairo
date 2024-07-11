@@ -22,6 +22,7 @@ trait IBookManager<TContractState> {
 
 #[starknet::contract]
 pub mod BookManager {
+    use starknet::storage::Map;
     use clober_cairo::components::currency_delta::CurrencyDelta;
     use clober_cairo::components::hook_caller::HookCaller;
     use clober_cairo::components::lockers::Lockers;
@@ -53,6 +54,11 @@ pub mod BookManager {
         hook_caller: HookCaller::Storage,
         #[substorage(v0)]
         lockers: Lockers::Storage,
+        contract_uri: ByteArray,
+        default_provier: ContractAddress,
+        reserves_of: Map<ContractAddress, u256>,
+        is_whitelisted: Map<ContractAddress, bool>,
+        token_owed: Map<(ContractAddress, ContractAddress), u256>,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -162,7 +168,9 @@ pub mod BookManager {
         contract_uri: ByteArray,
         name: felt252,
         symbol: felt252,
-    ) {}
+    ) {
+        self.contract_uri.write(contract_uri);
+    }
 
     #[abi(embed_v0)]
     impl BookManagerImpl of super::IBookManager<ContractState> {
