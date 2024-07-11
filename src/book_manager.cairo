@@ -6,7 +6,9 @@ use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams};
 trait IBookManager<TContractState> {
     fn open(ref self: TContractState, key: BookKey, hook_data: Span<felt252>);
     fn lock(ref self: TContractState, locker: ContractAddress, data: Span<felt252>);
-    fn make(ref self: TContractState, params: MakeParams, hook_data: Span<felt252>) -> (felt252, u256);
+    fn make(
+        ref self: TContractState, params: MakeParams, hook_data: Span<felt252>
+    ) -> (felt252, u256);
     fn take(ref self: TContractState, params: TakeParams, hook_data: Span<felt252>) -> (u256, u256);
     fn cancel(ref self: TContractState, params: CancelParams, hook_data: Span<felt252>) -> u256;
     fn claim(ref self: TContractState, id: felt252, hook_data: Span<felt252>) -> u256;
@@ -70,9 +72,7 @@ pub mod BookManager {
         contract_uri: ByteArray,
         name: felt252,
         symbol: felt252,
-    ) {
-
-    }
+    ) {}
 
     #[external(v0)]
     fn hi(self: @ContractState) {
@@ -89,12 +89,16 @@ pub mod BookManager {
             panic!("Not implemented");
         }
 
-        fn make(ref self: ContractState, params: MakeParams, hook_data: Span<felt252>) -> (felt252, u256) {
+        fn make(
+            ref self: ContractState, params: MakeParams, hook_data: Span<felt252>
+        ) -> (felt252, u256) {
             panic!("Not implemented");
             (0, 0)
         }
 
-        fn take(ref self: ContractState, params: TakeParams, hook_data: Span<felt252>) -> (u256, u256) {
+        fn take(
+            ref self: ContractState, params: TakeParams, hook_data: Span<felt252>
+        ) -> (u256, u256) {
             panic!("Not implemented");
             (0, 0)
         }
