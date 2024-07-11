@@ -1,7 +1,7 @@
 #[starknet::component]
 mod CurrencyDelta {
     use starknet::ContractAddress;
-    use clober_cairo::interfaces::currency_delta::ICurrencyDeltaCaller;
+    use clober_cairo::interfaces::currency_delta::ICurrencyDelta;
     use clober_cairo::libraries::i257::{i257, I257Impl};
     use starknet::storage::Map;
     use core::starknet::storage::{StoragePointerReadAccess, StoragePathEntry};
@@ -14,7 +14,7 @@ mod CurrencyDelta {
     #[embeddable_as(CurrencyDelta)]
     impl CurrencyDeltaImpl<
         TContractState, +HasComponent<TContractState>
-    > of ICurrencyDeltaCaller<ComponentState<TContractState>> {
+    > of ICurrencyDelta<ComponentState<TContractState>> {
         fn get_currency_delta(
             self: @ComponentState<TContractState>,
             locker: ContractAddress,
