@@ -35,15 +35,15 @@ pub mod BookManager {
     component!(path: Lockers, storage: lockers, event: LockersEvent);
 
     #[abi(embed_v0)]
-    impl CurrencyDeltaImpl = CurrencyDelta::CurrencyDeltaImpl<ContractState>;
+    impl CurrencyDeltaImpl = CurrencyDelta::CurrencyDelta<ContractState>;
     impl CurrencyDeltaInternalImpl = CurrencyDelta::InternalImpl<ContractState>;
 
     #[abi(embed_v0)]
-    impl HookCallerImpl = HookCaller::HookCallerImpl<ContractState>;
+    impl HookCallerImpl = HookCaller::HookCaller<ContractState>;
     impl HookCallerInternalImpl = HookCaller::InternalImpl<ContractState>;
 
     #[abi(embed_v0)]
-    impl LockersImpl = Lockers::LockersImpl<ContractState>;
+    impl LockersImpl = Lockers::Lockers<ContractState>;
     impl LockersInternalImpl = Lockers::InternalImpl<ContractState>;
 
     #[storage]
