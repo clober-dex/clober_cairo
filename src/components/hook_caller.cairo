@@ -16,7 +16,7 @@ pub mod HookCaller {
     }
 
     #[embeddable_as(HookCaller)]
-    impl HookCallerImpl<
+    pub impl HookCallerImpl<
         TContractState, +HasComponent<TContractState>
     > of IHookCaller<ComponentState<TContractState>> {
         fn get_current_hook(self: @ComponentState<TContractState>) -> ContractAddress {

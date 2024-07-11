@@ -1,5 +1,5 @@
 #[starknet::component]
-mod Lockers {
+pub mod Lockers {
     use clober_cairo::utils::constants::ZERO_ADDRESS;
     use starknet::ContractAddress;
     use starknet::storage::Map;
