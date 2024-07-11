@@ -25,6 +25,8 @@ pub mod BookManager {
     use clober_cairo::components::currency_delta::CurrencyDelta;
     use clober_cairo::components::hook_caller::HookCaller;
     use clober_cairo::components::lockers::Lockers;
+    use clober_cairo::libraries::fee_policy::FeePolicy;
+    use clober_cairo::libraries::tick::Tick;
     use super::{ContractAddress, BookKey, MakeParams, TakeParams, CancelParams};
 
     component!(path: CurrencyDelta, storage: currency_delta, event: CurrencyDeltaEvent);
@@ -53,6 +55,85 @@ pub mod BookManager {
         lockers: Lockers::Storage,
     }
 
+    #[derive(Drop, starknet::Event)]
+    struct Open {
+        #[key]
+        pub id: felt252,
+        #[key]
+        pub base: ContractAddress,
+        #[key]
+        pub quote: ContractAddress,
+        pub unit_size: u64,
+        pub maker_policy: FeePolicy,
+        pub taker_policy: FeePolicy,
+        pub hooks: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Make {
+        #[key]
+        pub book_id: felt252,
+        #[key]
+        pub user: ContractAddress,
+        pub tick: i32,
+        pub order_index: u64,
+        pub unit: u64,
+        pub provider: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Take {
+        #[key]
+        pub book_id: felt252,
+        #[key]
+        pub user: ContractAddress,
+        pub tick: i32,
+        pub unit: u64,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Cancel {
+        #[key]
+        pub order_id: felt252,
+        pub unit: u64,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Claim {
+        #[key]
+        pub order_id: felt252,
+        pub unit: u64,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Collect {
+        #[key]
+        pub provider: ContractAddress,
+        #[key]
+        pub recipient: ContractAddress,
+        #[key]
+        pub currency: ContractAddress,
+        pub amount: u256,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Whitelist {
+        #[key]
+        pub provider: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Delist {
+        #[key]
+        pub provider: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct SetDefaultProvider {
+        #[key]
+        pub provider: ContractAddress,
+    }
+
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
@@ -62,6 +143,15 @@ pub mod BookManager {
         HookCallerEvent: HookCaller::Event,
         #[flat]
         LockersEvent: Lockers::Event,
+        Open: Open,
+        Make: Make,
+        Take: Take,
+        Cancel: Cancel,
+        Claim: Claim,
+        Collect: Collect,
+        Whitelist: Whitelist,
+        Delist: Delist,
+        SetDefaultProvider: SetDefaultProvider,
     }
 
     #[constructor]
@@ -73,11 +163,6 @@ pub mod BookManager {
         name: felt252,
         symbol: felt252,
     ) {}
-
-    #[external(v0)]
-    fn hi(self: @ContractState) {
-        panic!("Not implemented");
-    }
 
     #[abi(embed_v0)]
     impl BookManagerImpl of super::IBookManager<ContractState> {
