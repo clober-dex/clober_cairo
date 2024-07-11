@@ -36,27 +36,25 @@ pub mod Lockers {
             self.length.write(length);
         }
 
-        fn lock_data(ref self: ComponentState<TContractState>) -> (u128, u128) {
+        fn lock_data(self: @ComponentState<TContractState>) -> (u128, u128) {
             let length = self.length.read();
             let non_zero_delta_count = self.non_zero_delta_count.read();
             (length, non_zero_delta_count)
         }
 
-        fn length(ref self: ComponentState<TContractState>) -> u128 {
+        fn length(self: @ComponentState<TContractState>) -> u128 {
             self.length.read()
         }
 
-        fn get_locker(ref self: ComponentState<TContractState>, index: u128) -> ContractAddress {
+        fn get_locker(self: @ComponentState<TContractState>, index: u128) -> ContractAddress {
             self.lockers.read(index)
         }
 
-        fn get_lock_caller(
-            ref self: ComponentState<TContractState>, index: u128
-        ) -> ContractAddress {
+        fn get_lock_caller(self: @ComponentState<TContractState>, index: u128) -> ContractAddress {
             self.lock_callers.read(index)
         }
 
-        fn get_current_locker(ref self: ComponentState<TContractState>) -> ContractAddress {
+        fn get_current_locker(self: @ComponentState<TContractState>) -> ContractAddress {
             let length = self.length.read();
             if length == 0 {
                 ZERO_ADDRESS()
@@ -65,7 +63,7 @@ pub mod Lockers {
             }
         }
 
-        fn get_current_lock_caller(ref self: ComponentState<TContractState>) -> ContractAddress {
+        fn get_current_lock_caller(self: @ComponentState<TContractState>) -> ContractAddress {
             let length = self.length.read();
             if length == 0 {
                 ZERO_ADDRESS()

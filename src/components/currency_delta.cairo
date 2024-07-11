@@ -29,7 +29,7 @@ pub mod CurrencyDelta {
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
         fn get(
-            ref self: ComponentState<TContractState>,
+            self: @ComponentState<TContractState>,
             locker: ContractAddress,
             currency: ContractAddress,
         ) -> i257 {
