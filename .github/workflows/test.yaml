@@ -3,9 +3,11 @@ name: Lint and test
 on:
   pull_request:
     branches:
+    - dev
     - master
   push:
     branches:
+    - dev
     - master
 
 jobs:
