@@ -16,6 +16,7 @@ pub mod interfaces {
 
 pub mod libraries {
     pub mod book_key;
+    pub mod book;
     pub mod fee_policy;
     pub mod hooks;
     pub mod order_id;
