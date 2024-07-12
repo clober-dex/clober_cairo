@@ -6,12 +6,12 @@ use clober_cairo::libraries::hooks::Hooks;
 
 #[derive(Copy, Drop, Hash, Serde)]
 pub struct BookKey {
-    base: ContractAddress,
-    unit_size: u64,
-    qutoe: ContractAddress,
-    maker_policy: FeePolicy,
-    hooks: Hooks,
-    taker_policy: FeePolicy,
+    pub base: ContractAddress,
+    pub unit_size: u64,
+    pub qutoe: ContractAddress,
+    pub maker_policy: FeePolicy,
+    pub hooks: Hooks,
+    pub taker_policy: FeePolicy,
 }
 
 #[generate_trait]
