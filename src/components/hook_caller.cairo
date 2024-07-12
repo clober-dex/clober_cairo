@@ -41,7 +41,7 @@ pub mod HookCaller {
             ref self: ComponentState<TContractState>,
             hooks: @Hooks,
             expected_selector: felt252,
-            data: Array<felt252>
+            hook_data: Span<felt252>
         ) {
             // @dev Set current hook here
             let length = self.length.read();
@@ -49,7 +49,7 @@ pub mod HookCaller {
             self.length.write(length + 1);
 
             let mut res = syscalls::call_contract_syscall(
-                *hooks.address, expected_selector, data.span()
+                *hooks.address, expected_selector, hook_data
             )
                 .unwrap_syscall();
 
@@ -66,16 +66,16 @@ pub mod HookCaller {
             ref self: ComponentState<TContractState>,
             hooks: @Hooks,
             key: @BookKey,
-            data: Array<felt252>
+            hook_data: Span<felt252>
         ) {
             if (hooks.has_permission(Permission::BEFORE_OPEN)) {
                 let caller = get_caller_address();
-                let mut call_data: Array<felt252> = ArrayTrait::new();
-                Serde::serialize(@caller, ref call_data);
-                Serde::serialize(key, ref call_data);
-                Serde::serialize(@data, ref call_data);
+                let mut data: Array<felt252> = ArrayTrait::new();
+                Serde::serialize(@caller, ref data);
+                Serde::serialize(key, ref data);
+                Serde::serialize(@hook_data, ref data);
 
-                self.call_hook(hooks, selector!("before_open"), data);
+                self.call_hook(hooks, selector!("before_open"), data.span());
             }
         }
 
@@ -83,16 +83,16 @@ pub mod HookCaller {
             ref self: ComponentState<TContractState>,
             hooks: @Hooks,
             key: @BookKey,
-            data: Array<felt252>
+            hook_data: Array<felt252>
         ) {
             if (hooks.has_permission(Permission::AFTER_OPEN)) {
                 let caller = get_caller_address();
-                let mut call_data: Array<felt252> = ArrayTrait::new();
-                Serde::serialize(@caller, ref call_data);
-                Serde::serialize(key, ref call_data);
-                Serde::serialize(@data, ref call_data);
+                let mut data: Array<felt252> = ArrayTrait::new();
+                Serde::serialize(@caller, ref data);
+                Serde::serialize(key, ref data);
+                Serde::serialize(@hook_data, ref data);
 
-                self.call_hook(hooks, selector!("after_open"), data);
+                self.call_hook(hooks, selector!("after_open"), data.span());
             }
         }
 
@@ -100,16 +100,16 @@ pub mod HookCaller {
             ref self: ComponentState<TContractState>,
             hooks: @Hooks,
             params: @MakeParams,
-            data: Array<felt252>
+            hook_data: Span<felt252>
         ) {
             if (hooks.has_permission(Permission::BEFORE_MAKE)) {
                 let caller = get_caller_address();
-                let mut call_data: Array<felt252> = ArrayTrait::new();
-                Serde::serialize(@caller, ref call_data);
-                Serde::serialize(params, ref call_data);
-                Serde::serialize(@data, ref call_data);
+                let mut data: Array<felt252> = ArrayTrait::new();
+                Serde::serialize(@caller, ref data);
+                Serde::serialize(params, ref data);
+                Serde::serialize(@data, ref data);
 
-                self.call_hook(hooks, selector!("before_make"), data);
+                self.call_hook(hooks, selector!("before_make"), data.span());
             }
         }
 
@@ -118,17 +118,17 @@ pub mod HookCaller {
             hooks: @Hooks,
             params: @MakeParams,
             order_id: felt252,
-            data: Array<felt252>
+            hook_data: Span<felt252>
         ) {
             if (hooks.has_permission(Permission::AFTER_MAKE)) {
                 let caller = get_caller_address();
-                let mut call_data: Array<felt252> = ArrayTrait::new();
-                Serde::serialize(@caller, ref call_data);
-                Serde::serialize(params, ref call_data);
-                Serde::serialize(@order_id, ref call_data);
-                Serde::serialize(@data, ref call_data);
+                let mut data: Array<felt252> = ArrayTrait::new();
+                Serde::serialize(@caller, ref data);
+                Serde::serialize(params, ref data);
+                Serde::serialize(@order_id, ref data);
+                Serde::serialize(@data, ref data);
 
-                self.call_hook(hooks, selector!("after_make"), data);
+                self.call_hook(hooks, selector!("after_make"), data.span());
             }
         }
 
@@ -136,16 +136,16 @@ pub mod HookCaller {
             ref self: ComponentState<TContractState>,
             hooks: @Hooks,
             params: @TakeParams,
-            data: Array<felt252>
+            hook_data: Span<felt252>
         ) {
             if (hooks.has_permission(Permission::BEFORE_TAKE)) {
                 let caller = get_caller_address();
-                let mut call_data: Array<felt252> = ArrayTrait::new();
-                Serde::serialize(@caller, ref call_data);
-                Serde::serialize(params, ref call_data);
-                Serde::serialize(@data, ref call_data);
+                let mut data: Array<felt252> = ArrayTrait::new();
+                Serde::serialize(@caller, ref data);
+                Serde::serialize(params, ref data);
+                Serde::serialize(@data, ref data);
 
-                self.call_hook(hooks, selector!("before_take"), data);
+                self.call_hook(hooks, selector!("before_take"), data.span());
             }
         }
 
@@ -154,17 +154,17 @@ pub mod HookCaller {
             hooks: @Hooks,
             params: @TakeParams,
             taken_unit: u64,
-            data: Array<felt252>
+            hook_data: Span<felt252>
         ) {
             if (hooks.has_permission(Permission::AFTER_TAKE)) {
                 let caller = get_caller_address();
-                let mut call_data: Array<felt252> = ArrayTrait::new();
-                Serde::serialize(@caller, ref call_data);
-                Serde::serialize(params, ref call_data);
-                Serde::serialize(@taken_unit, ref call_data);
-                Serde::serialize(@data, ref call_data);
+                let mut data: Array<felt252> = ArrayTrait::new();
+                Serde::serialize(@caller, ref data);
+                Serde::serialize(params, ref data);
+                Serde::serialize(@taken_unit, ref data);
+                Serde::serialize(@data, ref data);
 
-                self.call_hook(hooks, selector!("after_take"), data);
+                self.call_hook(hooks, selector!("after_take"), data.span());
             }
         }
 
@@ -172,16 +172,16 @@ pub mod HookCaller {
             ref self: ComponentState<TContractState>,
             hooks: @Hooks,
             params: @CancelParams,
-            data: Array<felt252>
+            hook_data: Span<felt252>
         ) {
             if (hooks.has_permission(Permission::BEFORE_CANCEL)) {
                 let caller = get_caller_address();
-                let mut call_data: Array<felt252> = ArrayTrait::new();
-                Serde::serialize(@caller, ref call_data);
-                Serde::serialize(params, ref call_data);
-                Serde::serialize(@data, ref call_data);
+                let mut data: Array<felt252> = ArrayTrait::new();
+                Serde::serialize(@caller, ref data);
+                Serde::serialize(params, ref data);
+                Serde::serialize(@data, ref data);
 
-                self.call_hook(hooks, selector!("before_cancel"), data);
+                self.call_hook(hooks, selector!("before_cancel"), data.span());
             }
         }
 
@@ -190,17 +190,17 @@ pub mod HookCaller {
             hooks: @Hooks,
             params: @CancelParams,
             canceled_unit: u64,
-            data: Array<felt252>
+            hook_data: Span<felt252>
         ) {
             if (hooks.has_permission(Permission::AFTER_CANCEL)) {
                 let caller = get_caller_address();
-                let mut call_data: Array<felt252> = ArrayTrait::new();
-                Serde::serialize(@caller, ref call_data);
-                Serde::serialize(params, ref call_data);
-                Serde::serialize(@canceled_unit, ref call_data);
-                Serde::serialize(@data, ref call_data);
+                let mut data: Array<felt252> = ArrayTrait::new();
+                Serde::serialize(@caller, ref data);
+                Serde::serialize(params, ref data);
+                Serde::serialize(@canceled_unit, ref data);
+                Serde::serialize(@data, ref data);
 
-                self.call_hook(hooks, selector!("after_cancel"), data);
+                self.call_hook(hooks, selector!("after_cancel"), data.span());
             }
         }
 
@@ -208,16 +208,16 @@ pub mod HookCaller {
             ref self: ComponentState<TContractState>,
             hooks: @Hooks,
             order_id: felt252,
-            data: Array<felt252>
+            hook_data: Span<felt252>
         ) {
             if (hooks.has_permission(Permission::BEFORE_CLAIM)) {
                 let caller = get_caller_address();
-                let mut call_data: Array<felt252> = ArrayTrait::new();
-                Serde::serialize(@caller, ref call_data);
-                Serde::serialize(@order_id, ref call_data);
-                Serde::serialize(@data, ref call_data);
+                let mut data: Array<felt252> = ArrayTrait::new();
+                Serde::serialize(@caller, ref data);
+                Serde::serialize(@order_id, ref data);
+                Serde::serialize(@data, ref data);
 
-                self.call_hook(hooks, selector!("before_claim"), data);
+                self.call_hook(hooks, selector!("before_claim"), data.span());
             }
         }
 
@@ -226,17 +226,17 @@ pub mod HookCaller {
             hooks: @Hooks,
             order_id: felt252,
             claimed_unit: u64,
-            data: Array<felt252>
+            hook_data: Span<felt252>
         ) {
             if (hooks.has_permission(Permission::AFTER_CLAIM)) {
                 let caller = get_caller_address();
-                let mut call_data: Array<felt252> = ArrayTrait::new();
-                Serde::serialize(@caller, ref call_data);
-                Serde::serialize(@order_id, ref call_data);
-                Serde::serialize(@claimed_unit, ref call_data);
-                Serde::serialize(@data, ref call_data);
+                let mut data: Array<felt252> = ArrayTrait::new();
+                Serde::serialize(@caller, ref data);
+                Serde::serialize(@order_id, ref data);
+                Serde::serialize(@claimed_unit, ref data);
+                Serde::serialize(@data, ref data);
 
-                self.call_hook(hooks, selector!("after_claim"), data);
+                self.call_hook(hooks, selector!("after_claim"), data.span());
             }
         }
     }
