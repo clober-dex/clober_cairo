@@ -357,9 +357,29 @@ impl U128IntoI257 of Into<u128, i257> {
     }
 }
 
+// Convert u32 to i257
+impl U32IntoI257 of Into<u32, i257> {
+    fn into(self: u32) -> i257 {
+        i257 { abs: self.into(), is_negative: false }
+    }
+}
+
 // Convert i128 to i257
 impl I128IntoI257 of Into<i128, i257> {
     fn into(self: i128) -> i257 {
+        if self < 0 {
+            let abs: u128 = (-self).try_into().unwrap();
+            i257 { abs: abs.into(), is_negative: true }
+        } else {
+            let abs: u128 = self.try_into().unwrap();
+            i257 { abs: abs.into(), is_negative: false }
+        }
+    }
+}
+
+// Convert i32 to i257
+impl I32IntoI257 of Into<i32, i257> {
+    fn into(self: i32) -> i257 {
         if self < 0 {
             let abs: u128 = (-self).try_into().unwrap();
             i257 { abs: abs.into(), is_negative: true }
