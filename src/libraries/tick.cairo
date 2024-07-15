@@ -33,13 +33,17 @@ pub struct Tick {
 
 #[generate_trait]
 pub impl TickImpl of TickTrait {
-    fn to_price(tick: Tick) -> u256 {
-        assert(tick.value >= MIN_TICK || tick.value <= MAX_TICK, 'invalid_tick');
+    fn validate(self: Tick) {
+        assert(self.value >= MIN_TICK || self.value <= MAX_TICK, 'invalid_tick');
+    }
 
-        let absTick: u32 = (if tick.value < 0 {
-            -tick.value
+    fn to_price(self: Tick) -> u256 {
+        self.validate();
+
+        let absTick: u32 = (if self.value < 0 {
+            -self.value
         } else {
-            tick.value
+            self.value
         })
             .try_into()
             .unwrap();
@@ -103,7 +107,7 @@ pub impl TickImpl of TickTrait {
         if absTick & 0x40000 != 0 {
             price = (price * R18) / TWO_POW_96.into();
         }
-        if tick.value > 0 {
+        if self.value > 0 {
             return TWO_POW_192 / price;
         }
         price
@@ -122,16 +126,16 @@ pub impl TickImpl of TickTrait {
         Tick { value: tick }
     }
 
-    fn base_to_quote(tick: Tick, base: u256, rounding_up: bool) -> u256 {
-        let price: u256 = Self::to_price(tick);
+    fn base_to_quote(self: Tick, base: u256, rounding_up: bool) -> u256 {
+        let price: u256 = Self::to_price(self);
         if rounding_up {
             return (base * price + TWO_POW_96.into() - 1) / TWO_POW_96.into();
         }
         base * price / TWO_POW_96.into()
     }
 
-    fn quote_to_base(tick: Tick, quote: u256, rounding_up: bool) -> u256 {
-        let price: u256 = Self::to_price(tick);
+    fn quote_to_base(self: Tick, quote: u256, rounding_up: bool) -> u256 {
+        let price: u256 = Self::to_price(self);
         if rounding_up {
             return (quote * TWO_POW_96.into() + price - 1) / price;
         }
