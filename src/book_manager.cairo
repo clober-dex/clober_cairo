@@ -22,13 +22,17 @@ trait IBookManager<TContractState> {
 
 #[starknet::contract]
 pub mod BookManager {
+    use clober_cairo::components::hook_caller::HookCaller::InternalTrait;
     use starknet::storage::Map;
+    use starknet::{get_caller_address};
     use clober_cairo::components::currency_delta::CurrencyDelta;
     use clober_cairo::components::hook_caller::HookCaller;
     use clober_cairo::components::lockers::Lockers;
-    use clober_cairo::libraries::fee_policy::FeePolicy;
+    use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
+    use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait};
     use clober_cairo::libraries::tick::Tick;
-    use super::{ContractAddress, BookKey, MakeParams, TakeParams, CancelParams};
+    use clober_cairo::libraries::hooks::{Hooks, HooksTrait};
+    use super::{ContractAddress, MakeParams, TakeParams, CancelParams};
 
     component!(path: CurrencyDelta, storage: currency_delta, event: CurrencyDeltaEvent);
     component!(path: HookCaller, storage: hook_caller, event: HookCallerEvent);
@@ -172,10 +176,52 @@ pub mod BookManager {
         self.contract_uri.write(contract_uri);
     }
 
+    fn _check_locker(self: @ContractState) {
+        let caller = get_caller_address();
+        let locker = self.lockers.get_current_locker();
+        let hook = self.hook_caller.get_current_hook();
+        assert(caller == locker || caller == hook, 'INVALID_LOCKER');
+    }
+
     #[abi(embed_v0)]
     impl BookManagerImpl of super::IBookManager<ContractState> {
         fn open(ref self: ContractState, key: BookKey, hook_data: Span<felt252>) {
-            panic!("Not implemented");
+            _check_locker(@self);
+            // @dev Also, the book opener should set unit size at least circulatingTotalSupply /
+            // type(uint64).max to avoid overflow.
+            //      But it is not checked here because it is not possible to check it without
+            //      knowing circulatingTotalSupply.
+            assert(key.unit_size > 0, 'INVALID_UNIT_SIZE');
+            assert(
+                key.maker_policy.is_valid() && key.taker_policy.is_valid(), 'INVALID_FEE_POLICY'
+            );
+            assert(key.maker_policy.rate + key.taker_policy.rate >= 0, 'INVALID_FEE_POLICY');
+            if (key.maker_policy.rate < 0 || key.taker_policy.rate < 0) {
+                assert(
+                    key.maker_policy.uses_quote == key.taker_policy.uses_quote, 'INVALID_FEE_POLICY'
+                );
+            }
+
+            assert(key.hooks.is_valid_hook_address(), 'INVALID_HOOKS');
+
+            self.hook_caller.before_open(@key.hooks, @key, hook_data);
+
+            let book_id = key.to_id();
+            // todo: store book key
+            self
+                .emit(
+                    Open {
+                        id: book_id,
+                        base: key.base,
+                        quote: key.quote,
+                        unit_size: key.unit_size,
+                        maker_policy: key.maker_policy,
+                        taker_policy: key.taker_policy,
+                        hooks: key.hooks.address
+                    }
+                );
+
+            self.hook_caller.after_open(@key.hooks, @key, hook_data);
         }
 
         fn lock(ref self: ContractState, locker: ContractAddress, data: Span<felt252>) {
