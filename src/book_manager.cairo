@@ -5,7 +5,9 @@ use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams};
 #[starknet::interface]
 trait IBookManager<TContractState> {
     fn open(ref self: TContractState, key: BookKey, hook_data: Span<felt252>);
-    fn lock(ref self: TContractState, locker: ContractAddress, data: Span<felt252>);
+    fn lock(
+        ref self: TContractState, locker: ContractAddress, data: Span<felt252>
+    ) -> Span<felt252>;
     fn make(
         ref self: TContractState, params: MakeParams, hook_data: Span<felt252>
     ) -> (felt252, u256);
@@ -22,9 +24,9 @@ trait IBookManager<TContractState> {
 
 #[starknet::contract]
 pub mod BookManager {
-    use clober_cairo::components::hook_caller::HookCaller::InternalTrait;
     use starknet::storage::Map;
     use starknet::{get_caller_address};
+    use clober_cairo::interfaces::locker::{ILockerDispatcher, ILockerDispatcherTrait};
     use clober_cairo::components::currency_delta::CurrencyDelta;
     use clober_cairo::components::hook_caller::HookCaller;
     use clober_cairo::components::lockers::Lockers;
@@ -224,8 +226,27 @@ pub mod BookManager {
             self.hook_caller.after_open(@key.hooks, @key, hook_data);
         }
 
-        fn lock(ref self: ContractState, locker: ContractAddress, data: Span<felt252>) {
-            panic!("Not implemented");
+        fn lock(
+            ref self: ContractState, locker: ContractAddress, data: Span<felt252>
+        ) -> Span<felt252> {
+            // Add the locker to the stack
+            let lock_caller = get_caller_address();
+            self.lockers.push(locker, lock_caller);
+
+            // The locker does everything in this callback, including paying what they owe via calls
+            // to settle
+            let locker_dispatcher = ILockerDispatcher {
+                contract_address: locker
+            }; // todo: call lock_acquired
+            let result = locker_dispatcher.lock_acquired(lock_caller, data);
+
+            // Remove the locker from the stack
+            self.lockers.pop();
+
+            let (length, nonzero_delta_count) = self.lockers.lock_data();
+            // @dev The locker must settle all currency balances to zero.
+            assert(length > 0 || nonzero_delta_count == 0, 'CURRENCY_NOT_SETTLED');
+            result
         }
 
         fn make(
