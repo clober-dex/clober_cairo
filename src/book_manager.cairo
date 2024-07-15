@@ -24,15 +24,18 @@ trait IBookManager<TContractState> {
 
 #[starknet::contract]
 pub mod BookManager {
+    use core::num::traits::zero::Zero;
     use starknet::storage::Map;
     use starknet::{get_caller_address};
     use clober_cairo::interfaces::locker::{ILockerDispatcher, ILockerDispatcherTrait};
     use clober_cairo::components::currency_delta::CurrencyDelta;
     use clober_cairo::components::hook_caller::HookCaller;
     use clober_cairo::components::lockers::Lockers;
+    use clober_cairo::libraries::i257::i257;
     use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
     use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait};
-    use clober_cairo::libraries::tick::Tick;
+    use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
+    use clober_cairo::libraries::tick::{Tick, TickTrait};
     use clober_cairo::libraries::hooks::{Hooks, HooksTrait};
     use super::{ContractAddress, MakeParams, TakeParams, CancelParams};
 
@@ -195,6 +198,21 @@ pub mod BookManager {
             let hook = self.hook_caller.get_current_hook();
             assert(caller == locker || caller == hook, Errors::INVALID_LOCKER);
         }
+
+        fn account_delta(ref self: ContractState, currency: ContractAddress, delta: i257) {
+            if (delta.is_zero()) {
+                return;
+            }
+
+            let locker = self.lockers.get_current_locker();
+            let next = self.currency_delta.add(locker, currency, delta);
+
+            if (next.is_zero()) {
+                self.lockers.decrement_nonzero_delta_count();
+            } else if (next == delta) {
+                self.lockers.increment_nonzero_delta_count();
+            }
+        }
     }
 
     #[abi(embed_v0)]
@@ -266,8 +284,47 @@ pub mod BookManager {
         fn make(
             ref self: ContractState, params: MakeParams, hook_data: Span<felt252>
         ) -> (felt252, u256) {
-            panic!("Not implemented");
-            (0, 0)
+            self.check_locker();
+
+            assert(
+                params.provider.is_zero() || self.is_whitelisted.read(params.provider),
+                Errors::INVALID_PROVIDER
+            );
+            params.tick.validate();
+
+            let book_id = params.key.to_id();
+            // book.check_opened();
+
+            self.hook_caller.before_make(@params.key.hooks, @params, hook_data);
+
+            let order_index: u64 = 0; // book.make(params.tick, params.unit, params.provider);
+            let order_id = (OrderId { book_id, tick: params.tick, index: order_index }).encode();
+            let mut quote_amount: u256 = params.unit.into() * params.key.unit_size.into();
+            let mut quote_delta: i257 = quote_amount.into();
+            if (params.key.maker_policy.uses_quote) {
+                quote_delta += params.key.maker_policy.calculate_fee(quote_amount, false);
+                quote_amount = quote_delta.try_into().unwrap();
+            }
+
+            self.account_delta(params.key.quote, -quote_delta);
+
+            // todo: _mint();
+
+            self
+                .emit(
+                    Make {
+                        book_id,
+                        user: get_caller_address(),
+                        tick: params.tick.value,
+                        order_index,
+                        unit: params.unit,
+                        provider: params.provider
+                    }
+                );
+
+            self.hook_caller.after_make(@params.key.hooks, @params, order_id, hook_data);
+
+            (order_id, quote_amount)
         }
 
         fn take(
