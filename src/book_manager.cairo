@@ -67,88 +67,9 @@ pub mod BookManager {
         token_owed: Map<(ContractAddress, ContractAddress), u256>,
     }
 
-    #[derive(Drop, starknet::Event)]
-    struct Open {
-        #[key]
-        pub id: felt252,
-        #[key]
-        pub base: ContractAddress,
-        #[key]
-        pub quote: ContractAddress,
-        pub unit_size: u64,
-        pub maker_policy: FeePolicy,
-        pub taker_policy: FeePolicy,
-        pub hooks: ContractAddress,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct Make {
-        #[key]
-        pub book_id: felt252,
-        #[key]
-        pub user: ContractAddress,
-        pub tick: i32,
-        pub order_index: u64,
-        pub unit: u64,
-        pub provider: ContractAddress,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct Take {
-        #[key]
-        pub book_id: felt252,
-        #[key]
-        pub user: ContractAddress,
-        pub tick: i32,
-        pub unit: u64,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct Cancel {
-        #[key]
-        pub order_id: felt252,
-        pub unit: u64,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct Claim {
-        #[key]
-        pub order_id: felt252,
-        pub unit: u64,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct Collect {
-        #[key]
-        pub provider: ContractAddress,
-        #[key]
-        pub recipient: ContractAddress,
-        #[key]
-        pub currency: ContractAddress,
-        pub amount: u256,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct Whitelist {
-        #[key]
-        pub provider: ContractAddress,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct Delist {
-        #[key]
-        pub provider: ContractAddress,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct SetDefaultProvider {
-        #[key]
-        pub provider: ContractAddress,
-    }
-
     #[event]
     #[derive(Drop, starknet::Event)]
-    enum Event {
+    pub enum Event {
         #[flat]
         CurrencyDeltaEvent: CurrencyDelta::Event,
         #[flat]
@@ -164,6 +85,85 @@ pub mod BookManager {
         Whitelist: Whitelist,
         Delist: Delist,
         SetDefaultProvider: SetDefaultProvider,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct Open {
+        #[key]
+        pub id: felt252,
+        #[key]
+        pub base: ContractAddress,
+        #[key]
+        pub quote: ContractAddress,
+        pub unit_size: u64,
+        pub maker_policy: FeePolicy,
+        pub taker_policy: FeePolicy,
+        pub hooks: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct Make {
+        #[key]
+        pub book_id: felt252,
+        #[key]
+        pub user: ContractAddress,
+        pub tick: i32,
+        pub order_index: u64,
+        pub unit: u64,
+        pub provider: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct Take {
+        #[key]
+        pub book_id: felt252,
+        #[key]
+        pub user: ContractAddress,
+        pub tick: i32,
+        pub unit: u64,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct Cancel {
+        #[key]
+        pub order_id: felt252,
+        pub unit: u64,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct Claim {
+        #[key]
+        pub order_id: felt252,
+        pub unit: u64,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct Collect {
+        #[key]
+        pub provider: ContractAddress,
+        #[key]
+        pub recipient: ContractAddress,
+        #[key]
+        pub currency: ContractAddress,
+        pub amount: u256,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct Whitelist {
+        #[key]
+        pub provider: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct Delist {
+        #[key]
+        pub provider: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct SetDefaultProvider {
+        #[key]
+        pub provider: ContractAddress,
     }
 
     #[constructor]
