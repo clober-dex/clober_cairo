@@ -15,9 +15,9 @@ pub struct BookKey {
 }
 
 #[generate_trait]
-impl BookKeyImpl of BookKeyTrait {
-    fn to_id(key: @BookKey) -> felt252 {
-        let hash = PoseidonTrait::new().update_with(*key).finalize();
+pub impl BookKeyImpl of BookKeyTrait {
+    fn to_id(self: BookKey) -> felt252 {
+        let hash = PoseidonTrait::new().update_with(self).finalize();
         // @dev Use 187 bits of the hash as the key.
         (hash.into() & 0x7ffffffffffffffffffffffffffffffffffffffffffffff_u256).try_into().unwrap()
     }
