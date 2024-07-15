@@ -166,6 +166,15 @@ pub mod BookManager {
         pub provider: ContractAddress,
     }
 
+    pub mod Errors {
+        pub const INVALID_UNIT_SIZE: felt252 = 'Invalid unit size';
+        pub const INVALID_FEE_POLICY: felt252 = 'Invalid fee policy';
+        pub const INVALID_PROVIDER: felt252 = 'Invalid provider';
+        pub const INVALID_LOCKER: felt252 = 'Invalid locker';
+        pub const INVALID_HOOKS: felt252 = 'Invalid hooks';
+        pub const CURRENCY_NOT_SETTLED: felt252 = 'Currency not settled';
+    }
+
     #[constructor]
     fn constructor(
         ref self: ContractState,
@@ -182,7 +191,7 @@ pub mod BookManager {
         let caller = get_caller_address();
         let locker = self.lockers.get_current_locker();
         let hook = self.hook_caller.get_current_hook();
-        assert(caller == locker || caller == hook, 'INVALID_LOCKER');
+        assert(caller == locker || caller == hook, Errors::INVALID_LOCKER);
     }
 
     #[abi(embed_v0)]
@@ -193,18 +202,20 @@ pub mod BookManager {
             // type(uint64).max to avoid overflow.
             //      But it is not checked here because it is not possible to check it without
             //      knowing circulatingTotalSupply.
-            assert(key.unit_size > 0, 'INVALID_UNIT_SIZE');
+            assert(key.unit_size > 0, Errors::INVALID_UNIT_SIZE);
             assert(
-                key.maker_policy.is_valid() && key.taker_policy.is_valid(), 'INVALID_FEE_POLICY'
+                key.maker_policy.is_valid() && key.taker_policy.is_valid(),
+                Errors::INVALID_FEE_POLICY
             );
-            assert(key.maker_policy.rate + key.taker_policy.rate >= 0, 'INVALID_FEE_POLICY');
+            assert(key.maker_policy.rate + key.taker_policy.rate >= 0, Errors::INVALID_FEE_POLICY);
             if (key.maker_policy.rate < 0 || key.taker_policy.rate < 0) {
                 assert(
-                    key.maker_policy.uses_quote == key.taker_policy.uses_quote, 'INVALID_FEE_POLICY'
+                    key.maker_policy.uses_quote == key.taker_policy.uses_quote,
+                    Errors::INVALID_FEE_POLICY
                 );
             }
 
-            assert(key.hooks.is_valid_hook_address(), 'INVALID_HOOKS');
+            assert(key.hooks.is_valid_hook_address(), Errors::INVALID_HOOKS);
 
             self.hook_caller.before_open(@key.hooks, @key, hook_data);
 
@@ -245,7 +256,7 @@ pub mod BookManager {
 
             let (length, nonzero_delta_count) = self.lockers.lock_data();
             // @dev The locker must settle all currency balances to zero.
-            assert(length > 0 || nonzero_delta_count == 0, 'CURRENCY_NOT_SETTLED');
+            assert(length > 0 || nonzero_delta_count == 0, Errors::CURRENCY_NOT_SETTLED);
             result
         }
 
