@@ -187,17 +187,20 @@ pub mod BookManager {
         self.contract_uri.write(contract_uri);
     }
 
-    fn _check_locker(self: @ContractState) {
-        let caller = get_caller_address();
-        let locker = self.lockers.get_current_locker();
-        let hook = self.hook_caller.get_current_hook();
-        assert(caller == locker || caller == hook, Errors::INVALID_LOCKER);
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+        fn check_locker(self: @ContractState) {
+            let caller = get_caller_address();
+            let locker = self.lockers.get_current_locker();
+            let hook = self.hook_caller.get_current_hook();
+            assert(caller == locker || caller == hook, Errors::INVALID_LOCKER);
+        }
     }
 
     #[abi(embed_v0)]
     impl BookManagerImpl of super::IBookManager<ContractState> {
         fn open(ref self: ContractState, key: BookKey, hook_data: Span<felt252>) {
-            _check_locker(@self);
+            self.check_locker();
             // @dev Also, the book opener should set unit size at least circulatingTotalSupply /
             // type(uint64).max to avoid overflow.
             //      But it is not checked here because it is not possible to check it without
