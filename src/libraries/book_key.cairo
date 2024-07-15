@@ -8,7 +8,7 @@ use clober_cairo::libraries::hooks::Hooks;
 pub struct BookKey {
     pub base: ContractAddress,
     pub unit_size: u64,
-    pub qutoe: ContractAddress,
+    pub quote: ContractAddress,
     pub maker_policy: FeePolicy,
     pub hooks: Hooks,
     pub taker_policy: FeePolicy,
