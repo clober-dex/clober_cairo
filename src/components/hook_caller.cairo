@@ -83,7 +83,7 @@ pub mod HookCaller {
             ref self: ComponentState<TContractState>,
             hooks: @Hooks,
             key: @BookKey,
-            hook_data: Array<felt252>
+            hook_data: Span<felt252>
         ) {
             if (hooks.has_permission(Permission::AFTER_OPEN)) {
                 let caller = get_caller_address();
