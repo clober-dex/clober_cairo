@@ -410,3 +410,11 @@ impl I257TryIntoI128 of TryInto<i257, i128> {
         }
     }
 }
+
+// Convert i257 to U256IntoI257
+impl I257TryIntoU256 of TryInto<i257, u256> {
+    fn try_into(self: i257) -> Option<u256> {
+        assert(!self.is_negative, 'Cannot convert negative to u256');
+        Option::Some(self.abs)
+    }
+}
