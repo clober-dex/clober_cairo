@@ -330,8 +330,41 @@ pub mod BookManager {
         fn take(
             ref self: ContractState, params: TakeParams, hook_data: Span<felt252>
         ) -> (u256, u256) {
-            panic!("Not implemented");
-            (0, 0)
+            self.check_locker();
+            params.tick.validate();
+
+            let book_id = params.key.to_id();
+            // book.check_opened();
+
+            self.hook_caller.before_take(@params.key.hooks, @params, hook_data);
+
+            let taken_unit: u64 = 0; // book.take(params.tick, params.max_unit);
+            let mut quote_amount: u256 = taken_unit.into() * params.key.unit_size.into();
+            let mut base_amount = params.tick.quote_to_base(quote_amount, true);
+
+            let mut quote_delta: i257 = quote_amount.into();
+            let mut base_delta: i257 = base_amount.into();
+            if (params.key.taker_policy.uses_quote) {
+                quote_delta -= params.key.taker_policy.calculate_fee(quote_amount, false);
+                quote_amount = quote_delta.try_into().unwrap();
+            } else {
+                base_delta += params.key.taker_policy.calculate_fee(base_amount, false);
+                base_amount = base_delta.try_into().unwrap();
+            }
+            self.account_delta(params.key.quote, quote_delta);
+            self.account_delta(params.key.base, base_delta);
+
+            self.emit(
+                Take {
+                    book_id,
+                    user: get_caller_address(),
+                    tick: params.tick.value,
+                    unit: taken_unit
+                }
+            );
+
+            self.hook_caller.after_take(@params.key.hooks, @params, taken_unit, hook_data);
+            (quote_amount, base_amount)
         }
 
         fn cancel(ref self: ContractState, params: CancelParams, hook_data: Span<felt252>) -> u256 {
