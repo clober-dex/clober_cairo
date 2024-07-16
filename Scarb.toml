@@ -2,7 +2,7 @@
 name = "clober_cairo"
 version = "0.1.0"
 edition = "2023_11"
-cairo-version = "2.7.0-rc.1"
+cairo-version = "2.7.0-rc.2"
 authors = ["Clober <dev@clober.io>"]
 description = "Core Contracts written in Cairo for StarkNet"
 readme = "README.md"
@@ -10,7 +10,7 @@ repository = "https://github.com/clober-dex/clober_cairo"
 # license-file = "LICENSE"
 
 [dependencies]
-starknet = "2.7.0-rc.1"
+starknet = "2.7.0-rc.2"
 
 [tool.snforge]
 fuzzer_runs = 1000
