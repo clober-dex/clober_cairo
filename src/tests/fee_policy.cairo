@@ -1,50 +1,49 @@
-use clober_cairo::libraries::fee_policy::FeePolicy;
-use clober_cairo::libraries::fee_policy::FeePolicyImpl;
+use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait};
 use clober_cairo::libraries::i257::i257;
 use starknet::storage_access::{StorePacking};
 
 #[test]
-fn pack() {
+fn encode() {
     let fee_policy: FeePolicy = FeePolicy { uses_quote: true, rate: -100000, };
-    let packed: u32 = StorePacking::pack(fee_policy);
+    let packed: u32 = fee_policy.encode();
     assert_eq!(packed, 8788608);
 
     let fee_policy: FeePolicy = FeePolicy { uses_quote: true, rate: 100000, };
-    let packed: u32 = StorePacking::pack(fee_policy);
+    let packed: u32 = fee_policy.encode();
     assert_eq!(packed, 8988608);
 
     let fee_policy: FeePolicy = FeePolicy { uses_quote: false, rate: -100000, };
-    let packed: u32 = StorePacking::pack(fee_policy);
+    let packed: u32 = fee_policy.encode();
     assert_eq!(packed, 400000);
 
     let fee_policy: FeePolicy = FeePolicy { uses_quote: false, rate: 100000, };
-    let packed: u32 = StorePacking::pack(fee_policy);
+    let packed: u32 = fee_policy.encode();
     assert_eq!(packed, 600000);
 
     let fee_policy: FeePolicy = FeePolicy { uses_quote: false, rate: 0, };
-    let packed: u32 = StorePacking::pack(fee_policy);
+    let packed: u32 = fee_policy.encode();
     assert_eq!(packed, 500000);
 }
 
 #[test]
-fn unpack() {
-    let fee_policy: FeePolicy = StorePacking::unpack(8788608);
+fn decode() {
+    let fee_policy: FeePolicy = FeePolicyTrait::decode(8788608);
     assert_eq!(fee_policy.uses_quote, true);
     assert_eq!(fee_policy.rate, -100000);
 
-    let fee_policy: FeePolicy = StorePacking::unpack(8988608);
+    let fee_policy: FeePolicy = FeePolicyTrait::decode(8988608);
     assert_eq!(fee_policy.uses_quote, true);
     assert_eq!(fee_policy.rate, 100000);
 
-    let fee_policy: FeePolicy = StorePacking::unpack(400000);
+    let fee_policy: FeePolicy = FeePolicyTrait::decode(400000);
     assert_eq!(fee_policy.uses_quote, false);
     assert_eq!(fee_policy.rate, -100000);
 
-    let fee_policy: FeePolicy = StorePacking::unpack(600000);
+    let fee_policy: FeePolicy = FeePolicyTrait::decode(600000);
     assert_eq!(fee_policy.uses_quote, false);
     assert_eq!(fee_policy.rate, 100000);
 
-    let fee_policy: FeePolicy = StorePacking::unpack(500000);
+    let fee_policy: FeePolicy = FeePolicyTrait::decode(500000);
     assert_eq!(fee_policy.uses_quote, false);
     assert_eq!(fee_policy.rate, 0);
 }

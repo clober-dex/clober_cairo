@@ -51,23 +51,21 @@ pub impl FeePolicyImpl of FeePolicyTrait {
 
         Math::divide(amount * RATE_PRECISION.into(), divider.into(), positive)
     }
-}
 
-impl FeePolicyStorePacking of StorePacking<FeePolicy, u32> {
-    fn pack(value: FeePolicy) -> u32 {
-        assert(value.rate < MAX_FEE_RATE, 'invalid_fee_rate');
-        let mask: u32 = if (value.uses_quote) {
+    fn encode(self: FeePolicy) -> u32 {
+        assert(self.rate < MAX_FEE_RATE, 'invalid_fee_rate');
+        let mask: u32 = if (self.uses_quote) {
             0x800000
         } else {
             0
         };
-        let rate: u32 = (MAX_FEE_RATE + value.rate).try_into().unwrap();
+        let rate: u32 = (MAX_FEE_RATE + self.rate).try_into().unwrap();
         mask | rate
     }
 
-    fn unpack(value: u32) -> FeePolicy {
-        let uses_quote: bool = value & 0x800000 != 0;
-        let rate: u32 = value & 0x7fffff;
+    fn decode(self: u32) -> FeePolicy {
+        let uses_quote: bool = self & 0x800000 != 0;
+        let rate: u32 = self & 0x7fffff;
         let max_u32: u32 = MAX_FEE_RATE.try_into().unwrap();
 
         if (rate < max_u32) {
