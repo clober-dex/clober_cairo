@@ -16,7 +16,7 @@ trait IBookManager<TContractState> {
     fn claim(ref self: TContractState, id: felt252, hook_data: Span<felt252>) -> u256;
     fn collect(ref self: TContractState, recipient: ContractAddress, currency: ContractAddress);
     fn withdraw(ref self: TContractState, to: ContractAddress, amount: u256);
-    fn settle(ref self: TContractState, currency: ContractAddress);
+    fn settle(ref self: TContractState, currency: ContractAddress) -> u256;
     fn whitelist(ref self: TContractState, provider: ContractAddress);
     fn delist(ref self: TContractState, provider: ContractAddress);
     fn set_default_provider(ref self: TContractState, new_default_provider: ContractAddress);
@@ -26,8 +26,9 @@ trait IBookManager<TContractState> {
 pub mod BookManager {
     use core::num::traits::zero::Zero;
     use starknet::storage::Map;
-    use starknet::{get_caller_address};
+    use starknet::{get_caller_address, get_contract_address};
     use clober_cairo::interfaces::locker::{ILockerDispatcher, ILockerDispatcherTrait};
+    use clober_cairo::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
     use clober_cairo::components::currency_delta::CurrencyDelta;
     use clober_cairo::components::hook_caller::HookCaller;
     use clober_cairo::components::lockers::Lockers;
@@ -385,8 +386,19 @@ pub mod BookManager {
             panic!("Not implemented");
         }
 
-        fn settle(ref self: ContractState, currency: ContractAddress) {
-            panic!("Not implemented");
+        fn settle(ref self: ContractState, currency: ContractAddress) -> u256 {
+            self.check_locker();
+
+            let reserves_before = self.reserves_of.read(currency);
+            let erc20_dispatcher = IERC20Dispatcher {
+                contract_address: currency
+            };
+            let balance_of_self = erc20_dispatcher.balanceOf(get_contract_address());
+            self.reserves_of.write(currency, balance_of_self);
+            let paid = balance_of_self - reserves_before;
+            // subtraction must be safe
+            self.account_delta(currency, paid.into());
+            paid
         }
 
         fn whitelist(ref self: ContractState, provider: ContractAddress) {
