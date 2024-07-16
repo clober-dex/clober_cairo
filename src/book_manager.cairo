@@ -355,14 +355,15 @@ pub mod BookManager {
             self.account_delta(params.key.quote, quote_delta);
             self.account_delta(params.key.base, base_delta);
 
-            self.emit(
-                Take {
-                    book_id,
-                    user: get_caller_address(),
-                    tick: params.tick.value,
-                    unit: taken_unit
-                }
-            );
+            self
+                .emit(
+                    Take {
+                        book_id,
+                        user: get_caller_address(),
+                        tick: params.tick.value,
+                        unit: taken_unit
+                    }
+                );
 
             self.hook_caller.after_take(@params.key.hooks, @params, taken_unit, hook_data);
             (quote_amount, base_amount)
@@ -379,7 +380,13 @@ pub mod BookManager {
         }
 
         fn collect(ref self: ContractState, recipient: ContractAddress, currency: ContractAddress) {
-            panic!("Not implemented");
+            let caller = get_caller_address();
+            let amount = self.token_owed.read((caller, currency));
+            self.token_owed.write((caller, currency), 0);
+            self.reserves_of.write(currency, self.reserves_of.read(currency) - amount);
+            let erc20_dispatcher = IERC20Dispatcher { contract_address: currency };
+            erc20_dispatcher.transfer(recipient, amount);
+            self.emit(Collect { provider: caller, recipient, currency, amount });
         }
 
         fn withdraw(ref self: ContractState, to: ContractAddress, amount: u256) {
@@ -390,9 +397,7 @@ pub mod BookManager {
             self.check_locker();
 
             let reserves_before = self.reserves_of.read(currency);
-            let erc20_dispatcher = IERC20Dispatcher {
-                contract_address: currency
-            };
+            let erc20_dispatcher = IERC20Dispatcher { contract_address: currency };
             let balance_of_self = erc20_dispatcher.balanceOf(get_contract_address());
             self.reserves_of.write(currency, balance_of_self);
             let paid = balance_of_self - reserves_before;
