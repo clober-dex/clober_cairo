@@ -14,8 +14,12 @@ trait IBookManager<TContractState> {
     fn take(ref self: TContractState, params: TakeParams, hook_data: Span<felt252>) -> (u256, u256);
     fn cancel(ref self: TContractState, params: CancelParams, hook_data: Span<felt252>) -> u256;
     fn claim(ref self: TContractState, id: felt252, hook_data: Span<felt252>) -> u256;
-    fn collect(ref self: TContractState, recipient: ContractAddress, currency: ContractAddress);
-    fn withdraw(ref self: TContractState, to: ContractAddress, amount: u256);
+    fn collect(
+        ref self: TContractState, recipient: ContractAddress, currency: ContractAddress
+    ) -> u256;
+    fn withdraw(
+        ref self: TContractState, currency: ContractAddress, to: ContractAddress, amount: u256
+    );
     fn settle(ref self: TContractState, currency: ContractAddress) -> u256;
     fn whitelist(ref self: TContractState, provider: ContractAddress);
     fn delist(ref self: TContractState, provider: ContractAddress);
@@ -379,7 +383,9 @@ pub mod BookManager {
             0
         }
 
-        fn collect(ref self: ContractState, recipient: ContractAddress, currency: ContractAddress) {
+        fn collect(
+            ref self: ContractState, recipient: ContractAddress, currency: ContractAddress
+        ) -> u256 {
             let caller = get_caller_address();
             let amount = self.token_owed.read((caller, currency));
             self.token_owed.write((caller, currency), 0);
@@ -387,10 +393,12 @@ pub mod BookManager {
             let erc20_dispatcher = IERC20Dispatcher { contract_address: currency };
             erc20_dispatcher.transfer(recipient, amount);
             self.emit(Collect { provider: caller, recipient, currency, amount });
+            amount
         }
 
-        fn withdraw(ref self: ContractState, to: ContractAddress, amount: u256) {
-            panic!("Not implemented");
+        fn withdraw(
+            ref self: ContractState, currency: ContractAddress, to: ContractAddress, amount: u256
+        ) {
         }
 
         fn settle(ref self: ContractState, currency: ContractAddress) -> u256 {
