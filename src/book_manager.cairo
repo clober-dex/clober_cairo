@@ -399,6 +399,14 @@ pub mod BookManager {
         fn withdraw(
             ref self: ContractState, currency: ContractAddress, to: ContractAddress, amount: u256
         ) {
+            self.check_locker();
+
+            if (amount > 0) {
+                self.account_delta(currency, -amount.into());
+                self.reserves_of.write(currency, self.reserves_of.read(currency) - amount);
+                let erc20_dispatcher = IERC20Dispatcher { contract_address: currency };
+                erc20_dispatcher.transfer(to, amount);
+            }
         }
 
         fn settle(ref self: ContractState, currency: ContractAddress) -> u256 {
