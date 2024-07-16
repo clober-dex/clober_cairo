@@ -9,6 +9,7 @@ pub(crate) const TWO_POW_96: u128 = 0x1000000000000000000000000; // 2**96
 pub(crate) const TWO_POW_64: u128 = 0x10000000000000000; // 2**64
 pub(crate) const TWO_POW_62: u64 = 0x4000000000000000; // 2**62
 pub(crate) const TWO_POW_40: u64 = 0x10000000000; // 2**40
+pub(crate) const TWO_POW_32: u64 = 0x100000000; // 2**32
 pub(crate) const TWO_POW_24: u32 = 0x1000000; // 2**24
 pub(crate) const TWO_POW_16: u32 = 0x10000; // 2**24
 
