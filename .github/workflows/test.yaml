@@ -17,10 +17,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install rc universal-sierra-compiler ## temp
-      run: curl -L https://raw.githubusercontent.com/software-mansion/universal-sierra-compiler/master/scripts/install.sh | sh -s -- v2.2.0-rc.0
+      run: curl -L https://raw.githubusercontent.com/software-mansion/universal-sierra-compiler/master/scripts/install.sh | sh -s -- v2.2.0-rc.1
     - name: Extract scarb version
       run: |
-        SCARB_VERSION=$(grep 'cairo-version = ' Scarb.toml | sed 's/cairo-version = "\(.*\)"/\1/')
+        SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
         echo "SCARB_VERSION=$SCARB_VERSION" >> $GITHUB_ENV
     - uses: software-mansion/setup-scarb@v1
       with:
