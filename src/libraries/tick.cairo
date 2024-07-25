@@ -1,4 +1,4 @@
-use clober_cairo::utils::math::Math::ln_wad;
+use clober_cairo::utils::math::ln_wad;
 use clober_cairo::libraries::i257::i257;
 use clober_cairo::libraries::i257::I257Impl;
 use clober_cairo::utils::constants::{TWO_POW_192, TWO_POW_128, TWO_POW_96, MIN_TICK, MAX_TICK};

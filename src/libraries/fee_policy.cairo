@@ -1,5 +1,5 @@
 use starknet::storage_access::{StorePacking};
-use clober_cairo::utils::math::{Math};
+use clober_cairo::utils::math::{divide};
 use clober_cairo::utils::constants::{RATE_PRECISION};
 use clober_cairo::libraries::i257::i257;
 
@@ -30,7 +30,7 @@ pub impl FeePolicyImpl of FeePolicyTrait {
         } else {
             is_positive
         };
-        let absFee: u256 = Math::divide(
+        let absFee: u256 = divide(
             amount * abs_rate.into(), RATE_PRECISION.into(), rounding_up
         );
         let absFee_i257: i257 = absFee.try_into().unwrap();
@@ -49,7 +49,7 @@ pub impl FeePolicyImpl of FeePolicyTrait {
         }
         let divider: u32 = (RATE_PRECISION.try_into().unwrap() + rate).try_into().unwrap();
 
-        Math::divide(amount * RATE_PRECISION.into(), divider.into(), positive)
+        divide(amount * RATE_PRECISION.into(), divider.into(), positive)
     }
 
     fn encode(self: FeePolicy) -> u32 {

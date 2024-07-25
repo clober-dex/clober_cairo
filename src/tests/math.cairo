@@ -1,4 +1,4 @@
-use clober_cairo::utils::math::Math::{least_significant_bit, fast_power};
+use clober_cairo::utils::math::{least_significant_bit, fast_power};
 
 #[test]
 fn test_least_significant_bit() {
