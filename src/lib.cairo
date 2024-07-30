@@ -22,6 +22,7 @@ pub mod libraries {
     pub mod tick;
     pub mod tick_bitmap;
     pub mod segmented_segment_tree;
+    pub mod storage_map;
     pub mod total_claimable_map;
     pub mod i257;
 }
