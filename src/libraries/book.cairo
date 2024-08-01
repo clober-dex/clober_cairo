@@ -118,9 +118,9 @@ pub mod Book {
     }
 
     #[derive(Copy, Drop, starknet::Store)]
-    struct Order {
-        provider: ContractAddress,
-        pending: u64
+    pub struct Order {
+        pub provider: ContractAddress,
+        pub pending: u64
     }
 
     #[generate_trait]
