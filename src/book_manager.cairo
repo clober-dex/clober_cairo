@@ -41,7 +41,7 @@ pub mod BookManager {
     use clober_cairo::components::lockers::Lockers;
     use clober_cairo::libraries::i257::{i257, I257Trait};
     use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
-    use clober_cairo::libraries::book::Book::{State, BookTrait, Order};
+    use clober_cairo::libraries::book::Book::{Book, BookTrait, Order};
     use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait};
     use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
     use clober_cairo::libraries::tick::{Tick, TickTrait};
@@ -106,7 +106,7 @@ pub mod BookManager {
         contract_uri: ByteArray,
         default_provier: ContractAddress,
         reserves_of: Map<ContractAddress, u256>,
-        books: Map<felt252, State>,
+        books: Map<felt252, Book>,
         is_whitelisted: Map<ContractAddress, bool>,
         token_owed: Map<(ContractAddress, ContractAddress), u256>,
     }

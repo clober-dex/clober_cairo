@@ -126,62 +126,62 @@ pub mod Book {
     }
 
     #[derive(Copy, Drop, starknet::Store)]
-    struct Order {
+    pub struct Order {
         pub provider: ContractAddress,
         pub pending: u64
     }
 
     #[generate_trait]
     pub impl BookImpl of BookTrait {
-        fn open(ref self: State, key: BookKey) {
+        fn open(ref self: Book, key: BookKey) {
             panic!("Not implemented")
         }
 
-        fn is_opened(self: @State) -> bool {
+        fn is_opened(self: @Book) -> bool {
             panic!("Not implemented")
         }
 
-        fn check_opened(self: @State) {
+        fn check_opened(self: @Book) {
             panic!("Not implemented")
         }
 
-        fn depth(self: @State, tick: Tick) -> u64 {
+        fn depth(self: @Book, tick: Tick) -> u64 {
             panic!("Not implemented")
         }
 
-        fn highest(self: @State) -> Tick {
+        fn highest(self: @Book) -> Tick {
             panic!("Not implemented")
         }
 
-        fn max_less_than(self: @State, tick: Tick) -> Tick {
+        fn max_less_than(self: @Book, tick: Tick) -> Tick {
             panic!("Not implemented")
         }
 
-        fn is_empty(self: @State) -> bool {
+        fn is_empty(self: @Book) -> bool {
             panic!("Not implemented")
         }
 
-        fn get_order(self: @State, tick: Tick, index: u64) -> Order {
+        fn get_order(self: @Book, tick: Tick, index: u64) -> Order {
             panic!("Not implemented")
         }
 
-        fn make(ref self: State, tick: Tick, unit: u64, provider: ContractAddress) -> u64 {
+        fn make(ref self: Book, tick: Tick, unit: u64, provider: ContractAddress) -> u64 {
             panic!("Not implemented")
         }
 
-        fn take(ref self: State, tick: Tick, max_take_unit: u64) -> u64 {
+        fn take(ref self: Book, tick: Tick, max_take_unit: u64) -> u64 {
             panic!("Not implemented")
         }
 
-        fn cancel(ref self: State, order_id: OrderId, to: u64) -> (u64, u64) {
+        fn cancel(ref self: Book, order_id: OrderId, to: u64) -> (u64, u64) {
             panic!("Not implemented")
         }
 
-        fn claim(ref self: State, tick: Tick, index: u64) -> u64 {
+        fn claim(ref self: Book, tick: Tick, index: u64) -> u64 {
             panic!("Not implemented")
         }
 
-        fn calculate_claimable_unit(self: @State, tick: Tick, index: u64) -> u64 {
+        fn calculate_claimable_unit(self: @Book, tick: Tick, index: u64) -> u64 {
             panic!("Not implemented")
         }
     }
