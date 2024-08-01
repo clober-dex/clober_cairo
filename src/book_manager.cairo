@@ -36,9 +36,9 @@ pub mod BookManager {
     use clober_cairo::components::currency_delta::CurrencyDelta;
     use clober_cairo::components::hook_caller::HookCaller;
     use clober_cairo::components::lockers::Lockers;
-    use clober_cairo::libraries::i257::i257;
+    use clober_cairo::libraries::i257::{i257, I257Trait};
     use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
-    use clober_cairo::libraries::book::Book::{State, BookTrait};
+    use clober_cairo::libraries::book::Book::{State, BookTrait, Order};
     use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait};
     use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
     use clober_cairo::libraries::tick::{Tick, TickTrait};
@@ -408,8 +408,67 @@ pub mod BookManager {
         }
 
         fn claim(ref self: ContractState, id: felt252, hook_data: Span<felt252>) -> u256 {
-            panic!("Not implemented");
-            0
+            self.check_locker();
+            // todo: check authorized using erc721
+
+            let order_id = OrderIdTrait::decode(id);
+            let mut book = self.books.read(order_id.book_id);
+            let key = book.key;
+
+            self.hook_caller.before_claim(@key.hooks, id, hook_data);
+
+            let claimed_unit = book.claim(order_id.tick, order_id.index);
+
+            let claimed_in_quote: u256 = claimed_unit.into() * key.unit_size.into();
+            let mut claimed_amount = order_id.tick.quote_to_base(claimed_in_quote, false);
+
+            let (mut quote_fee, mut base_fee) = if (key.taker_policy.uses_quote) {
+                (key.taker_policy.calculate_fee(claimed_in_quote, true), 0.into())
+            } else {
+                (0.into(), key.taker_policy.calculate_fee(claimed_amount, true))
+            };
+
+            if (key.maker_policy.uses_quote) {
+                quote_fee += key.maker_policy.calculate_fee(claimed_in_quote, true);
+            } else {
+                let make_fee = key.maker_policy.calculate_fee(claimed_amount, false);
+                base_fee += make_fee;
+                claimed_amount = (claimed_amount.into() - make_fee).try_into().unwrap();
+            }
+
+            let order = book.get_order(order_id.tick, order_id.index);
+            let provider: ContractAddress = if (order.provider.is_zero()) {
+                self.default_provier.read()
+            } else {
+                order.provider
+            };
+            if (quote_fee > 0.into()) {
+                self
+                    .token_owed
+                    .write(
+                        (provider, key.quote),
+                        self.token_owed.read((provider, key.quote)) + quote_fee.abs()
+                    );
+            }
+            if (base_fee > 0.into()) {
+                self
+                    .token_owed
+                    .write(
+                        (provider, key.base),
+                        self.token_owed.read((provider, key.base)) + base_fee.abs()
+                    );
+            }
+
+            if (order.pending == 0) {// todo: burn();
+            }
+
+            self.account_delta(key.base, claimed_amount.into());
+
+            self.emit(Claim { order_id: id, unit: claimed_unit });
+
+            self.hook_caller.after_claim(@key.hooks, id, claimed_unit, hook_data);
+
+            claimed_amount
         }
 
         fn collect(
