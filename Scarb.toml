@@ -12,6 +12,7 @@ repository = "https://github.com/clober-dex/clober_cairo"
 
 [dependencies]
 starknet = "2.7.0-rc.2"
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", rev = "f72cab9" }
 
 [dev-dependencies]
 cairo_test = "2.7.0-rc.2"

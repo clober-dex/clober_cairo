@@ -4,3 +4,11 @@ version = 1
 [[package]]
 name = "clober_cairo"
 version = "0.1.0"
+dependencies = [
+ "openzeppelin",
+]
+
+[[package]]
+name = "openzeppelin"
+version = "0.15.0-rc.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?rev=f72cab9#f72cab90c7f07f735f116722d5c01dc46b45606c"
