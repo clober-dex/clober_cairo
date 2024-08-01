@@ -123,31 +123,58 @@ pub mod Book {
         pending: u64
     }
 
-    pub trait Book {
-        fn open(ref self: State, key: BookKey);
+    #[generate_trait]
+    pub impl BookImpl of BookTrait {
+        fn open(ref self: State, key: BookKey) {
+            panic!("Not implemented")
+        }
 
-        fn is_opened(ref self: State) -> bool;
+        fn is_opened(self: @State) -> bool {
+            panic!("Not implemented")
+        }
 
-        fn check_opened(ref self: State);
+        fn check_opened(self: @State) {
+            panic!("Not implemented")
+        }
 
-        fn depth(ref self: State, tick: Tick) -> u64;
+        fn depth(self: @State, tick: Tick) -> u64 {
+            panic!("Not implemented")
+        }
 
-        fn highest(ref self: State) -> Tick;
+        fn highest(self: @State) -> Tick {
+            panic!("Not implemented")
+        }
 
-        fn max_less_than(ref self: State, tick: Tick) -> Tick;
+        fn max_less_than(self: @State, tick: Tick) -> Tick {
+            panic!("Not implemented")
+        }
 
-        fn is_empty(ref self: State) -> bool;
+        fn is_empty(self: @State) -> bool {
+            panic!("Not implemented")
+        }
 
-        fn get_order(ref self: State, tick: Tick, index: u64) -> Order;
+        fn get_order(self: @State, tick: Tick, index: u64) -> Order {
+            panic!("Not implemented")
+        }
 
-        fn make(ref self: State, tick: Tick, unit: u64, provider: ContractAddress) -> u64;
+        fn make(ref self: State, tick: Tick, unit: u64, provider: ContractAddress) -> u64 {
+            panic!("Not implemented")
+        }
 
-        fn take(ref self: State, tick: Tick, max_take_unit: u64) -> u64;
+        fn take(ref self: State, tick: Tick, max_take_unit: u64) -> u64 {
+            panic!("Not implemented")
+        }
 
-        fn cancel(ref self: State, order_id: OrderId, to: u64) -> (u64, u64);
+        fn cancel(ref self: State, order_id: OrderId, to: u64) -> (u64, u64) {
+            panic!("Not implemented")
+        }
 
-        fn claim(ref self: State, tick: Tick, index: u64) -> u64;
+        fn claim(ref self: State, tick: Tick, index: u64) -> u64 {
+            panic!("Not implemented")
+        }
 
-        fn calculate_claimable_unit(ref self: State, tick: Tick, index: u64) -> u64;
+        fn calculate_claimable_unit(self: @State, tick: Tick, index: u64) -> u64 {
+            panic!("Not implemented")
+        }
     }
 }
