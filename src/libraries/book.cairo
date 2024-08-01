@@ -15,10 +15,10 @@ pub mod Book {
 
     #[derive(Drop)]
     pub struct State {
-        key: BookKey,
-        queues: StorageMap<Queue>,
-        tickBitmap: StorageMap<felt252>,
-        totalClaimableOf: StorageMap<felt252>,
+        pub key: BookKey,
+        pub queues: StorageMap<Queue>,
+        pub tickBitmap: StorageMap<felt252>,
+        pub totalClaimableOf: StorageMap<felt252>,
     }
 
     impl StateStoreImpl of Store<State> {
