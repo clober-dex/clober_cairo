@@ -36,9 +36,9 @@ pub mod BookManager {
     use starknet::{get_caller_address, get_contract_address};
     use clober_cairo::interfaces::locker::{ILockerDispatcher, ILockerDispatcherTrait};
     use clober_cairo::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use clober_cairo::components::currency_delta::CurrencyDelta;
-    use clober_cairo::components::hook_caller::HookCaller;
-    use clober_cairo::components::lockers::Lockers;
+    use clober_cairo::components::currency_delta::CurrencyDeltaComponent;
+    use clober_cairo::components::hook_caller::HookCallerComponent;
+    use clober_cairo::components::lockers::LockersComponent;
     use clober_cairo::libraries::i257::{i257, I257Trait};
     use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
     use clober_cairo::libraries::book::Book::{Book, BookTrait, Order};
@@ -48,9 +48,9 @@ pub mod BookManager {
     use clober_cairo::libraries::hooks::{Hooks, HooksTrait};
     use super::{ContractAddress, MakeParams, TakeParams, CancelParams};
 
-    component!(path: CurrencyDelta, storage: currency_delta, event: CurrencyDeltaEvent);
-    component!(path: HookCaller, storage: hook_caller, event: HookCallerEvent);
-    component!(path: Lockers, storage: lockers, event: LockersEvent);
+    component!(path: CurrencyDeltaComponent, storage: currency_delta, event: CurrencyDeltaEvent);
+    component!(path: HookCallerComponent, storage: hook_caller, event: HookCallerEvent);
+    component!(path: LockersComponent, storage: lockers, event: LockersEvent);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -78,16 +78,17 @@ pub mod BookManager {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[abi(embed_v0)]
-    impl CurrencyDeltaImpl = CurrencyDelta::CurrencyDelta<ContractState>;
-    impl CurrencyDeltaInternalImpl = CurrencyDelta::InternalImpl<ContractState>;
+    impl CurrencyDeltaImpl =
+        CurrencyDeltaComponent::CurrencyDeltaImpl<ContractState>;
+    impl CurrencyDeltaInternalImpl = CurrencyDeltaComponent::InternalImpl<ContractState>;
 
     #[abi(embed_v0)]
-    impl HookCallerImpl = HookCaller::HookCaller<ContractState>;
-    impl HookCallerInternalImpl = HookCaller::InternalImpl<ContractState>;
+    impl HookCallerImpl = HookCallerComponent::HookCallerImpl<ContractState>;
+    impl HookCallerInternalImpl = HookCallerComponent::InternalImpl<ContractState>;
 
     #[abi(embed_v0)]
-    impl LockersImpl = Lockers::Lockers<ContractState>;
-    impl LockersInternalImpl = Lockers::InternalImpl<ContractState>;
+    impl LockersImpl = LockersComponent::LockersImpl<ContractState>;
+    impl LockersInternalImpl = LockersComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -98,11 +99,11 @@ pub mod BookManager {
         #[substorage(v0)]
         src5: SRC5Component::Storage,
         #[substorage(v0)]
-        currency_delta: CurrencyDelta::Storage,
+        currency_delta: CurrencyDeltaComponent::Storage,
         #[substorage(v0)]
-        hook_caller: HookCaller::Storage,
+        hook_caller: HookCallerComponent::Storage,
         #[substorage(v0)]
-        lockers: Lockers::Storage,
+        lockers: LockersComponent::Storage,
         contract_uri: ByteArray,
         default_provier: ContractAddress,
         reserves_of: Map<ContractAddress, u256>,
@@ -121,11 +122,11 @@ pub mod BookManager {
         #[flat]
         SRC5Event: SRC5Component::Event,
         #[flat]
-        CurrencyDeltaEvent: CurrencyDelta::Event,
+        CurrencyDeltaEvent: CurrencyDeltaComponent::Event,
         #[flat]
-        HookCallerEvent: HookCaller::Event,
+        HookCallerEvent: HookCallerComponent::Event,
         #[flat]
-        LockersEvent: Lockers::Event,
+        LockersEvent: LockersComponent::Event,
         Open: Open,
         Make: Make,
         Take: Take,

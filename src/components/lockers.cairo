@@ -1,5 +1,5 @@
 #[starknet::component]
-pub mod Lockers {
+pub mod LockersComponent {
     use clober_cairo::utils::constants::ZERO_ADDRESS;
     use clober_cairo::interfaces::lockers::ILockers;
     use starknet::ContractAddress;
@@ -13,8 +13,8 @@ pub mod Lockers {
         non_zero_delta_count: u128
     }
 
-    #[embeddable_as(Lockers)]
-    pub impl LockersImpl<
+    #[embeddable_as(LockersImpl)]
+    pub impl Lockers<
         TContractState, +HasComponent<TContractState>
     > of ILockers<ComponentState<TContractState>> {
         fn get_lock(

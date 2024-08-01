@@ -1,5 +1,5 @@
 #[starknet::component]
-pub mod CurrencyDelta {
+pub mod CurrencyDeltaComponent {
     use starknet::ContractAddress;
     use clober_cairo::interfaces::currency_delta::ICurrencyDelta;
     use clober_cairo::libraries::i257::{i257, I257Impl};
@@ -11,8 +11,8 @@ pub mod CurrencyDelta {
         currency_delta: Map<(ContractAddress, ContractAddress), i257>
     }
 
-    #[embeddable_as(CurrencyDelta)]
-    pub impl CurrencyDeltaImpl<
+    #[embeddable_as(CurrencyDeltaImpl)]
+    pub impl CurrencyDelta<
         TContractState, +HasComponent<TContractState>
     > of ICurrencyDelta<ComponentState<TContractState>> {
         fn get_currency_delta(

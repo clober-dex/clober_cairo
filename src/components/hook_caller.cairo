@@ -1,5 +1,5 @@
 #[starknet::component]
-pub mod HookCaller {
+pub mod HookCallerComponent {
     use clober_cairo::interfaces::hook_caller::IHookCaller;
     use clober_cairo::utils::constants::ZERO_ADDRESS;
     use clober_cairo::libraries::hooks::{Hooks, HooksTrait, Permission};
@@ -15,8 +15,8 @@ pub mod HookCaller {
         length: u128,
     }
 
-    #[embeddable_as(HookCaller)]
-    pub impl HookCallerImpl<
+    #[embeddable_as(HookCallerImpl)]
+    pub impl HookCaller<
         TContractState, +HasComponent<TContractState>
     > of IHookCaller<ComponentState<TContractState>> {
         fn get_current_hook(self: @ComponentState<TContractState>) -> ContractAddress {
