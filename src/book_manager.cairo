@@ -276,9 +276,7 @@ pub mod BookManager {
 
             // The locker does everything in this callback, including paying what they owe via calls
             // to settle
-            let locker_dispatcher = ILockerDispatcher {
-                contract_address: locker
-            };
+            let locker_dispatcher = ILockerDispatcher { contract_address: locker };
             let result = locker_dispatcher.lock_acquired(lock_caller, data);
 
             // Remove the locker from the stack
@@ -397,8 +395,7 @@ pub mod BookManager {
                 canceled_amount = (canceled_amount.into() + fee).try_into().unwrap();
             }
 
-            if (pending_unit == 0) {
-                // todo: burn();
+            if (pending_unit == 0) {// todo: burn();
             }
 
             self.account_delta(key.quote, canceled_amount.into());
