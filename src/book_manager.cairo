@@ -199,14 +199,14 @@ pub mod BookManager {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        fn check_locker(self: @ContractState) {
+        fn _check_locker(self: @ContractState) {
             let caller = get_caller_address();
             let locker = self.lockers.get_current_locker();
             let hook = self.hook_caller.get_current_hook();
             assert(caller == locker || caller == hook, Errors::INVALID_LOCKER);
         }
 
-        fn account_delta(ref self: ContractState, currency: ContractAddress, delta: i257) {
+        fn _account_delta(ref self: ContractState, currency: ContractAddress, delta: i257) {
             if (delta.is_zero()) {
                 return;
             }
@@ -225,7 +225,7 @@ pub mod BookManager {
     #[abi(embed_v0)]
     impl BookManagerImpl of super::IBookManager<ContractState> {
         fn open(ref self: ContractState, key: BookKey, hook_data: Span<felt252>) {
-            self.check_locker();
+            self._check_locker();
             // @dev Also, the book opener should set unit size at least circulatingTotalSupply /
             // type(uint64).max to avoid overflow.
             //      But it is not checked here because it is not possible to check it without
@@ -291,7 +291,7 @@ pub mod BookManager {
         fn make(
             ref self: ContractState, params: MakeParams, hook_data: Span<felt252>
         ) -> (felt252, u256) {
-            self.check_locker();
+            self._check_locker();
 
             assert(
                 params.provider.is_zero() || self.is_whitelisted.read(params.provider),
@@ -314,7 +314,7 @@ pub mod BookManager {
                 quote_amount = quote_delta.try_into().unwrap();
             }
 
-            self.account_delta(params.key.quote, -quote_delta);
+            self._account_delta(params.key.quote, -quote_delta);
 
             // todo: _mint();
 
@@ -338,7 +338,7 @@ pub mod BookManager {
         fn take(
             ref self: ContractState, params: TakeParams, hook_data: Span<felt252>
         ) -> (u256, u256) {
-            self.check_locker();
+            self._check_locker();
             params.tick.validate();
 
             let book_id = params.key.to_id();
@@ -360,8 +360,8 @@ pub mod BookManager {
                 base_delta += params.key.taker_policy.calculate_fee(base_amount, false);
                 base_amount = base_delta.try_into().unwrap();
             }
-            self.account_delta(params.key.quote, quote_delta);
-            self.account_delta(params.key.base, base_delta);
+            self._account_delta(params.key.quote, quote_delta);
+            self._account_delta(params.key.base, base_delta);
 
             self
                 .emit(
@@ -378,7 +378,7 @@ pub mod BookManager {
         }
 
         fn cancel(ref self: ContractState, params: CancelParams, hook_data: Span<felt252>) -> u256 {
-            self.check_locker();
+            self._check_locker();
             // todo: check authorized using erc721
 
             let mut book = self.books.read(params.id);
@@ -395,10 +395,10 @@ pub mod BookManager {
                 canceled_amount = (canceled_amount.into() + fee).try_into().unwrap();
             }
 
-            if (pending_unit == 0) {// todo: burn();
+            if (pending_unit == 0) { // todo: burn();
             }
 
-            self.account_delta(key.quote, canceled_amount.into());
+            self._account_delta(key.quote, canceled_amount.into());
 
             self.emit(Cancel { order_id: params.id, unit: canceled_unit });
 
@@ -408,7 +408,7 @@ pub mod BookManager {
         }
 
         fn claim(ref self: ContractState, id: felt252, hook_data: Span<felt252>) -> u256 {
-            self.check_locker();
+            self._check_locker();
             // todo: check authorized using erc721
 
             let order_id = OrderIdTrait::decode(id);
@@ -459,10 +459,10 @@ pub mod BookManager {
                     );
             }
 
-            if (order.pending == 0) {// todo: burn();
+            if (order.pending == 0) { // todo: burn();
             }
 
-            self.account_delta(key.base, claimed_amount.into());
+            self._account_delta(key.base, claimed_amount.into());
 
             self.emit(Claim { order_id: id, unit: claimed_unit });
 
@@ -487,10 +487,10 @@ pub mod BookManager {
         fn withdraw(
             ref self: ContractState, currency: ContractAddress, to: ContractAddress, amount: u256
         ) {
-            self.check_locker();
+            self._check_locker();
 
             if (amount > 0) {
-                self.account_delta(currency, -amount.into());
+                self._account_delta(currency, -amount.into());
                 self.reserves_of.write(currency, self.reserves_of.read(currency) - amount);
                 let erc20_dispatcher = IERC20Dispatcher { contract_address: currency };
                 erc20_dispatcher.transfer(to, amount);
@@ -498,7 +498,7 @@ pub mod BookManager {
         }
 
         fn settle(ref self: ContractState, currency: ContractAddress) -> u256 {
-            self.check_locker();
+            self._check_locker();
 
             let reserves_before = self.reserves_of.read(currency);
             let erc20_dispatcher = IERC20Dispatcher { contract_address: currency };
@@ -506,7 +506,7 @@ pub mod BookManager {
             self.reserves_of.write(currency, balance_of_self);
             let paid = balance_of_self - reserves_before;
             // subtraction must be safe
-            self.account_delta(currency, paid.into());
+            self._account_delta(currency, paid.into());
             paid
         }
 
