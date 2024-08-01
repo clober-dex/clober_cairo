@@ -30,6 +30,7 @@ trait IBookManager<TContractState> {
 pub mod BookManager {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
+    use openzeppelin::access::ownable::OwnableComponent;
     use core::num::traits::zero::Zero;
     use starknet::storage::Map;
     use starknet::{get_caller_address, get_contract_address};
@@ -52,6 +53,13 @@ pub mod BookManager {
     component!(path: Lockers, storage: lockers, event: LockersEvent);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+
+    // Ownable2Step
+    #[abi(embed_v0)]
+    impl OwnableTwoStepMixinImpl =
+        OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
+    impl OwnableTwpStepInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     // ERC721
     #[abi(embed_v0)]
@@ -84,6 +92,8 @@ pub mod BookManager {
     #[storage]
     struct Storage {
         #[substorage(v0)]
+        ownable: OwnableComponent::Storage,
+        #[substorage(v0)]
         erc721: ERC721Component::Storage,
         #[substorage(v0)]
         src5: SRC5Component::Storage,
@@ -104,6 +114,8 @@ pub mod BookManager {
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {
+        #[flat]
+        OwnableEvent: OwnableComponent::Event,
         #[flat]
         ERC721Event: ERC721Component::Event,
         #[flat]
@@ -223,6 +235,7 @@ pub mod BookManager {
         name: ByteArray,
         symbol: ByteArray,
     ) {
+        self.ownable.initializer(owner);
         self.erc721.initializer(name, symbol, base_uri);
         self._set_default_provider(default_provider);
         self.contract_uri.write(contract_uri);
@@ -557,19 +570,19 @@ pub mod BookManager {
         }
 
         fn whitelist(ref self: ContractState, provider: ContractAddress) {
-            // todo: check owner
+            self.ownable.assert_only_owner();
             self.is_whitelisted.write(provider, true);
             self.emit(Whitelist { provider });
         }
 
         fn delist(ref self: ContractState, provider: ContractAddress) {
-            // todo: check owner
+            self.ownable.assert_only_owner();
             self.is_whitelisted.write(provider, false);
             self.emit(Delist { provider });
         }
 
         fn set_default_provider(ref self: ContractState, new_default_provider: ContractAddress) {
-            // todo: check owner
+            self.ownable.assert_only_owner();
             self._set_default_provider(new_default_provider);
         }
     }
