@@ -380,8 +380,34 @@ pub mod BookManager {
         }
 
         fn cancel(ref self: ContractState, params: CancelParams, hook_data: Span<felt252>) -> u256 {
-            panic!("Not implemented");
-            0
+            self.check_locker();
+            // todo: check authorized using erc721
+
+            let mut book = self.books.read(params.id);
+            let key = book.key;
+
+            self.hook_caller.before_cancel(@key.hooks, @params, hook_data);
+
+            let order_id = OrderIdTrait::decode(params.id);
+            let (canceled_unit, pending_unit) = book.cancel(order_id, params.to_unit);
+
+            let mut canceled_amount: u256 = canceled_unit.into() * key.unit_size.into();
+            if (key.maker_policy.uses_quote) {
+                let fee = key.maker_policy.calculate_fee(canceled_amount, true);
+                canceled_amount = (canceled_amount.into() + fee).try_into().unwrap();
+            }
+
+            if (pending_unit == 0) {
+                // todo: burn();
+            }
+
+            self.account_delta(key.quote, canceled_amount.into());
+
+            self.emit(Cancel { order_id: params.id, unit: canceled_unit });
+
+            self.hook_caller.after_cancel(@key.hooks, @params, canceled_unit, hook_data);
+
+            canceled_amount
         }
 
         fn claim(ref self: ContractState, id: felt252, hook_data: Span<felt252>) -> u256 {
