@@ -38,6 +38,7 @@ pub mod BookManager {
     use clober_cairo::components::lockers::Lockers;
     use clober_cairo::libraries::i257::i257;
     use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
+    use clober_cairo::libraries::book::Book::{State, BookTrait};
     use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait};
     use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
     use clober_cairo::libraries::tick::{Tick, TickTrait};
@@ -71,6 +72,7 @@ pub mod BookManager {
         contract_uri: ByteArray,
         default_provier: ContractAddress,
         reserves_of: Map<ContractAddress, u256>,
+        books: Map<felt252, State>,
         is_whitelisted: Map<ContractAddress, bool>,
         token_owed: Map<(ContractAddress, ContractAddress), u256>,
     }
@@ -246,7 +248,9 @@ pub mod BookManager {
             self.hook_caller.before_open(@key.hooks, @key, hook_data);
 
             let book_id = key.to_id();
-            // todo: store book key
+            let mut book = self.books.read(book_id);
+            book.open(key);
+
             self
                 .emit(
                     Open {
@@ -274,7 +278,7 @@ pub mod BookManager {
             // to settle
             let locker_dispatcher = ILockerDispatcher {
                 contract_address: locker
-            }; // todo: call lock_acquired
+            };
             let result = locker_dispatcher.lock_acquired(lock_caller, data);
 
             // Remove the locker from the stack
@@ -298,11 +302,12 @@ pub mod BookManager {
             params.tick.validate();
 
             let book_id = params.key.to_id();
-            // book.check_opened();
+            let mut book = self.books.read(book_id);
+            book.check_opened();
 
             self.hook_caller.before_make(@params.key.hooks, @params, hook_data);
 
-            let order_index: u64 = 0; // book.make(params.tick, params.unit, params.provider);
+            let order_index = book.make(params.tick, params.unit, params.provider);
             let order_id = (OrderId { book_id, tick: params.tick, index: order_index }).encode();
             let mut quote_amount: u256 = params.unit.into() * params.key.unit_size.into();
             let mut quote_delta: i257 = quote_amount.into();
@@ -339,11 +344,12 @@ pub mod BookManager {
             params.tick.validate();
 
             let book_id = params.key.to_id();
-            // book.check_opened();
+            let mut book = self.books.read(book_id);
+            book.check_opened();
 
             self.hook_caller.before_take(@params.key.hooks, @params, hook_data);
 
-            let taken_unit: u64 = 0; // book.take(params.tick, params.max_unit);
+            let taken_unit = book.take(params.tick, params.max_unit);
             let mut quote_amount: u256 = taken_unit.into() * params.key.unit_size.into();
             let mut base_amount = params.tick.quote_to_base(quote_amount, true);
 
