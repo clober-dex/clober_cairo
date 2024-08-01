@@ -28,6 +28,8 @@ trait IBookManager<TContractState> {
 
 #[starknet::contract]
 pub mod BookManager {
+    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use core::num::traits::zero::Zero;
     use starknet::storage::Map;
     use starknet::{get_caller_address, get_contract_address};
@@ -48,6 +50,24 @@ pub mod BookManager {
     component!(path: CurrencyDelta, storage: currency_delta, event: CurrencyDeltaEvent);
     component!(path: HookCaller, storage: hook_caller, event: HookCallerEvent);
     component!(path: Lockers, storage: lockers, event: LockersEvent);
+    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // ERC721
+    #[abi(embed_v0)]
+    impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721MetadataImpl = ERC721Component::ERC721MetadataImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721CamelOnly = ERC721Component::ERC721CamelOnlyImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721MetadataCamelOnly =
+        ERC721Component::ERC721MetadataCamelOnlyImpl<ContractState>;
+    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[abi(embed_v0)]
     impl CurrencyDeltaImpl = CurrencyDelta::CurrencyDelta<ContractState>;
@@ -63,6 +83,10 @@ pub mod BookManager {
 
     #[storage]
     struct Storage {
+        #[substorage(v0)]
+        erc721: ERC721Component::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage,
         #[substorage(v0)]
         currency_delta: CurrencyDelta::Storage,
         #[substorage(v0)]
@@ -80,6 +104,10 @@ pub mod BookManager {
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {
+        #[flat]
+        ERC721Event: ERC721Component::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event,
         #[flat]
         CurrencyDeltaEvent: CurrencyDelta::Event,
         #[flat]
@@ -192,9 +220,10 @@ pub mod BookManager {
         default_provider: ContractAddress,
         base_uri: ByteArray,
         contract_uri: ByteArray,
-        name: felt252,
-        symbol: felt252,
+        name: ByteArray,
+        symbol: ByteArray,
     ) {
+        self.erc721.initializer(name, symbol, base_uri);
         self._set_default_provider(default_provider);
         self.contract_uri.write(contract_uri);
     }
@@ -323,7 +352,7 @@ pub mod BookManager {
 
             self._account_delta(params.key.quote, -quote_delta);
 
-            // todo: _mint();
+            self.erc721.mint(get_caller_address(), order_id.into());
 
             self
                 .emit(
@@ -386,15 +415,19 @@ pub mod BookManager {
 
         fn cancel(ref self: ContractState, params: CancelParams, hook_data: Span<felt252>) -> u256 {
             self._check_locker();
-            // todo: check authorized using erc721
+            self
+                .erc721
+                ._check_authorized(
+                    self.erc721._owner_of(params.id.into()), get_caller_address(), params.id.into()
+                );
 
             let mut book = self.books.read(params.id);
             let key = book.key;
 
             self.hook_caller.before_cancel(@key.hooks, @params, hook_data);
 
-            let order_id = OrderIdTrait::decode(params.id);
-            let (canceled_unit, pending_unit) = book.cancel(order_id, params.to_unit);
+            let decoded_order_id = OrderIdTrait::decode(params.id);
+            let (canceled_unit, pending_unit) = book.cancel(decoded_order_id, params.to_unit);
 
             let mut canceled_amount: u256 = canceled_unit.into() * key.unit_size.into();
             if (key.maker_policy.uses_quote) {
@@ -402,7 +435,8 @@ pub mod BookManager {
                 canceled_amount = (canceled_amount.into() + fee).try_into().unwrap();
             }
 
-            if (pending_unit == 0) { // todo: burn();
+            if (pending_unit == 0) {
+                self.erc721.burn(params.id.into());
             }
 
             self._account_delta(key.quote, canceled_amount.into());
@@ -416,18 +450,22 @@ pub mod BookManager {
 
         fn claim(ref self: ContractState, id: felt252, hook_data: Span<felt252>) -> u256 {
             self._check_locker();
-            // todo: check authorized using erc721
+            self
+                .erc721
+                ._check_authorized(
+                    self.erc721._owner_of(id.into()), get_caller_address(), id.into()
+                );
 
-            let order_id = OrderIdTrait::decode(id);
-            let mut book = self.books.read(order_id.book_id);
+            let decoded_order_id = OrderIdTrait::decode(id);
+            let mut book = self.books.read(decoded_order_id.book_id);
             let key = book.key;
 
             self.hook_caller.before_claim(@key.hooks, id, hook_data);
 
-            let claimed_unit = book.claim(order_id.tick, order_id.index);
+            let claimed_unit = book.claim(decoded_order_id.tick, decoded_order_id.index);
 
             let claimed_in_quote: u256 = claimed_unit.into() * key.unit_size.into();
-            let mut claimed_amount = order_id.tick.quote_to_base(claimed_in_quote, false);
+            let mut claimed_amount = decoded_order_id.tick.quote_to_base(claimed_in_quote, false);
 
             let (mut quote_fee, mut base_fee) = if (key.taker_policy.uses_quote) {
                 (key.taker_policy.calculate_fee(claimed_in_quote, true), 0.into())
@@ -443,7 +481,7 @@ pub mod BookManager {
                 claimed_amount = (claimed_amount.into() - make_fee).try_into().unwrap();
             }
 
-            let order = book.get_order(order_id.tick, order_id.index);
+            let order = book.get_order(decoded_order_id.tick, decoded_order_id.index);
             let provider: ContractAddress = if (order.provider.is_zero()) {
                 self.default_provier.read()
             } else {
@@ -466,7 +504,8 @@ pub mod BookManager {
                     );
             }
 
-            if (order.pending == 0) { // todo: burn();
+            if (order.pending == 0) {
+                self.erc721.burn(id.into());
             }
 
             self._account_delta(key.base, claimed_amount.into());
