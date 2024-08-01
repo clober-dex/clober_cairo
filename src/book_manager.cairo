@@ -189,11 +189,13 @@ pub mod BookManager {
     fn constructor(
         ref self: ContractState,
         owner: ContractAddress,
+        default_provider: ContractAddress,
         base_uri: ByteArray,
         contract_uri: ByteArray,
         name: felt252,
         symbol: felt252,
     ) {
+        self._set_default_provider(default_provider);
         self.contract_uri.write(contract_uri);
     }
 
@@ -219,6 +221,11 @@ pub mod BookManager {
             } else if (next == delta) {
                 self.lockers.increment_nonzero_delta_count();
             }
+        }
+
+        fn _set_default_provider(ref self: ContractState, provider: ContractAddress) {
+            self.default_provier.write(provider);
+            self.emit(SetDefaultProvider { provider });
         }
     }
 
@@ -511,15 +518,20 @@ pub mod BookManager {
         }
 
         fn whitelist(ref self: ContractState, provider: ContractAddress) {
-            panic!("Not implemented");
+            // todo: check owner
+            self.is_whitelisted.write(provider, true);
+            self.emit(Whitelist { provider });
         }
 
         fn delist(ref self: ContractState, provider: ContractAddress) {
-            panic!("Not implemented");
+            // todo: check owner
+            self.is_whitelisted.write(provider, false);
+            self.emit(Delist { provider });
         }
 
         fn set_default_provider(ref self: ContractState, new_default_provider: ContractAddress) {
-            panic!("Not implemented");
+            // todo: check owner
+            self._set_default_provider(new_default_provider);
         }
     }
 }
