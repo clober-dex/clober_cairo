@@ -1,6 +1,8 @@
 pub mod Book {
     use clober_cairo::libraries::tick::Tick;
+    use clober_cairo::libraries::tick_bitmap::TickBitmap;
     use clober_cairo::libraries::fee_policy::FeePolicy;
+    use clober_cairo::libraries::segmented_segment_tree::SegmentedSegmentTree;
     use clober_cairo::libraries::order_id::OrderId;
     use clober_cairo::libraries::book_key::BookKey;
     use clober_cairo::libraries::hooks::Hooks;
@@ -14,52 +16,58 @@ pub mod Book {
     const NOT_IMPLEMENTED: felt252 = 'Not implemented';
 
     #[derive(Drop)]
-    pub struct State {
+    pub struct Book {
         pub key: BookKey,
         pub queues: StorageMap<Queue>,
-        pub tickBitmap: StorageMap<felt252>,
+        pub tickBitmap: TickBitmap,
         pub totalClaimableOf: StorageMap<felt252>,
     }
 
-    impl StateStoreImpl of Store<State> {
+    impl BookStoreImpl of Store<Book> {
         #[inline(always)]
-        fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<State> {
+        fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Book> {
             let base_felt252: felt252 = storage_address_from_base(base).into();
             let book_key_size: felt252 = Store::<BookKey>::size().into();
             SyscallResult::Ok(
-                State {
+                Book {
                     key: Store::read(address_domain, base).unwrap_syscall(),
                     queues: StorageMapTrait::fetch(
                         address_domain,
                         storage_base_address_from_felt252(base_felt252 + book_key_size)
                     ),
-                    tickBitmap: StorageMapTrait::fetch(
-                        address_domain,
-                        storage_base_address_from_felt252(base_felt252 + book_key_size + 1)
-                    ),
+                    tickBitmap: TickBitmap {
+                        high: StorageMapTrait::fetch(
+                            address_domain,
+                            storage_base_address_from_felt252(base_felt252 + book_key_size + 1)
+                        ),
+                        low: StorageMapTrait::fetch(
+                            address_domain,
+                            storage_base_address_from_felt252(base_felt252 + book_key_size + 2)
+                        ),
+                    },
                     totalClaimableOf: StorageMapTrait::fetch(
                         address_domain,
-                        storage_base_address_from_felt252(base_felt252 + book_key_size + 2)
+                        storage_base_address_from_felt252(base_felt252 + book_key_size + 3)
                     )
                 }
             )
         }
 
         #[inline(always)]
-        fn write(address_domain: u32, base: StorageBaseAddress, value: State) -> SyscallResult<()> {
+        fn write(address_domain: u32, base: StorageBaseAddress, value: Book) -> SyscallResult<()> {
             Store::write(address_domain, base, value.key)
         }
 
         #[inline(always)]
         fn read_at_offset(
             address_domain: u32, base: StorageBaseAddress, offset: u8
-        ) -> SyscallResult<State> {
+        ) -> SyscallResult<Book> {
             SyscallResult::Err(array![NOT_IMPLEMENTED])
         }
 
         #[inline(always)]
         fn write_at_offset(
-            address_domain: u32, base: StorageBaseAddress, offset: u8, value: State
+            address_domain: u32, base: StorageBaseAddress, offset: u8, value: Book
         ) -> SyscallResult<()> {
             SyscallResult::Err(array![NOT_IMPLEMENTED])
         }
@@ -118,7 +126,7 @@ pub mod Book {
     }
 
     #[derive(Copy, Drop, starknet::Store)]
-    pub struct Order {
+    struct Order {
         pub provider: ContractAddress,
         pub pending: u64
     }
