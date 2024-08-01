@@ -1,31 +1,3 @@
-use starknet::{ContractAddress};
-use clober_cairo::libraries::book_key::BookKey;
-use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams};
-
-#[starknet::interface]
-trait IBookManager<TContractState> {
-    fn open(ref self: TContractState, key: BookKey, hook_data: Span<felt252>);
-    fn lock(
-        ref self: TContractState, locker: ContractAddress, data: Span<felt252>
-    ) -> Span<felt252>;
-    fn make(
-        ref self: TContractState, params: MakeParams, hook_data: Span<felt252>
-    ) -> (felt252, u256);
-    fn take(ref self: TContractState, params: TakeParams, hook_data: Span<felt252>) -> (u256, u256);
-    fn cancel(ref self: TContractState, params: CancelParams, hook_data: Span<felt252>) -> u256;
-    fn claim(ref self: TContractState, id: felt252, hook_data: Span<felt252>) -> u256;
-    fn collect(
-        ref self: TContractState, recipient: ContractAddress, currency: ContractAddress
-    ) -> u256;
-    fn withdraw(
-        ref self: TContractState, currency: ContractAddress, to: ContractAddress, amount: u256
-    );
-    fn settle(ref self: TContractState, currency: ContractAddress) -> u256;
-    fn whitelist(ref self: TContractState, provider: ContractAddress);
-    fn delist(ref self: TContractState, provider: ContractAddress);
-    fn set_default_provider(ref self: TContractState, new_default_provider: ContractAddress);
-}
-
 #[starknet::contract]
 pub mod BookManager {
     use openzeppelin::introspection::src5::SRC5Component;
@@ -33,9 +5,11 @@ pub mod BookManager {
     use openzeppelin::access::ownable::OwnableComponent;
     use core::num::traits::zero::Zero;
     use starknet::storage::Map;
-    use starknet::{get_caller_address, get_contract_address};
+    use starknet::{ContractAddress, get_caller_address, get_contract_address};
+    use clober_cairo::interfaces::book_manager::IBookManager;
     use clober_cairo::interfaces::locker::{ILockerDispatcher, ILockerDispatcherTrait};
     use clober_cairo::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams};
     use clober_cairo::components::currency_delta::CurrencyDeltaComponent;
     use clober_cairo::components::hook_caller::HookCallerComponent;
     use clober_cairo::components::lockers::LockersComponent;
@@ -46,7 +20,6 @@ pub mod BookManager {
     use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
     use clober_cairo::libraries::tick::{Tick, TickTrait};
     use clober_cairo::libraries::hooks::{Hooks, HooksTrait};
-    use super::{ContractAddress, MakeParams, TakeParams, CancelParams};
 
     component!(path: CurrencyDeltaComponent, storage: currency_delta, event: CurrencyDeltaEvent);
     component!(path: HookCallerComponent, storage: hook_caller, event: HookCallerEvent);
@@ -273,7 +246,7 @@ pub mod BookManager {
     }
 
     #[abi(embed_v0)]
-    impl BookManagerImpl of super::IBookManager<ContractState> {
+    impl BookManagerImpl of IBookManager<ContractState> {
         fn open(ref self: ContractState, key: BookKey, hook_data: Span<felt252>) {
             self._check_locker();
             // @dev Also, the book opener should set unit size at least circulatingTotalSupply /
