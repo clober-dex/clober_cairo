@@ -143,6 +143,13 @@ pub impl TickImpl of TickTrait {
     }
 }
 
+// Convert tick to felt252
+impl TickIntoFelt252 of Into<Tick, felt252> {
+    fn into(self: Tick) -> felt252 {
+        self.value.into()
+    }
+}
+
 impl TickPartialEq of PartialEq<Tick> {
     fn eq(lhs: @Tick, rhs: @Tick) -> bool {
         lhs.value == rhs.value
