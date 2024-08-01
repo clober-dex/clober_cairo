@@ -3,24 +3,25 @@ use clober_cairo::utils::packed_felt252::update_62;
 use clober_cairo::utils::packed_felt252::get_u62;
 use clober_cairo::utils::packed_felt252::add_u62;
 use clober_cairo::utils::packed_felt252::sub_u62;
+use clober_cairo::libraries::storage_map::{StorageMap, StorageMapTrait};
 
 #[generate_trait]
 pub impl TotalClaimableMapImpl of TotalClaimableMapTrait {
-    fn get(ref totalClaimableMap: Felt252Dict<felt252>, tick: Tick) -> u64 {
+    fn get(ref totalClaimableMap: StorageMap<felt252>, tick: Tick) -> u64 {
         let (groupIndex, elementIndex) = Self::_split_tick(tick);
-        get_u62(totalClaimableMap[groupIndex], elementIndex)
+        get_u62(totalClaimableMap.read_at(groupIndex), elementIndex)
     }
 
-    fn add(ref totalClaimableMap: Felt252Dict<felt252>, tick: Tick, n: u64) {
+    fn add(ref totalClaimableMap: StorageMap<felt252>, tick: Tick, n: u64) {
         let (groupIndex, elementIndex) = Self::_split_tick(tick);
-        let group = totalClaimableMap[groupIndex];
-        totalClaimableMap.insert(groupIndex, add_u62(group, elementIndex, n));
+        let group = totalClaimableMap.read_at(groupIndex);
+        totalClaimableMap.write_at(groupIndex, add_u62(group, elementIndex, n));
     }
 
-    fn sub(ref totalClaimableMap: Felt252Dict<felt252>, tick: Tick, n: u64) {
+    fn sub(ref totalClaimableMap: StorageMap<felt252>, tick: Tick, n: u64) {
         let (groupIndex, elementIndex) = Self::_split_tick(tick);
-        let group = totalClaimableMap[groupIndex];
-        totalClaimableMap.insert(groupIndex, sub_u62(group, elementIndex, n));
+        let group = totalClaimableMap.read_at(groupIndex);
+        totalClaimableMap.write_at(groupIndex, sub_u62(group, elementIndex, n));
     }
 
     fn _split_tick(tick: Tick) -> (felt252, u8) {

@@ -1,6 +1,8 @@
+use clober_cairo::libraries::storage_map::{StorageMap, StorageMapTrait};
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::libraries::tick_bitmap::TickBitmap;
 use clober_cairo::libraries::tick_bitmap::TickBitmapImpl;
+use starknet::storage_access::storage_base_address_from_felt252;
 
 fn sort<T, +Copy<T>, +Drop<T>, +PartialOrd<T>>(mut array: Span<T>) -> Array<T> {
     if array.len() == 0 {
@@ -42,7 +44,10 @@ fn sort<T, +Copy<T>, +Drop<T>, +PartialOrd<T>>(mut array: Span<T>) -> Array<T> {
 
 #[test]
 fn test_highest() {
-    let mut bitmap: TickBitmap = Default::default();
+    let mut bitmap: TickBitmap = TickBitmap {
+        high: StorageMapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
+        low: StorageMapTrait::fetch(1, storage_base_address_from_felt252(0x12345678))
+    };
     let numbers = array![
         -263808,
         -254026,
@@ -143,7 +148,10 @@ fn test_highest() {
 
 #[test]
 fn test_clear() {
-    let mut bitmap: TickBitmap = Default::default();
+    let mut bitmap: TickBitmap = TickBitmap {
+        high: StorageMapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
+        low: StorageMapTrait::fetch(1, storage_base_address_from_felt252(0x12345678))
+    };
     let numbers = array![
         -613,
         -433167,
@@ -244,7 +252,10 @@ fn test_clear() {
 #[test]
 #[should_panic(expected: ('AlreadyExistsError',))]
 fn test_set() {
-    let mut bitmap: TickBitmap = Default::default();
+    let mut bitmap: TickBitmap = TickBitmap {
+        high: StorageMapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
+        low: StorageMapTrait::fetch(1, storage_base_address_from_felt252(0x12345678))
+    };
     let number = 5;
 
     assert!(!TickBitmapImpl::has(ref bitmap, Tick { value: number }), "BEFORE_SET");
