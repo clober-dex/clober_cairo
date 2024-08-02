@@ -74,7 +74,7 @@ pub mod Book {
 
         #[inline(always)]
         fn size() -> u8 {
-            Store::<BookKey>::size() + 3
+            Store::<BookKey>::size() + 4
         }
     }
 
