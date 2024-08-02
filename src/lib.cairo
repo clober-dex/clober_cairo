@@ -7,7 +7,6 @@ pub mod components {
 pub mod interfaces {
     pub mod book_manager;
     pub mod currency_delta;
-    pub mod erc20;
     pub mod hook_caller;
     pub mod locker;
     pub mod lockers;

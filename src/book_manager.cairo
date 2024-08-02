@@ -1,6 +1,7 @@
 #[starknet::contract]
 pub mod BookManager {
     use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use openzeppelin::access::ownable::OwnableComponent;
     use core::num::traits::zero::Zero;
@@ -8,7 +9,6 @@ pub mod BookManager {
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
     use clober_cairo::interfaces::book_manager::IBookManager;
     use clober_cairo::interfaces::locker::{ILockerDispatcher, ILockerDispatcherTrait};
-    use clober_cairo::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
     use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams};
     use clober_cairo::components::currency_delta::CurrencyDeltaComponent;
     use clober_cairo::components::hook_caller::HookCallerComponent;
@@ -535,7 +535,7 @@ pub mod BookManager {
 
             let reserves_before = self.reserves_of.read(currency);
             let erc20_dispatcher = IERC20Dispatcher { contract_address: currency };
-            let balance_of_self = erc20_dispatcher.balanceOf(get_contract_address());
+            let balance_of_self = erc20_dispatcher.balance_of(get_contract_address());
             self.reserves_of.write(currency, balance_of_self);
             let paid = balance_of_self - reserves_before;
             // subtraction must be safe
