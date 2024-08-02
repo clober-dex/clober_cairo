@@ -9,7 +9,7 @@ pub mod BookManager {
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
     use clober_cairo::interfaces::book_manager::IBookManager;
     use clober_cairo::interfaces::locker::{ILockerDispatcher, ILockerDispatcherTrait};
-    use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams};
+    use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams, OrderInfo};
     use clober_cairo::components::currency_delta::CurrencyDeltaComponent;
     use clober_cairo::components::hook_caller::HookCallerComponent;
     use clober_cairo::components::lockers::LockersComponent;
@@ -247,6 +247,83 @@ pub mod BookManager {
 
     #[abi(embed_v0)]
     impl BookManagerImpl of IBookManager<ContractState> {
+        fn base_uri(self: @ContractState) -> ByteArray {
+            self.erc721._base_uri()
+        }
+
+        fn contract_uri(self: @ContractState) -> ByteArray {
+            self.contract_uri.read()
+        }
+
+        fn default_provider(self: @ContractState) -> ContractAddress {
+            self.default_provier.read()
+        }
+
+        fn reserves_of(self: @ContractState, provider: ContractAddress) -> u256 {
+            self.reserves_of.read(provider)
+        }
+
+        fn is_whitelisted(self: @ContractState, provider: ContractAddress) -> bool {
+            self.is_whitelisted.read(provider)
+        }
+
+        fn check_authorized(
+            self: @ContractState,
+            owner: ContractAddress,
+            spender: ContractAddress,
+            token_id: felt252
+        ) {
+            self.erc721._check_authorized(owner, spender, token_id.into())
+        }
+
+        fn token_owed(
+            self: @ContractState,
+            owner: ContractAddress,
+            currency: ContractAddress,
+            token_id: felt252
+        ) -> u256 {
+            self.token_owed.read((owner, currency))
+        }
+
+        fn get_book_key(self: @ContractState, book_id: felt252) -> BookKey {
+            self.books.read(book_id).key
+        }
+
+        fn get_order(self: @ContractState, order_id: felt252) -> OrderInfo {
+            let decoded_order_id = OrderIdTrait::decode(order_id);
+            let book = self.books.read(decoded_order_id.book_id);
+            let order = book.get_order(decoded_order_id.tick, decoded_order_id.index);
+            let claimable = book
+                .calculate_claimable_unit(decoded_order_id.tick, decoded_order_id.index);
+            OrderInfo {
+                provider: order.provider, open: order.pending - claimable, cliamable: claimable
+            }
+        }
+
+        fn get_depth(self: @ContractState, book_id: felt252, tick: Tick) -> u64 {
+            self.books.read(book_id).depth(tick)
+        }
+
+        fn get_highest(self: @ContractState, book_id: felt252) -> Tick {
+            self.books.read(book_id).highest()
+        }
+
+        fn max_less_than(self: @ContractState, book_id: felt252, tick: Tick) -> Tick {
+            self.books.read(book_id).max_less_than(tick)
+        }
+
+        fn is_opened(self: @ContractState, book_id: felt252) -> bool {
+            self.books.read(book_id).is_opened()
+        }
+
+        fn is_empty(self: @ContractState, book_id: felt252) -> bool {
+            self.books.read(book_id).is_empty()
+        }
+
+        fn encode_book_key(self: @ContractState, book_key: BookKey) -> felt252 {
+            book_key.to_id()
+        }
+
         fn open(ref self: ContractState, key: BookKey, hook_data: Span<felt252>) {
             self._check_locker();
             // @dev Also, the book opener should set unit size at least circulatingTotalSupply /
