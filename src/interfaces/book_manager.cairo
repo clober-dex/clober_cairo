@@ -1,6 +1,7 @@
 use starknet::{ContractAddress};
 use clober_cairo::libraries::book_key::BookKey;
 use clober_cairo::libraries::tick::Tick;
+use clober_cairo::libraries::i257::i257;
 use clober_cairo::interfaces::params::{OrderInfo, MakeParams, TakeParams, CancelParams};
 
 #[starknet::interface]
@@ -17,6 +18,9 @@ pub trait IBookManager<TContractState> {
         self: @TContractState, owner: ContractAddress, currency: ContractAddress, token_id: felt252
     ) -> u256;
     fn get_book_key(self: @TContractState, book_id: felt252) -> BookKey;
+    fn get_currency_delta(
+        self: @TContractState, locker: ContractAddress, currency: ContractAddress,
+    ) -> i257;
     fn get_order(self: @TContractState, order_id: felt252) -> OrderInfo;
     fn get_depth(self: @TContractState, book_id: felt252, tick: Tick) -> u64;
     fn get_highest(self: @TContractState, book_id: felt252) -> Tick;

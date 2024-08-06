@@ -10,7 +10,6 @@ pub mod BookManager {
     use clober_cairo::interfaces::book_manager::IBookManager;
     use clober_cairo::interfaces::locker::{ILockerDispatcher, ILockerDispatcherTrait};
     use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams, OrderInfo};
-    use clober_cairo::components::currency_delta::CurrencyDeltaComponent;
     use clober_cairo::components::hook_caller::HookCallerComponent;
     use clober_cairo::components::lockers::LockersComponent;
     use clober_cairo::libraries::i257::{i257, I257Trait};
@@ -21,7 +20,6 @@ pub mod BookManager {
     use clober_cairo::libraries::tick::{Tick, TickTrait};
     use clober_cairo::libraries::hooks::{Hooks, HooksTrait};
 
-    component!(path: CurrencyDeltaComponent, storage: currency_delta, event: CurrencyDeltaEvent);
     component!(path: HookCallerComponent, storage: hook_caller, event: HookCallerEvent);
     component!(path: LockersComponent, storage: lockers, event: LockersEvent);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
@@ -51,11 +49,6 @@ pub mod BookManager {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[abi(embed_v0)]
-    impl CurrencyDeltaImpl =
-        CurrencyDeltaComponent::CurrencyDeltaImpl<ContractState>;
-    impl CurrencyDeltaInternalImpl = CurrencyDeltaComponent::InternalImpl<ContractState>;
-
-    #[abi(embed_v0)]
     impl HookCallerImpl = HookCallerComponent::HookCallerImpl<ContractState>;
     impl HookCallerInternalImpl = HookCallerComponent::InternalImpl<ContractState>;
 
@@ -72,11 +65,10 @@ pub mod BookManager {
         #[substorage(v0)]
         src5: SRC5Component::Storage,
         #[substorage(v0)]
-        currency_delta: CurrencyDeltaComponent::Storage,
-        #[substorage(v0)]
         hook_caller: HookCallerComponent::Storage,
         #[substorage(v0)]
         lockers: LockersComponent::Storage,
+        currency_delta: Map<(ContractAddress, ContractAddress), i257>,
         contract_uri: ByteArray,
         default_provier: ContractAddress,
         reserves_of: Map<ContractAddress, u256>,
@@ -94,8 +86,6 @@ pub mod BookManager {
         ERC721Event: ERC721Component::Event,
         #[flat]
         SRC5Event: SRC5Component::Event,
-        #[flat]
-        CurrencyDeltaEvent: CurrencyDeltaComponent::Event,
         #[flat]
         HookCallerEvent: HookCallerComponent::Event,
         #[flat]
@@ -230,7 +220,8 @@ pub mod BookManager {
             }
 
             let locker = self.lockers.get_current_locker();
-            let next = self.currency_delta.add(locker, currency, delta);
+            let next = self.currency_delta.read((locker, currency)) + delta;
+            self.currency_delta.write((locker, currency), next);
 
             if (next.is_zero()) {
                 self.lockers.decrement_nonzero_delta_count();
@@ -287,6 +278,12 @@ pub mod BookManager {
 
         fn get_book_key(self: @ContractState, book_id: felt252) -> BookKey {
             self.books.read(book_id).key
+        }
+
+        fn get_currency_delta(
+            self: @ContractState, locker: ContractAddress, currency: ContractAddress,
+        ) -> i257 {
+            self.currency_delta.read((locker, currency))
         }
 
         fn get_order(self: @ContractState, order_id: felt252) -> OrderInfo {
