@@ -1,5 +1,5 @@
 pub mod SegmentedSegmentTree {
-    use clober_cairo::libraries::storage_map::{StorageMap, StorageMapTrait};
+    use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
     use clober_cairo::utils::packed_felt252::get_u62;
     use clober_cairo::utils::packed_felt252::sum_u62;
     use clober_cairo::utils::packed_felt252::update_62;
@@ -21,13 +21,13 @@ pub mod SegmentedSegmentTree {
     const MAX_NODES: u256 = 0x8000; // (R * P) * ((C * P) ** (L - 1)) = `32768`
     const MAX_NODES_P_MINUS_ONE: u256 = 14; // MAX_NODES / R = 2 ** `14`
 
-    pub fn get(ref layers: StorageMap<felt252>, index: u256) -> u64 {
+    pub fn get(ref layers: Felt252Map<felt252>, index: u256) -> u64 {
         assert(index < MAX_NODES, 'INDEX_ERROR');
         let key: felt252 = ((L.into() - 1) * MAX_NODES + index / P.into()).try_into().unwrap();
         get_u62(layers.read_at(key), (index & P_M).try_into().unwrap())
     }
 
-    pub fn total(ref layers: StorageMap<felt252>) -> u256 {
+    pub fn total(ref layers: Felt252Map<felt252>) -> u256 {
         sum_u62(layers.read_at(0), 0, P.into()) + sum_u62(layers.read_at(1), 0, P.into())
     }
 
@@ -49,7 +49,7 @@ pub mod SegmentedSegmentTree {
         indices
     }
 
-    pub fn query(ref layers: StorageMap<felt252>, left: u256, right: u256) -> u256 {
+    pub fn query(ref layers: Felt252Map<felt252>, left: u256, right: u256) -> u256 {
         if left == right {
             return 0;
         }
@@ -137,7 +137,7 @@ pub mod SegmentedSegmentTree {
         ret - deficit
     }
 
-    pub fn update(ref layers: StorageMap<felt252>, index: u256, value: u64) {
+    pub fn update(ref layers: Felt252Map<felt252>, index: u256, value: u64) {
         assert(index < MAX_NODES, 'INDEX_ERROR');
         let indices: Array<LayerIndex> = _get_layer_indices(index);
         let bottom_index: LayerIndex = *indices.at((L - 1).try_into().unwrap()).try_into().unwrap();

@@ -1,8 +1,8 @@
 use clober_cairo::libraries::segmented_segment_tree::SegmentedSegmentTree;
-use clober_cairo::libraries::storage_map::{StorageMap, StorageMapTrait};
+use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
 use starknet::storage_access::storage_base_address_from_felt252;
 
-fn _init(ref layers: StorageMap<felt252>) {
+fn _init(ref layers: Felt252Map<felt252>) {
     let values = array![
         392516968262,
         685254941374,
@@ -60,7 +60,7 @@ fn _init(ref layers: StorageMap<felt252>) {
 
 #[test]
 fn test_get() {
-    let mut layers: StorageMap<felt252> = StorageMapTrait::fetch(
+    let mut layers: Felt252Map<felt252> = Felt252MapTrait::fetch(
         0, storage_base_address_from_felt252(0x87654321)
     );
     _init(ref layers);
@@ -76,7 +76,7 @@ fn test_get() {
 
 #[test]
 fn test_total() {
-    let mut layers: StorageMap<felt252> = StorageMapTrait::fetch(
+    let mut layers: Felt252Map<felt252> = Felt252MapTrait::fetch(
         0, storage_base_address_from_felt252(0x87654321)
     );
     _init(ref layers);
@@ -94,7 +94,7 @@ fn test_total() {
 
 #[test]
 fn test_query() {
-    let mut layers: StorageMap<felt252> = StorageMapTrait::fetch(
+    let mut layers: Felt252Map<felt252> = Felt252MapTrait::fetch(
         0, storage_base_address_from_felt252(0x87654321)
     );
     _init(ref layers);
@@ -110,7 +110,7 @@ fn test_query() {
 
 #[test]
 fn test_update() {
-    let mut layers: StorageMap<felt252> = StorageMapTrait::fetch(
+    let mut layers: Felt252Map<felt252> = Felt252MapTrait::fetch(
         0, storage_base_address_from_felt252(0x87654321)
     );
     _init(ref layers);

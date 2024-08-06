@@ -1,12 +1,12 @@
 use clober_cairo::libraries::total_claimable_map::TotalClaimableMapImpl;
-use clober_cairo::libraries::storage_map::{StorageMap, StorageMapTrait};
+use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
 use starknet::storage_access::storage_base_address_from_felt252;
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::utils::constants::{MIN_TICK, MAX_TICK};
 
 #[test]
 fn test_add() {
-    let mut totalClaimableMap: StorageMap<felt252> = StorageMapTrait::fetch(
+    let mut totalClaimableMap: Felt252Map<felt252> = Felt252MapTrait::fetch(
         0, storage_base_address_from_felt252(0x87654321)
     );
 

@@ -1,5 +1,5 @@
 use clober_cairo::libraries::tick::Tick;
-use clober_cairo::libraries::storage_map::{StorageMap, StorageMapTrait};
+use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
 use clober_cairo::utils::math::{least_significant_bit, fast_power};
 use clober_cairo::utils::constants::{TWO_POW_128, MIN_TICK};
 
@@ -7,8 +7,8 @@ const B0_BITMAP_KEY: felt252 = 'TickBitmap';
 
 #[derive(Destruct, Drop)]
 pub struct TickBitmap {
-    pub high: StorageMap<u128>,
-    pub low: StorageMap<u128>,
+    pub high: Felt252Map<u128>,
+    pub low: Felt252Map<u128>,
 }
 
 #[generate_trait]
