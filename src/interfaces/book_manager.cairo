@@ -17,6 +17,8 @@ pub trait IBookManager<TContractState> {
     fn token_owed(
         self: @TContractState, owner: ContractAddress, currency: ContractAddress, token_id: felt252
     ) -> u256;
+    fn get_current_hook(self: @TContractState) -> ContractAddress;
+    fn get_hook(self: @TContractState, i: u32) -> ContractAddress;
     fn get_book_key(self: @TContractState, book_id: felt252) -> BookKey;
     fn get_currency_delta(
         self: @TContractState, locker: ContractAddress, currency: ContractAddress,

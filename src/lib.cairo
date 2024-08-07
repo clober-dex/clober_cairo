@@ -1,11 +1,9 @@
 pub mod components {
-    pub mod hook_caller;
     pub mod lockers;
 }
 
 pub mod interfaces {
     pub mod book_manager;
-    pub mod hook_caller;
     pub mod locker;
     pub mod lockers;
     pub mod params;
@@ -16,6 +14,7 @@ pub mod libraries {
     pub mod book;
     pub mod fee_policy;
     pub mod hooks;
+    pub mod hooks_caller;
     pub mod order_id;
     pub mod tick;
     pub mod tick_bitmap;

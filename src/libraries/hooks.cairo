@@ -1,6 +1,6 @@
 use starknet::ContractAddress;
 
-#[derive(Copy, Drop, Hash, Serde)]
+#[derive(Copy, Drop, Hash, Serde, starknet::Store)]
 pub struct Hooks {
     pub address: ContractAddress,
 }

@@ -10,7 +10,6 @@ pub mod BookManager {
     use clober_cairo::interfaces::book_manager::IBookManager;
     use clober_cairo::interfaces::locker::{ILockerDispatcher, ILockerDispatcherTrait};
     use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams, OrderInfo};
-    use clober_cairo::components::hook_caller::HookCallerComponent;
     use clober_cairo::components::lockers::LockersComponent;
     use clober_cairo::libraries::i257::{i257, I257Trait};
     use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
@@ -19,8 +18,8 @@ pub mod BookManager {
     use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
     use clober_cairo::libraries::tick::{Tick, TickTrait};
     use clober_cairo::libraries::hooks::{Hooks, HooksTrait};
+    use clober_cairo::libraries::hooks_caller::{HooksCaller, HooksCallerTrait};
 
-    component!(path: HookCallerComponent, storage: hook_caller, event: HookCallerEvent);
     component!(path: LockersComponent, storage: lockers, event: LockersEvent);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -49,10 +48,6 @@ pub mod BookManager {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[abi(embed_v0)]
-    impl HookCallerImpl = HookCallerComponent::HookCallerImpl<ContractState>;
-    impl HookCallerInternalImpl = HookCallerComponent::InternalImpl<ContractState>;
-
-    #[abi(embed_v0)]
     impl LockersImpl = LockersComponent::LockersImpl<ContractState>;
     impl LockersInternalImpl = LockersComponent::InternalImpl<ContractState>;
 
@@ -65,9 +60,8 @@ pub mod BookManager {
         #[substorage(v0)]
         src5: SRC5Component::Storage,
         #[substorage(v0)]
-        hook_caller: HookCallerComponent::Storage,
-        #[substorage(v0)]
         lockers: LockersComponent::Storage,
+        hooks_caller: HooksCaller,
         currency_delta: Map<(ContractAddress, ContractAddress), i257>,
         contract_uri: ByteArray,
         default_provier: ContractAddress,
@@ -86,8 +80,6 @@ pub mod BookManager {
         ERC721Event: ERC721Component::Event,
         #[flat]
         SRC5Event: SRC5Component::Event,
-        #[flat]
-        HookCallerEvent: HookCallerComponent::Event,
         #[flat]
         LockersEvent: LockersComponent::Event,
         Open: Open,
@@ -210,7 +202,7 @@ pub mod BookManager {
         fn _check_locker(self: @ContractState) {
             let caller = get_caller_address();
             let locker = self.lockers.get_current_locker();
-            let hook = self.hook_caller.get_current_hook();
+            let hook = self.hooks_caller.read().get_current_hook();
             assert(caller == locker || caller == hook, Errors::INVALID_LOCKER);
         }
 
@@ -274,6 +266,14 @@ pub mod BookManager {
             token_id: felt252
         ) -> u256 {
             self.token_owed.read((owner, currency))
+        }
+
+        fn get_current_hook(self: @ContractState) -> ContractAddress {
+            self.hooks_caller.read().get_current_hook()
+        }
+
+        fn get_hook(self: @ContractState, i: u32) -> ContractAddress {
+            self.hooks_caller.read().get_hook(i)
         }
 
         fn get_book_key(self: @ContractState, book_id: felt252) -> BookKey {
@@ -342,7 +342,8 @@ pub mod BookManager {
 
             assert(key.hooks.is_valid_hook_address(), Errors::INVALID_HOOKS);
 
-            self.hook_caller.before_open(@key.hooks, @key, hook_data);
+            let mut hooks_caller = self.hooks_caller.read();
+            hooks_caller.before_open(@key.hooks, @key, hook_data);
 
             let book_id = key.to_id();
             let mut book = self.books.read(book_id);
@@ -361,7 +362,7 @@ pub mod BookManager {
                     }
                 );
 
-            self.hook_caller.after_open(@key.hooks, @key, hook_data);
+            hooks_caller.after_open(@key.hooks, @key, hook_data);
         }
 
         fn lock(
@@ -400,7 +401,8 @@ pub mod BookManager {
             let mut book = self.books.read(book_id);
             book.check_opened();
 
-            self.hook_caller.before_make(@params.key.hooks, @params, hook_data);
+            let mut hooks_caller = self.hooks_caller.read();
+            hooks_caller.before_make(@params.key.hooks, @params, hook_data);
 
             let order_index = book.make(params.tick, params.unit, params.provider);
             let order_id = (OrderId { book_id, tick: params.tick, index: order_index }).encode();
@@ -427,7 +429,7 @@ pub mod BookManager {
                     }
                 );
 
-            self.hook_caller.after_make(@params.key.hooks, @params, order_id, hook_data);
+            hooks_caller.after_make(@params.key.hooks, @params, order_id, hook_data);
 
             (order_id, quote_amount)
         }
@@ -442,7 +444,8 @@ pub mod BookManager {
             let mut book = self.books.read(book_id);
             book.check_opened();
 
-            self.hook_caller.before_take(@params.key.hooks, @params, hook_data);
+            let mut hooks_caller = self.hooks_caller.read();
+            hooks_caller.before_take(@params.key.hooks, @params, hook_data);
 
             let taken_unit = book.take(params.tick, params.max_unit);
             let mut quote_amount: u256 = taken_unit.into() * params.key.unit_size.into();
@@ -470,7 +473,7 @@ pub mod BookManager {
                     }
                 );
 
-            self.hook_caller.after_take(@params.key.hooks, @params, taken_unit, hook_data);
+            hooks_caller.after_take(@params.key.hooks, @params, taken_unit, hook_data);
             (quote_amount, base_amount)
         }
 
@@ -485,7 +488,8 @@ pub mod BookManager {
             let mut book = self.books.read(params.id);
             let key = book.key;
 
-            self.hook_caller.before_cancel(@key.hooks, @params, hook_data);
+            let mut hooks_caller = self.hooks_caller.read();
+            hooks_caller.before_cancel(@key.hooks, @params, hook_data);
 
             let decoded_order_id = OrderIdTrait::decode(params.id);
             let (canceled_unit, pending_unit) = book.cancel(decoded_order_id, params.to_unit);
@@ -504,7 +508,7 @@ pub mod BookManager {
 
             self.emit(Cancel { order_id: params.id, unit: canceled_unit });
 
-            self.hook_caller.after_cancel(@key.hooks, @params, canceled_unit, hook_data);
+            hooks_caller.after_cancel(@key.hooks, @params, canceled_unit, hook_data);
 
             canceled_amount
         }
@@ -521,7 +525,8 @@ pub mod BookManager {
             let mut book = self.books.read(decoded_order_id.book_id);
             let key = book.key;
 
-            self.hook_caller.before_claim(@key.hooks, id, hook_data);
+            let mut hooks_caller = self.hooks_caller.read();
+            hooks_caller.before_claim(@key.hooks, id, hook_data);
 
             let claimed_unit = book.claim(decoded_order_id.tick, decoded_order_id.index);
 
@@ -573,7 +578,7 @@ pub mod BookManager {
 
             self.emit(Claim { order_id: id, unit: claimed_unit });
 
-            self.hook_caller.after_claim(@key.hooks, id, claimed_unit, hook_data);
+            hooks_caller.after_claim(@key.hooks, id, claimed_unit, hook_data);
 
             claimed_amount
         }
