@@ -1,9 +1,9 @@
 #[starknet::contract]
 pub mod BookManager {
-    use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
-    use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
+    use openzeppelin_access::ownable::OwnableComponent;
     use core::num::traits::zero::Zero;
     use starknet::storage::Map;
     use starknet::{ContractAddress, get_caller_address, get_contract_address};

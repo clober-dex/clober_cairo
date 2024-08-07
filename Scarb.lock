@@ -5,10 +5,66 @@ version = 1
 name = "clober_cairo"
 version = "0.1.0"
 dependencies = [
- "openzeppelin",
+ "openzeppelin_access",
+ "openzeppelin_introspection",
+ "openzeppelin_token",
+ "openzeppelin_utils",
+ "snforge_std",
 ]
 
 [[package]]
-name = "openzeppelin"
+name = "openzeppelin_access"
 version = "0.15.0-rc.0"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?rev=f72cab9#f72cab90c7f07f735f116722d5c01dc46b45606c"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?rev=eabfa02#eabfa029b7b681d9e83bf171f723081b07891016"
+dependencies = [
+ "openzeppelin_introspection",
+ "openzeppelin_utils",
+]
+
+[[package]]
+name = "openzeppelin_account"
+version = "0.15.0-rc.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?rev=eabfa02#eabfa029b7b681d9e83bf171f723081b07891016"
+dependencies = [
+ "openzeppelin_introspection",
+ "openzeppelin_token",
+ "openzeppelin_utils",
+]
+
+[[package]]
+name = "openzeppelin_governance"
+version = "0.15.0-rc.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?rev=eabfa02#eabfa029b7b681d9e83bf171f723081b07891016"
+dependencies = [
+ "openzeppelin_access",
+ "openzeppelin_introspection",
+ "openzeppelin_utils",
+]
+
+[[package]]
+name = "openzeppelin_introspection"
+version = "0.15.0-rc.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?rev=eabfa02#eabfa029b7b681d9e83bf171f723081b07891016"
+
+[[package]]
+name = "openzeppelin_token"
+version = "0.15.0-rc.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?rev=eabfa02#eabfa029b7b681d9e83bf171f723081b07891016"
+dependencies = [
+ "openzeppelin_account",
+ "openzeppelin_governance",
+ "openzeppelin_introspection",
+]
+
+[[package]]
+name = "openzeppelin_utils"
+version = "0.15.0-rc.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?rev=eabfa02#eabfa029b7b681d9e83bf171f723081b07891016"
+dependencies = [
+ "snforge_std",
+]
+
+[[package]]
+name = "snforge_std"
+version = "0.26.0"
+source = "git+https://github.com/foundry-rs/starknet-foundry.git?tag=v0.26.0#50eb589db65e113efe4f09241feb59b574228c7e"
