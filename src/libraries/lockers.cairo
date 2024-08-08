@@ -1,10 +1,8 @@
 use starknet::{ContractAddress, Store, SyscallResultTrait, SyscallResult};
-use starknet::storage::Map;
 use starknet::storage_access::{
     StorageBaseAddress, storage_address_from_base, storage_base_address_from_felt252
 };
 use clober_cairo::utils::constants::{ZERO_ADDRESS, TWO_POW_32};
-use clober_cairo::interfaces::lockers::ILockers;
 use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
 
 const NOT_IMPLEMENTED: felt252 = 'Not implemented';
