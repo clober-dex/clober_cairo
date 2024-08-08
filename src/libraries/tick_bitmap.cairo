@@ -87,7 +87,7 @@ pub impl TickBitmapImpl of TickBitmapTrait {
                 mask = ~((fast_power(2_u256, b0.into()) - 1) * 2 + 1);
                 let b0Bitmap = Self::_get(ref self, B0_BITMAP_KEY) & mask;
                 if b0Bitmap == 0 {
-                    return Tick { value: MIN_TICK - 1 };
+                    return (MIN_TICK - 1).into();
                 }
                 b0 = least_significant_bit(b0Bitmap).into();
                 b1Bitmap = Self::_get(ref self, (~b0).into());
@@ -100,7 +100,7 @@ pub impl TickBitmapImpl of TickBitmapTrait {
     }
 
     fn _split(tick: Tick) -> (u32, u32) {
-        let raw: u32 = (0x80000 - tick.value).try_into().unwrap();
+        let raw: u32 = (0x80000 - tick.into()).try_into().unwrap();
         let b0b1 = (raw & 0xffff00) / 256;
         let b2 = raw & 0xff;
         (b0b1, b2)
@@ -108,7 +108,7 @@ pub impl TickBitmapImpl of TickBitmapTrait {
 
     fn _to_tick(b0b1: u32, b2: u32) -> Tick {
         let value: i32 = 0x80000 - (b0b1 * 256 + b2).try_into().unwrap();
-        Tick { value }
+        value.into()
     }
 
     fn _get(ref bitmap: TickBitmap, key: felt252) -> u256 {

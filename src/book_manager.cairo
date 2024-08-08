@@ -424,7 +424,7 @@ pub mod BookManager {
                     Make {
                         book_id,
                         user: get_caller_address(),
-                        tick: params.tick.value,
+                        tick: params.tick.into(),
                         order_index,
                         unit: params.unit,
                         provider: params.provider
@@ -470,7 +470,7 @@ pub mod BookManager {
                     Take {
                         book_id,
                         user: get_caller_address(),
-                        tick: params.tick.value,
+                        tick: params.tick.into(),
                         unit: taken_unit
                     }
                 );

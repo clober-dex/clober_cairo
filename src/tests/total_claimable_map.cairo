@@ -10,23 +10,23 @@ fn test_add() {
         0, storage_base_address_from_felt252(0x87654321)
     );
 
-    add(ref totalClaimableMap, Tick { value: MAX_TICK }, 412443);
-    add(ref totalClaimableMap, Tick { value: 102 }, 202);
-    add(ref totalClaimableMap, Tick { value: 101 }, 201);
-    add(ref totalClaimableMap, Tick { value: 100 }, 4611686018427387903);
-    add(ref totalClaimableMap, Tick { value: 1 }, 321);
-    add(ref totalClaimableMap, Tick { value: 0 }, 123);
-    add(ref totalClaimableMap, Tick { value: -1 }, 111);
-    add(ref totalClaimableMap, Tick { value: -420 }, 0);
-    add(ref totalClaimableMap, Tick { value: MIN_TICK }, 412447);
+    add(ref totalClaimableMap, MAX_TICK.into(), 412443);
+    add(ref totalClaimableMap, 102_i32.into(), 202);
+    add(ref totalClaimableMap, 101_i32.into(), 201);
+    add(ref totalClaimableMap, 100_i32.into(), 4611686018427387903);
+    add(ref totalClaimableMap, 1_i32.into(), 321);
+    add(ref totalClaimableMap, 0_i32.into(), 123);
+    add(ref totalClaimableMap, (-1_i32).into(), 111);
+    add(ref totalClaimableMap, (-420_i32).into(), 0);
+    add(ref totalClaimableMap, MIN_TICK.into(), 412447);
 
-    assert_eq!(get(ref totalClaimableMap, Tick { value: MAX_TICK }), 412443);
-    assert_eq!(get(ref totalClaimableMap, Tick { value: 102 }), 202);
-    assert_eq!(get(ref totalClaimableMap, Tick { value: 101 }), 201);
-    assert_eq!(get(ref totalClaimableMap, Tick { value: 100 }), 4611686018427387903);
-    assert_eq!(get(ref totalClaimableMap, Tick { value: 1 }), 321);
-    assert_eq!(get(ref totalClaimableMap, Tick { value: 0 }), 123);
-    assert_eq!(get(ref totalClaimableMap, Tick { value: -1 }), 111);
-    assert_eq!(get(ref totalClaimableMap, Tick { value: -420 }), 0);
-    assert_eq!(get(ref totalClaimableMap, Tick { value: MIN_TICK }), 412447);
+    assert_eq!(get(ref totalClaimableMap, MAX_TICK.into()), 412443);
+    assert_eq!(get(ref totalClaimableMap, 102_i32.into()), 202);
+    assert_eq!(get(ref totalClaimableMap, 101_i32.into()), 201);
+    assert_eq!(get(ref totalClaimableMap, 100_i32.into()), 4611686018427387903);
+    assert_eq!(get(ref totalClaimableMap, 1_i32.into()), 321);
+    assert_eq!(get(ref totalClaimableMap, 0_i32.into()), 123);
+    assert_eq!(get(ref totalClaimableMap, (-1_i32).into()), 111);
+    assert_eq!(get(ref totalClaimableMap, (-420_i32).into()), 0);
+    assert_eq!(get(ref totalClaimableMap, MIN_TICK.into()), 412447);
 }

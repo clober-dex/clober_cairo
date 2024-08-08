@@ -28,7 +28,19 @@ const R18: u256 = 0x48a170391f7dc42;
 
 #[derive(Copy, Drop, Serde, Debug)]
 pub struct Tick {
-    pub value: i32,
+    value: i32,
+}
+
+impl TickIntoI32 of Into<Tick, i32> {
+    fn into(self: Tick) -> i32 {
+        self.value
+    }
+}
+
+impl I32IntoTick of Into<i32, Tick> {
+    fn into(self: i32) -> Tick {
+        Tick { value: self }
+    }
 }
 
 #[generate_trait]

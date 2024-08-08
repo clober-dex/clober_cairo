@@ -14,12 +14,12 @@ pub impl OrderIdImpl of OrderIdTrait {
     fn encode(self: OrderId) -> felt252 {
         assert(self.book_id.into() < TWO_POW_192, 'book_id overflow');
         assert(self.index < TWO_POW_40, 'index overflow');
-        let t = if (self.tick.value < 0) {
-            0x1000000 + self.tick.value
+        let t = if (self.tick.into() < 0_i32) {
+            0x1000000 + self.tick.into()
         } else {
-            self.tick.value
+            self.tick.into()
         };
-        assert(t < 0x1000000, 'tick overflow');
+        assert(t < 0x1000000_i32, 'tick overflow');
         return self.book_id.try_into().unwrap() * TWO_POW_64.try_into().unwrap()
             + t.into() * TWO_POW_40.try_into().unwrap()
             + self.index.into();
@@ -37,7 +37,7 @@ pub impl OrderIdImpl of OrderIdTrait {
             -(0x1000000 - tick_felt252).try_into().unwrap()
         };
         let index: u64 = (casted_value % TWO_POW_40.into()).try_into().unwrap();
-        OrderId { book_id: book_id.try_into().unwrap(), tick: Tick { value: tick_i32 }, index }
+        OrderId { book_id: book_id.try_into().unwrap(), tick: tick_i32.into(), index }
     }
 }
 

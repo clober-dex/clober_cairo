@@ -139,9 +139,9 @@ fn test_highest() {
     let mut i = 0;
     while i < length {
         let number = *elements.at(i);
-        assert!(TickBitmapImpl::has(ref bitmap, Tick { value: number }), "BEFORE_CLEAR");
-        TickBitmapImpl::clear(ref bitmap, Tick { value: number });
-        assert!(!TickBitmapImpl::has(ref bitmap, Tick { value: number }), "AFTER_CLEAR");
+        assert!(TickBitmapImpl::has(ref bitmap, number.into()), "BEFORE_CLEAR");
+        TickBitmapImpl::clear(ref bitmap, number.into());
+        assert!(!TickBitmapImpl::has(ref bitmap, number.into()), "AFTER_CLEAR");
         i += 1;
     }
 }
@@ -235,12 +235,12 @@ fn test_clear() {
     let mut i = 0;
     while i < length {
         let number = *elements.at(i);
-        let max_less_than = TickBitmapImpl::max_less_than(ref bitmap, Tick { value: number }).value;
-        assert!(TickBitmapImpl::has(ref bitmap, Tick { value: number }), "BEFORE_CLEAR");
-        TickBitmapImpl::clear(ref bitmap, Tick { value: number });
-        assert!(!TickBitmapImpl::has(ref bitmap, Tick { value: number }), "AFTER_CLEAR");
+        let max_less_than = TickBitmapImpl::max_less_than(ref bitmap, number.into()).into();
+        assert!(TickBitmapImpl::has(ref bitmap, number.into()), "BEFORE_CLEAR");
+        TickBitmapImpl::clear(ref bitmap, number.into());
+        assert!(!TickBitmapImpl::has(ref bitmap, number.into()), "AFTER_CLEAR");
         if !TickBitmapImpl::is_empty(ref bitmap) {
-            let highest = TickBitmapImpl::highest(ref bitmap).value;
+            let highest = TickBitmapImpl::highest(ref bitmap).into();
             assert_eq!(max_less_than, highest, "ASSERT_MAX_LESS_THAN");
         } else {
             assert_eq!(max_less_than, -524288, "ASSERT_MAX_LESS_THAN");
@@ -256,12 +256,12 @@ fn test_set() {
         high: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         low: Felt252MapTrait::fetch(1, storage_base_address_from_felt252(0x12345678))
     };
-    let number = 5;
+    let number: i32 = 5;
 
-    assert!(!TickBitmapImpl::has(ref bitmap, Tick { value: number }), "BEFORE_SET");
-    TickBitmapImpl::set(ref bitmap, Tick { value: number });
-    assert!(TickBitmapImpl::has(ref bitmap, Tick { value: number }), "AFTER_SET");
-    TickBitmapImpl::set(ref bitmap, Tick { value: number });
+    assert!(!TickBitmapImpl::has(ref bitmap, number.into()), "BEFORE_SET");
+    TickBitmapImpl::set(ref bitmap, number.into());
+    assert!(TickBitmapImpl::has(ref bitmap, number.into()), "AFTER_SET");
+    TickBitmapImpl::set(ref bitmap, number.into());
 }
 
 fn _set(ref bitmap: TickBitmap, numbers: Array<i32>) -> Array<i32> {
@@ -271,18 +271,18 @@ fn _set(ref bitmap: TickBitmap, numbers: Array<i32>) -> Array<i32> {
     let mut elements: Array<i32> = Default::default();
     while i < length {
         let number: i32 = *numbers.at(i);
-        if TickBitmapImpl::has(ref bitmap, Tick { value: number }) {
+        if TickBitmapImpl::has(ref bitmap, number.into()) {
             continue;
         }
         if number > max {
             max = number;
         }
 
-        assert!(!TickBitmapImpl::has(ref bitmap, Tick { value: number }), "BEFORE_PUSH");
-        TickBitmapImpl::set(ref bitmap, Tick { value: number });
+        assert!(!TickBitmapImpl::has(ref bitmap, number.into()), "BEFORE_PUSH");
+        TickBitmapImpl::set(ref bitmap, number.into());
         elements.append(number);
-        assert!(TickBitmapImpl::has(ref bitmap, Tick { value: number }), "AFTER_PUSH");
-        let highest = TickBitmapImpl::highest(ref bitmap).value;
+        assert!(TickBitmapImpl::has(ref bitmap, number.into()), "AFTER_PUSH");
+        let highest = TickBitmapImpl::highest(ref bitmap).into();
         assert_eq!(max, highest, "ASSERT_MAX");
         i += 1;
     };
