@@ -8,7 +8,7 @@ use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams};
 
 #[derive(Copy, Drop, starknet::Store)]
 pub struct HooksCaller {
-    pub hooks_list: StorageArray<Hooks>,
+    hooks_list: StorageArray<Hooks>,
 }
 
 #[generate_trait]
@@ -18,12 +18,12 @@ pub impl HooksCallerImpl of HooksCallerTrait {
         if length == 0 {
             ZERO_ADDRESS()
         } else {
-            self.hooks_list.read_at(length - 1).address
+            self.hooks_list.read_at(length - 1).into()
         }
     }
 
     fn get_hook(self: @HooksCaller, i: u32) -> ContractAddress {
-        self.hooks_list.read_at(i).address
+        self.hooks_list.read_at(i).into()
     }
 
     fn call_hook(
@@ -32,7 +32,7 @@ pub impl HooksCallerImpl of HooksCallerTrait {
         // @dev Set current hook here
         self.hooks_list.append(*hooks);
 
-        let mut res = syscalls::call_contract_syscall(*hooks.address, expected_selector, hook_data)
+        let mut res = syscalls::call_contract_syscall((*hooks).into(), expected_selector, hook_data)
             .unwrap_syscall();
 
         let selector = Serde::<felt252>::deserialize(ref res).unwrap();

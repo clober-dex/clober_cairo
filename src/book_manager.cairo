@@ -359,7 +359,7 @@ pub mod BookManager {
                         unit_size: key.unit_size,
                         maker_policy: key.maker_policy,
                         taker_policy: key.taker_policy,
-                        hooks: key.hooks.address
+                        hooks: key.hooks.into()
                     }
                 );
 

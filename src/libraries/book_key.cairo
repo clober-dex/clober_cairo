@@ -30,7 +30,7 @@ impl BookKeyStorePacking of StorePacking<BookKey, [felt252; 4]> {
         let packed: u128 = value.unit_size.into()
             + TWO_POW_64 * value.maker_policy.encode().into()
             + TWO_POW_96 * value.taker_policy.encode().into();
-        [value.base.into(), value.quote.into(), value.hooks.address.into(), packed.into()]
+        [value.base.into(), value.quote.into(), value.hooks.into(), packed.into()]
     }
 
     fn unpack(value: [felt252; 4]) -> BookKey {
@@ -47,7 +47,7 @@ impl BookKeyStorePacking of StorePacking<BookKey, [felt252; 4]> {
         BookKey {
             base: (*v[0]).try_into().unwrap(),
             quote: (*v[1]).try_into().unwrap(),
-            hooks: Hooks { address: (*v[2]).try_into().unwrap() },
+            hooks: (*v[2]).try_into().unwrap(),
             unit_size: unit_size.try_into().unwrap(),
             maker_policy,
             taker_policy,

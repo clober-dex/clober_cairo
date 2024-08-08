@@ -2,7 +2,7 @@ use starknet::ContractAddress;
 
 #[derive(Copy, Drop, Hash, Serde, starknet::Store)]
 pub struct Hooks {
-    pub address: ContractAddress,
+    address: ContractAddress,
 }
 
 pub struct Permissions {
@@ -29,6 +29,30 @@ pub mod Permission {
     pub const AFTER_CANCEL: u256 = 0x80; // 1 << 7
     pub const BEFORE_CLAIM: u256 = 0x100; // 1 << 8
     pub const AFTER_CLAIM: u256 = 0x200; // 1 << 9
+}
+
+impl HooksIntoContractAddress of Into<Hooks, ContractAddress> {
+    fn into(self: Hooks) -> ContractAddress {
+        self.address
+    }
+}
+
+impl ContractAddressIntoHooks of Into<ContractAddress, Hooks> {
+    fn into(self: ContractAddress) -> Hooks {
+        Hooks { address: self }
+    }
+}
+
+impl HooksIntoFelt252 of Into<Hooks, felt252> {
+    fn into(self: Hooks) -> felt252 {
+        self.address.into()
+    }
+}
+
+impl Felt252TryIntoHooks of TryInto<felt252, Hooks> {
+    fn try_into(self: felt252) -> Option<Hooks> {
+        Option::Some(Hooks { address: self.try_into()? })
+    }
 }
 
 #[generate_trait]
