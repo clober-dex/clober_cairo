@@ -10,7 +10,6 @@ pub mod BookManager {
     use clober_cairo::interfaces::book_manager::IBookManager;
     use clober_cairo::interfaces::locker::{ILockerDispatcher, ILockerDispatcherTrait};
     use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams, OrderInfo};
-    use clober_cairo::components::lockers::LockersComponent;
     use clober_cairo::libraries::i257::{i257, I257Trait};
     use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
     use clober_cairo::libraries::book::Book::{Book, BookTrait, Order};
@@ -19,8 +18,8 @@ pub mod BookManager {
     use clober_cairo::libraries::tick::{Tick, TickTrait};
     use clober_cairo::libraries::hooks::{Hooks, HooksTrait};
     use clober_cairo::libraries::hooks_caller::{HooksCaller, HooksCallerTrait};
+    use clober_cairo::libraries::lockers::{Lockers, LockersTrait};
 
-    component!(path: LockersComponent, storage: lockers, event: LockersEvent);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -47,10 +46,6 @@ pub mod BookManager {
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
-    #[abi(embed_v0)]
-    impl LockersImpl = LockersComponent::LockersImpl<ContractState>;
-    impl LockersInternalImpl = LockersComponent::InternalImpl<ContractState>;
-
     #[storage]
     struct Storage {
         #[substorage(v0)]
@@ -59,8 +54,7 @@ pub mod BookManager {
         erc721: ERC721Component::Storage,
         #[substorage(v0)]
         src5: SRC5Component::Storage,
-        #[substorage(v0)]
-        lockers: LockersComponent::Storage,
+        lockers: Lockers,
         hooks_caller: HooksCaller,
         currency_delta: Map<(ContractAddress, ContractAddress), i257>,
         contract_uri: ByteArray,
@@ -80,8 +74,6 @@ pub mod BookManager {
         ERC721Event: ERC721Component::Event,
         #[flat]
         SRC5Event: SRC5Component::Event,
-        #[flat]
-        LockersEvent: LockersComponent::Event,
         Open: Open,
         Make: Make,
         Take: Take,
@@ -201,7 +193,7 @@ pub mod BookManager {
     impl InternalImpl of InternalTrait {
         fn _check_locker(self: @ContractState) {
             let caller = get_caller_address();
-            let locker = self.lockers.get_current_locker();
+            let locker = self.lockers.read().get_current_locker();
             let hook = self.hooks_caller.read().get_current_hook();
             assert(caller == locker || caller == hook, Errors::INVALID_LOCKER);
         }
@@ -211,14 +203,15 @@ pub mod BookManager {
                 return;
             }
 
-            let locker = self.lockers.get_current_locker();
+            let mut lockers = self.lockers.read();
+            let locker = lockers.get_current_locker();
             let next = self.currency_delta.read((locker, currency)) + delta;
             self.currency_delta.write((locker, currency), next);
 
             if (next.is_zero()) {
-                self.lockers.decrement_nonzero_delta_count();
+                lockers.decrement_nonzero_delta_count();
             } else if (next == delta) {
-                self.lockers.increment_nonzero_delta_count();
+                lockers.increment_nonzero_delta_count();
             }
         }
 
@@ -266,6 +259,14 @@ pub mod BookManager {
             token_id: felt252
         ) -> u256 {
             self.token_owed.read((owner, currency))
+        }
+
+        fn get_lock(self: @ContractState, i: u32) -> (ContractAddress, ContractAddress) {
+            self.lockers.read().get_lock(i)
+        }
+
+        fn get_lock_data(self: @ContractState) -> (u32, u128) {
+            self.lockers.read().lock_data()
         }
 
         fn get_current_hook(self: @ContractState) -> ContractAddress {
@@ -370,7 +371,8 @@ pub mod BookManager {
         ) -> Span<felt252> {
             // Add the locker to the stack
             let lock_caller = get_caller_address();
-            self.lockers.push(locker, lock_caller);
+            let mut lockers = self.lockers.read();
+            lockers.push(locker, lock_caller);
 
             // The locker does everything in this callback, including paying what they owe via calls
             // to settle
@@ -378,9 +380,9 @@ pub mod BookManager {
             let result = locker_dispatcher.lock_acquired(lock_caller, data);
 
             // Remove the locker from the stack
-            self.lockers.pop();
+            lockers.pop();
 
-            let (length, nonzero_delta_count) = self.lockers.lock_data();
+            let (length, nonzero_delta_count) = lockers.lock_data();
             // @dev The locker must settle all currency balances to zero.
             assert(length > 0 || nonzero_delta_count == 0, Errors::CURRENCY_NOT_SETTLED);
             result

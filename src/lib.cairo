@@ -1,7 +1,3 @@
-pub mod components {
-    pub mod lockers;
-}
-
 pub mod interfaces {
     pub mod book_manager;
     pub mod locker;
@@ -13,15 +9,16 @@ pub mod libraries {
     pub mod book_key;
     pub mod book;
     pub mod fee_policy;
-    pub mod hooks;
     pub mod hooks_caller;
+    pub mod hooks;
+    pub mod i257;
+    pub mod lockers;
     pub mod order_id;
-    pub mod tick;
-    pub mod tick_bitmap;
     pub mod segmented_segment_tree;
     pub mod storage_map;
+    pub mod tick_bitmap;
+    pub mod tick;
     pub mod total_claimable_map;
-    pub mod i257;
 }
 
 pub mod utils {
