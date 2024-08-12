@@ -34,11 +34,11 @@ pub fn sub_u62(packed: felt252, n: u8, value: u64) -> felt252 {
     update_62(packed, n, get_u62(packed, n) - value)
 }
 
-pub fn sum_u62(packed: felt252, mut s: u8, e: u8) -> u256 {
+pub fn sum_u62(packed: felt252, mut s: u8, e: u8) -> u64 {
     assert(e <= 4, 'Index out of bounds');
     let mut packed: u256 = packed.into();
     let mut n: u8 = 0;
-    let mut sum: u256 = 0;
+    let mut sum: u64 = 0;
     while n < e {
         if n >= s {
             sum += (packed & MASK_62.into()).try_into().unwrap();
