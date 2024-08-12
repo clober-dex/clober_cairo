@@ -11,7 +11,8 @@ pub(crate) const TWO_POW_62: u64 = 0x4000000000000000; // 2**62
 pub(crate) const TWO_POW_40: u64 = 0x10000000000; // 2**40
 pub(crate) const TWO_POW_32: u64 = 0x100000000; // 2**32
 pub(crate) const TWO_POW_24: u32 = 0x1000000; // 2**24
-pub(crate) const TWO_POW_16: u32 = 0x10000; // 2**24
+pub(crate) const TWO_POW_16: u32 = 0x10000; // 2**16
+pub(crate) const TWO_POW_15: u64 = 0x8000; // 2**15
 
 pub(crate) const MASK_64: u64 = 0xFFFFFFFFFFFFFFFF; // 2**64 - 1
 pub(crate) const MASK_62: u64 = 0x3fffffffffffffff; // 2**62 - 1
