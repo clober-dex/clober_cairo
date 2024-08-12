@@ -27,7 +27,8 @@ pub mod SegmentedSegmentTree {
         get_u62(layers.read_at(key), (index & P_M).try_into().unwrap())
     }
 
-    pub fn total(ref layers: Felt252Map<felt252>) -> u256 {
+    // Todo total can be overflow
+    pub fn total(ref layers: Felt252Map<felt252>) -> u64 {
         sum_u62(layers.read_at(0), 0, P.into()) + sum_u62(layers.read_at(1), 0, P.into())
     }
 
@@ -49,7 +50,7 @@ pub mod SegmentedSegmentTree {
         indices
     }
 
-    pub fn query(ref layers: Felt252Map<felt252>, left: u256, right: u256) -> u256 {
+    pub fn query(ref layers: Felt252Map<felt252>, left: u256, right: u256) -> u64 {
         if left == right {
             return 0;
         }
@@ -73,20 +74,20 @@ pub mod SegmentedSegmentTree {
 
             if right_index.group == left_index.group {
                 let key: felt252 = (l * MAX_NODES + left_index.group).try_into().unwrap();
-                ret += sum_u62(layers.read_at(key), left_node_index, right_node_index);
+                ret += sum_u62(layers.read_at(key), left_node_index, right_node_index).into();
                 break;
             }
 
             if right_index.group - left_index.group < 4 {
                 let key: felt252 = (l * MAX_NODES + left_index.group).try_into().unwrap();
-                ret += sum_u62(layers.read_at(key), left_node_index, P);
+                ret += sum_u62(layers.read_at(key), left_node_index, P).into();
 
                 let key: felt252 = (l * MAX_NODES + right_index.group).try_into().unwrap();
-                ret += sum_u62(layers.read_at(key), 0, right_node_index);
+                ret += sum_u62(layers.read_at(key), 0, right_node_index).into();
                 let mut group = left_index.group + 1;
                 while group < right_index.group {
                     let key: felt252 = (l * MAX_NODES + group).try_into().unwrap();
-                    ret += sum_u62(layers.read_at(key), 0, P);
+                    ret += sum_u62(layers.read_at(key), 0, P).into();
                     group += 1;
                 };
                 break;
@@ -94,47 +95,47 @@ pub mod SegmentedSegmentTree {
 
             if left_index.group % 4 == 0 {
                 let key: felt252 = (l * MAX_NODES + left_index.group).try_into().unwrap();
-                deficit += sum_u62(layers.read_at(key), 0, left_node_index);
+                deficit += sum_u62(layers.read_at(key), 0, left_node_index).into();
                 left_node_index = 0;
             } else if left_index.group % 4 == 1 {
                 let key: felt252 = (l * MAX_NODES + left_index.group).try_into().unwrap();
-                deficit += sum_u62(layers.read_at(key - 1), 0, P);
-                deficit += sum_u62(layers.read_at(key), 0, left_node_index);
+                deficit += sum_u62(layers.read_at(key - 1), 0, P).into();
+                deficit += sum_u62(layers.read_at(key), 0, left_node_index).into();
                 left_node_index = 0;
             } else if left_index.group % 4 == 2 {
                 let key: felt252 = (l * MAX_NODES + left_index.group).try_into().unwrap();
-                ret += sum_u62(layers.read_at(key), left_node_index, P);
-                ret += sum_u62(layers.read_at(key + 1), 0, P);
+                ret += sum_u62(layers.read_at(key), left_node_index, P).into();
+                ret += sum_u62(layers.read_at(key + 1), 0, P).into();
                 left_node_index = 1;
             } else {
                 let key: felt252 = (l * MAX_NODES + left_index.group).try_into().unwrap();
-                ret += sum_u62(layers.read_at(key), left_node_index, P);
+                ret += sum_u62(layers.read_at(key), left_node_index, P).into();
                 left_node_index = 1;
             }
 
             if right_index.group % 4 == 0 {
                 let key: felt252 = (l * MAX_NODES + right_index.group).try_into().unwrap();
-                ret += sum_u62(layers.read_at(key), 0, right_node_index);
+                ret += sum_u62(layers.read_at(key), 0, right_node_index).into();
                 right_node_index = 0;
             } else if right_index.group % 4 == 1 {
                 let key: felt252 = (l * MAX_NODES + right_index.group).try_into().unwrap();
-                ret += sum_u62(layers.read_at(key - 1), 0, P);
-                ret += sum_u62(layers.read_at(key), 0, right_node_index);
+                ret += sum_u62(layers.read_at(key - 1), 0, P).into();
+                ret += sum_u62(layers.read_at(key), 0, right_node_index).into();
                 right_node_index = 0;
             } else if right_index.group % 4 == 2 {
                 let key: felt252 = (l * MAX_NODES + right_index.group).try_into().unwrap();
-                deficit += sum_u62(layers.read_at(key), right_node_index, P);
-                deficit += sum_u62(layers.read_at(key + 1), 0, P);
+                deficit += sum_u62(layers.read_at(key), right_node_index, P).into();
+                deficit += sum_u62(layers.read_at(key + 1), 0, P).into();
                 right_node_index = 1;
             } else {
                 let key: felt252 = (l * MAX_NODES + right_index.group).try_into().unwrap();
-                deficit += sum_u62(layers.read_at(key), right_node_index, P);
+                deficit += sum_u62(layers.read_at(key), right_node_index, P).into();
                 right_node_index = 1;
             }
 
             l -= 1;
         };
-        ret - deficit
+        (ret - deficit).try_into().unwrap()
     }
 
     pub fn update(ref layers: Felt252Map<felt252>, index: u256, value: u64) {
