@@ -45,8 +45,7 @@ fn sort<T, +Copy<T>, +Drop<T>, +PartialOrd<T>>(mut array: Span<T>) -> Array<T> {
 #[test]
 fn test_highest() {
     let mut bitmap: TickBitmap = TickBitmap {
-        high: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
-        low: Felt252MapTrait::fetch(1, storage_base_address_from_felt252(0x12345678))
+        map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
     };
     let numbers = array![
         -263808,
@@ -149,8 +148,7 @@ fn test_highest() {
 #[test]
 fn test_clear() {
     let mut bitmap: TickBitmap = TickBitmap {
-        high: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
-        low: Felt252MapTrait::fetch(1, storage_base_address_from_felt252(0x12345678))
+        map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
     };
     let numbers = array![
         -613,
@@ -253,8 +251,7 @@ fn test_clear() {
 #[should_panic(expected: ('AlreadyExistsError',))]
 fn test_set() {
     let mut bitmap: TickBitmap = TickBitmap {
-        high: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
-        low: Felt252MapTrait::fetch(1, storage_base_address_from_felt252(0x12345678))
+        map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
     };
     let number: i32 = 5;
 

@@ -5,10 +5,9 @@ use clober_cairo::utils::constants::{TWO_POW_128, MIN_TICK};
 
 const B0_BITMAP_KEY: felt252 = 'TickBitmap';
 
-#[derive(Destruct, Drop)]
+#[derive(Destruct, Drop, Copy)]
 pub struct TickBitmap {
-    pub high: Felt252Map<u128>,
-    pub low: Felt252Map<u128>,
+    pub map: Felt252Map<u256>
 }
 
 #[generate_trait]
@@ -112,11 +111,10 @@ pub impl TickBitmapImpl of TickBitmapTrait {
     }
 
     fn _get(ref bitmap: TickBitmap, key: felt252) -> u256 {
-        bitmap.high.read_at(key).into() * TWO_POW_128 + bitmap.low.read_at(key).into()
+        bitmap.map.read_at(key)
     }
 
     fn _set(ref bitmap: TickBitmap, key: felt252, value: u256) {
-        bitmap.high.write_at(key, (value / TWO_POW_128).try_into().unwrap());
-        bitmap.low.write_at(key, (value % TWO_POW_128).try_into().unwrap());
+        bitmap.map.write_at(key, value);
     }
 }
