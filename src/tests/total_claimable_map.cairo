@@ -6,9 +6,9 @@ use clober_cairo::utils::constants::{MIN_TICK, MAX_TICK};
 
 #[test]
 fn test_add() {
-    let mut totalClaimableMap = TotalClaimableOf {
-        map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
-    };
+    let mut totalClaimableMap = Felt252MapTrait::fetch(
+        0, storage_base_address_from_felt252(0x87654321)
+    );
 
     totalClaimableMap.add(MAX_TICK.into(), 412443);
     totalClaimableMap.add(102_i32.into(), 202);

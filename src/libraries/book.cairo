@@ -39,20 +39,16 @@ pub mod Book {
             SyscallResult::Ok(
                 Book {
                     queues: Felt252MapTrait::fetch(address_domain, base),
-                    tick_bitmap: TickBitmap {
-                        map: Felt252MapTrait::fetch(
-                            address_domain,
-                            storage_base_address_from_felt252(base_felt252 + queues_offset)
+                    tick_bitmap: Felt252MapTrait::fetch(
+                        address_domain,
+                        storage_base_address_from_felt252(base_felt252 + queues_offset)
+                    ),
+                    total_claimable_of: Felt252MapTrait::fetch(
+                        address_domain,
+                        storage_base_address_from_felt252(
+                            base_felt252 + queues_offset + tick_bitmap_offset
                         )
-                    },
-                    total_claimable_of: TotalClaimableOf {
-                        map: Felt252MapTrait::fetch(
-                            address_domain,
-                            storage_base_address_from_felt252(
-                                base_felt252 + queues_offset + tick_bitmap_offset
-                            )
-                        )
-                    }
+                    )
                 }
             )
         }
@@ -68,14 +64,14 @@ pub mod Book {
             Store::write(
                 address_domain,
                 storage_base_address_from_felt252(base_felt252 + queues_offset),
-                value.tick_bitmap.map
+                value.tick_bitmap
             );
             Store::write(
                 address_domain,
                 storage_base_address_from_felt252(
                     base_felt252 + queues_offset + tick_bitmap_offset
                 ),
-                value.total_claimable_of.map
+                value.total_claimable_of
             )
         }
 

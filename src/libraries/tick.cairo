@@ -26,39 +26,22 @@ const R16: u256 = 0x5d6af8dedb81196699c329;
 const R17: u256 = 0x2216e584f5fa1ea92604;
 const R18: u256 = 0x48a170391f7dc42;
 
-#[derive(Copy, Drop, Serde, Debug)]
-pub struct Tick {
-    value: i32,
-}
-
-impl TickIntoI32 of Into<Tick, i32> {
-    fn into(self: Tick) -> i32 {
-        self.value
-    }
-}
-
-impl I32IntoTick of Into<i32, Tick> {
-    fn into(self: i32) -> Tick {
-        Tick { value: self }
-    }
-}
+pub type Tick = i32;
 
 #[generate_trait]
 pub impl TickImpl of TickTrait {
     fn validate(self: Tick) {
-        assert(self.value >= MIN_TICK || self.value <= MAX_TICK, 'invalid_tick');
+        assert(self >= MIN_TICK || self <= MAX_TICK, 'invalid_tick');
     }
 
     fn to_price(self: Tick) -> u256 {
         self.validate();
 
-        let absTick: u32 = (if self.value < 0 {
-            -self.value
+        let absTick: u32 = (if self < 0 {
+            -self
         } else {
-            self.value
-        })
-            .try_into()
-            .unwrap();
+            self
+        }).try_into().unwrap();
 
         let mut price: u256 = if absTick & 0x1 != 0 {
             R0
@@ -119,7 +102,7 @@ pub impl TickImpl of TickTrait {
         if absTick & 0x40000 != 0 {
             price = (price * R18) / TWO_POW_96.into();
         }
-        if self.value > 0 {
+        if self > 0 {
             return TWO_POW_192 / price;
         }
         price
@@ -131,11 +114,11 @@ pub impl TickImpl of TickTrait {
             / TWO_POW_128.into())
             .try_into()
             .unwrap();
-        let tick: i32 = tick.try_into().unwrap();
-        if Self::to_price(Tick { value: tick }) > price {
-            return Tick { value: tick - 1 };
+        let tick: Tick = tick.try_into().unwrap();
+        if Self::to_price(tick) > price {
+            return tick - 1;
         }
-        Tick { value: tick }
+        tick
     }
 
     fn base_to_quote(self: Tick, base: u256, rounding_up: bool) -> u256 {
@@ -152,39 +135,5 @@ pub impl TickImpl of TickTrait {
             return (quote * TWO_POW_96.into() + price - 1) / price;
         }
         quote * TWO_POW_96.into() / price
-    }
-}
-
-// Convert tick to felt252
-impl TickIntoFelt252 of Into<Tick, felt252> {
-    fn into(self: Tick) -> felt252 {
-        self.value.into()
-    }
-}
-
-impl TickPartialEq of PartialEq<Tick> {
-    fn eq(lhs: @Tick, rhs: @Tick) -> bool {
-        lhs.value == rhs.value
-    }
-
-    fn ne(lhs: @Tick, rhs: @Tick) -> bool {
-        !Self::eq(lhs, rhs)
-    }
-}
-
-impl TickPartialOrd of PartialOrd<Tick> {
-    fn le(lhs: Tick, rhs: Tick) -> bool {
-        !Self::gt(lhs, rhs)
-    }
-    fn ge(lhs: Tick, rhs: Tick) -> bool {
-        Self::gt(lhs, rhs) || lhs == rhs
-    }
-
-    fn lt(lhs: Tick, rhs: Tick) -> bool {
-        !Self::gt(lhs, rhs) && lhs != rhs
-    }
-
-    fn gt(lhs: Tick, rhs: Tick) -> bool {
-        lhs.value > rhs.value
     }
 }

@@ -44,9 +44,9 @@ fn sort<T, +Copy<T>, +Drop<T>, +PartialOrd<T>>(mut array: Span<T>) -> Array<T> {
 
 #[test]
 fn test_highest() {
-    let mut bitmap: TickBitmap = TickBitmap {
-        map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
-    };
+    let mut bitmap: TickBitmap = Felt252MapTrait::fetch(
+        0, storage_base_address_from_felt252(0x87654321)
+    );
     let numbers = array![
         -263808,
         -254026,
@@ -147,9 +147,9 @@ fn test_highest() {
 
 #[test]
 fn test_clear() {
-    let mut bitmap: TickBitmap = TickBitmap {
-        map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
-    };
+    let mut bitmap: TickBitmap = Felt252MapTrait::fetch(
+        0, storage_base_address_from_felt252(0x87654321)
+    );
     let numbers = array![
         -613,
         -433167,
@@ -250,9 +250,9 @@ fn test_clear() {
 #[test]
 #[should_panic(expected: ('AlreadyExistsError',))]
 fn test_set() {
-    let mut bitmap: TickBitmap = TickBitmap {
-        map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
-    };
+    let mut bitmap: TickBitmap = Felt252MapTrait::fetch(
+        0, storage_base_address_from_felt252(0x87654321)
+    );
     let number: i32 = 5;
 
     assert!(!TickBitmapImpl::has(ref bitmap, number.into()), "BEFORE_SET");
