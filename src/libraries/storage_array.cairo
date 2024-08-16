@@ -54,15 +54,15 @@ impl StoreStorageArray<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of Store<S
 /// `read_at` and `write_at` don't check the length of the array, caution must be exercised.
 /// The current length of the array is stored at the base StorageBaseAddress as felt.
 pub trait StorageArrayTrait<T> {
-    fn read_at(self: @StorageArray<T>, index: usize) -> T;
-    fn write_at(ref self: StorageArray<T>, index: usize, value: T) -> ();
+    fn read_at(self: @StorageArray<T>, index: u64) -> T;
+    fn write_at(ref self: StorageArray<T>, index: u64, value: T) -> ();
     fn append(ref self: StorageArray<T>, value: T) -> ();
     fn pop(ref self: StorageArray<T>) -> T;
-    fn len(self: @StorageArray<T>) -> u32;
+    fn len(self: @StorageArray<T>) -> u64;
 }
 
 impl StorageArrayImpl<T, +Drop<T>, impl TStore: Store<T>> of StorageArrayTrait<T> {
-    fn read_at(self: @StorageArray<T>, index: usize) -> T {
+    fn read_at(self: @StorageArray<T>, index: u64) -> T {
         // Get the storage address of the element
         let storage_address_felt: felt252 = storage_address_from_base(*self.base).into();
 
@@ -74,7 +74,7 @@ impl StorageArrayImpl<T, +Drop<T>, impl TStore: Store<T>> of StorageArrayTrait<T
             .unwrap_syscall()
     }
 
-    fn write_at(ref self: StorageArray<T>, index: usize, value: T) {
+    fn write_at(ref self: StorageArray<T>, index: u64, value: T) {
         // Get the storage address of the element
         let storage_address_felt: felt252 = storage_address_from_base(self.base).into();
 
@@ -114,7 +114,7 @@ impl StorageArrayImpl<T, +Drop<T>, impl TStore: Store<T>> of StorageArrayTrait<T
         element
     }
 
-    fn len(self: @StorageArray<T>) -> u32 {
+    fn len(self: @StorageArray<T>) -> u64 {
         storage_read_syscall(*self.address_domain, storage_address_from_base(*self.base))
             .unwrap_syscall()
             .try_into()
