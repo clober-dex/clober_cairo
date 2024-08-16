@@ -9,44 +9,44 @@ pub type TickBitmap = Felt252Map<u256>;
 
 #[generate_trait]
 pub impl TickBitmapImpl of TickBitmapTrait {
-    fn has(ref self: TickBitmap, tick: Tick) -> bool {
+    fn has(self: @TickBitmap, tick: Tick) -> bool {
         let (b0b1, b2) = Self::_split(tick);
         let mask: u256 = fast_power(2_u256, b2.into()).into();
-        let value = Self::_get(ref self, b0b1.into());
+        let value = Self::_get(self, b0b1.into());
         value & mask == mask
     }
 
-    fn is_empty(ref self: TickBitmap) -> bool {
-        Self::_get(ref self, B0_BITMAP_KEY) == 0
+    fn is_empty(self: @TickBitmap) -> bool {
+        Self::_get(self, B0_BITMAP_KEY) == 0
     }
 
-    fn highest(ref self: TickBitmap) -> Tick {
-        assert(!Self::is_empty(ref self), 'EmptyError');
+    fn highest(self: @TickBitmap) -> Tick {
+        assert(!self.is_empty(), 'EmptyError');
 
-        let b0: u32 = least_significant_bit(Self::_get(ref self, B0_BITMAP_KEY)).into();
+        let b0: u32 = least_significant_bit(Self::_get(self, B0_BITMAP_KEY)).into();
         let b0b1: u32 = (b0 * 256)
-            | least_significant_bit(Self::_get(ref self, (~b0).into())).into();
-        let b2: u32 = least_significant_bit(Self::_get(ref self, b0b1.into())).into();
+            | least_significant_bit(Self::_get(self, (~b0).into())).into();
+        let b2: u32 = least_significant_bit(Self::_get(self, b0b1.into())).into();
         Self::_to_tick(b0b1, b2)
     }
 
     fn set(ref self: TickBitmap, tick: Tick) {
         let (b0b1, b2) = Self::_split(tick);
         let mut mask: u256 = fast_power(2_u256, b2.into()).into();
-        let b2Bitmap = Self::_get(ref self, b0b1.into());
+        let b2Bitmap = Self::_get(@self, b0b1.into());
         assert(b2Bitmap & mask == 0, 'AlreadyExistsError');
 
         Self::_set(ref self, b0b1.into(), b2Bitmap | mask);
         if b2Bitmap == 0 {
             mask = fast_power(2_u256, (b0b1 & 0xff).into()).into();
             let b1BitmapKey = ~(b0b1 / 256);
-            let b1Bitmap = Self::_get(ref self, b1BitmapKey.into());
+            let b1Bitmap = Self::_get(@self, b1BitmapKey.into());
             Self::_set(ref self, b1BitmapKey.into(), b1Bitmap | mask);
             if b1Bitmap == 0 {
                 Self::_set(
                     ref self,
                     B0_BITMAP_KEY,
-                    Self::_get(ref self, B0_BITMAP_KEY)
+                    Self::_get(@self, B0_BITMAP_KEY)
                         | fast_power(2_u256, (~b1BitmapKey).into()).into()
                 );
             }
@@ -56,40 +56,40 @@ pub impl TickBitmapImpl of TickBitmapTrait {
     fn clear(ref self: TickBitmap, tick: Tick) {
         let (b0b1, b2) = Self::_split(tick);
         let mut mask: u256 = fast_power(2_u256, b2.into()).into();
-        let b2Bitmap = Self::_get(ref self, b0b1.into());
+        let b2Bitmap = Self::_get(@self, b0b1.into());
         Self::_set(ref self, b0b1.into(), b2Bitmap & (~mask));
         if b2Bitmap == mask {
             mask = fast_power(2_u256, (b0b1 & 0xff).into()).into();
             let b1BitmapKey = ~(b0b1 / 256);
-            let b1Bitmap = Self::_get(ref self, b1BitmapKey.into());
+            let b1Bitmap = Self::_get(@self, b1BitmapKey.into());
             Self::_set(ref self, b1BitmapKey.into(), b1Bitmap & (~mask));
             if mask == b1Bitmap {
                 mask = fast_power(2_u256, (~b1BitmapKey).into()).into();
-                Self::_set(ref self, B0_BITMAP_KEY, Self::_get(ref self, B0_BITMAP_KEY) & (~mask));
+                Self::_set(ref self, B0_BITMAP_KEY, Self::_get(@self, B0_BITMAP_KEY) & (~mask));
             }
         }
     }
 
-    fn max_less_than(ref self: TickBitmap, tick: Tick) -> Tick {
+    fn max_less_than(self: @TickBitmap, tick: Tick) -> Tick {
         let (mut b0b1, b2) = Self::_split(tick);
         let mut mask: u256 = ~((fast_power(2_u256, b2.into()) - 1) * 2 + 1);
-        let mut b2Bitmap = Self::_get(ref self, b0b1.into()) & mask;
+        let mut b2Bitmap = Self::_get(self, b0b1.into()) & mask;
         if b2Bitmap == 0 {
             let mut b0: u32 = b0b1 / 256;
             let b1: u32 = b0b1 & 0xff;
             mask = ~((fast_power(2_u256, b1.into()) - 1) * 2 + 1);
-            let mut b1Bitmap = Self::_get(ref self, (~b0).into()) & mask;
+            let mut b1Bitmap = Self::_get(self, (~b0).into()) & mask;
             if b1Bitmap == 0 {
                 mask = ~((fast_power(2_u256, b0.into()) - 1) * 2 + 1);
-                let b0Bitmap = Self::_get(ref self, B0_BITMAP_KEY) & mask;
+                let b0Bitmap = Self::_get(self, B0_BITMAP_KEY) & mask;
                 if b0Bitmap == 0 {
                     return (MIN_TICK - 1).into();
                 }
                 b0 = least_significant_bit(b0Bitmap).into();
-                b1Bitmap = Self::_get(ref self, (~b0).into());
+                b1Bitmap = Self::_get(self, (~b0).into());
             }
             b0b1 = (b0 * 256) | least_significant_bit(b1Bitmap).into();
-            b2Bitmap = Self::_get(ref self, b0b1.into());
+            b2Bitmap = Self::_get(self, b0b1.into());
         }
         let b2 = least_significant_bit(b2Bitmap).into();
         Self::_to_tick(b0b1, b2)
@@ -107,7 +107,7 @@ pub impl TickBitmapImpl of TickBitmapTrait {
         value.into()
     }
 
-    fn _get(ref bitmap: TickBitmap, key: felt252) -> u256 {
+    fn _get(bitmap: @TickBitmap, key: felt252) -> u256 {
         bitmap.read_at(key)
     }
 

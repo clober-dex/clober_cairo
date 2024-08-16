@@ -9,7 +9,7 @@ pub type TotalClaimableOf = Felt252Map<felt252>;
 
 #[generate_trait]
 pub impl TotalClaimableOfImpl of TotalClaimableOfTrait {
-    fn get(self: TotalClaimableOf, tick: Tick) -> u64 {
+    fn get(self: @TotalClaimableOf, tick: Tick) -> u64 {
         let (groupIndex, elementIndex) = Self::_split_tick(tick);
         get_u62(self.read_at(groupIndex), elementIndex)
     }

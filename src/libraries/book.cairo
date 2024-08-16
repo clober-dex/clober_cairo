@@ -170,18 +170,15 @@ pub mod Book {
         }
 
         fn highest(self: @Book) -> Tick {
-            let mut tick_bitmap = *self.tick_bitmap;
-            TickBitmapTrait::highest(ref tick_bitmap)
+            self.tick_bitmap.highest()
         }
 
         fn max_less_than(self: @Book, tick: Tick) -> Tick {
-            let mut tick_bitmap = *self.tick_bitmap;
-            TickBitmapTrait::max_less_than(ref tick_bitmap, tick)
+            self.tick_bitmap.max_less_than(tick)
         }
 
         fn is_empty(self: @Book) -> bool {
-            let mut tick_bitmap = *self.tick_bitmap;
-            TickBitmapTrait::is_empty(ref tick_bitmap)
+            self.tick_bitmap.is_empty()
         }
 
         fn get_order(self: @Book, tick: Tick, index: u64) -> Order {
@@ -218,9 +215,8 @@ pub mod Book {
 
         fn make(ref self: Book, tick: Tick, unit: u64, provider: ContractAddress) -> u64 {
             assert(unit != 0, 'Zero unit');
-            let mut tick_bitmap = self.tick_bitmap;
-            if !TickBitmapTrait::has(ref tick_bitmap, tick) {
-                TickBitmapTrait::set(ref tick_bitmap, tick);
+            if !self.tick_bitmap.has(tick) {
+                self.tick_bitmap.set(tick);
             }
 
             let mut queue = Self::_get_queue(@self, tick);
@@ -252,7 +248,7 @@ pub mod Book {
             let taken_unit = if current_depth > max_take_unit {
                 max_take_unit
             } else {
-                TickBitmapTrait::clear(ref self.tick_bitmap, tick);
+                self.tick_bitmap.clear(tick);
                 current_depth
             };
 
@@ -280,7 +276,7 @@ pub mod Book {
             );
 
             if Self::depth(@self, tick) == 0 {
-                TickBitmapTrait::clear(ref self.tick_bitmap, tick);
+                self.tick_bitmap.clear(tick);
             }
 
             (canceled, after_pending)
