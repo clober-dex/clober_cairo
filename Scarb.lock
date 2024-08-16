@@ -7,6 +7,7 @@ version = "0.1.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_introspection",
+ "openzeppelin_presets",
  "openzeppelin_testing",
  "openzeppelin_token",
  "openzeppelin_utils",
@@ -46,6 +47,18 @@ version = "0.15.1"
 source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?rev=3d5bdc5#3d5bdc523935e8cb378672810ab468f652263642"
 
 [[package]]
+name = "openzeppelin_presets"
+version = "0.15.1"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?rev=3d5bdc5#3d5bdc523935e8cb378672810ab468f652263642"
+dependencies = [
+ "openzeppelin_access",
+ "openzeppelin_account",
+ "openzeppelin_introspection",
+ "openzeppelin_token",
+ "openzeppelin_upgrades",
+]
+
+[[package]]
 name = "openzeppelin_testing"
 version = "0.15.1"
 source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?rev=3d5bdc5#3d5bdc523935e8cb378672810ab468f652263642"
@@ -62,6 +75,11 @@ dependencies = [
  "openzeppelin_governance",
  "openzeppelin_introspection",
 ]
+
+[[package]]
+name = "openzeppelin_upgrades"
+version = "0.15.1"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?rev=3d5bdc5#3d5bdc523935e8cb378672810ab468f652263642"
 
 [[package]]
 name = "openzeppelin_utils"
