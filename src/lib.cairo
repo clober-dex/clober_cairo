@@ -27,6 +27,10 @@ pub mod utils {
     pub mod constants;
 }
 
+pub mod mocks {
+    pub mod open_router;
+}
+
 pub mod tests {
     #[cfg(test)]
     pub mod book;
