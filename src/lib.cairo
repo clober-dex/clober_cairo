@@ -14,6 +14,7 @@ pub mod libraries {
     pub mod lockers;
     pub mod order_id;
     pub mod segmented_segment_tree;
+    pub mod storage_array;
     pub mod storage_map;
     pub mod tick_bitmap;
     pub mod tick;
