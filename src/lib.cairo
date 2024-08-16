@@ -32,6 +32,7 @@ pub mod mocks {
 }
 
 pub mod tests {
+    pub mod utils;
     #[cfg(test)]
     pub mod book;
     #[cfg(test)]
