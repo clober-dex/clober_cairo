@@ -54,6 +54,7 @@ impl StoreStorageArray<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of Store<S
 /// `read_at` and `write_at` don't check the length of the array, caution must be exercised.
 /// The current length of the array is stored at the base StorageBaseAddress as felt.
 pub trait StorageArrayTrait<T> {
+    fn fetch(address_domain: u32, base: StorageBaseAddress) -> StorageArray<T>;
     fn read_at(self: @StorageArray<T>, index: u64) -> T;
     fn write_at(ref self: StorageArray<T>, index: u64, value: T) -> ();
     fn append(ref self: StorageArray<T>, value: T) -> ();
@@ -62,6 +63,11 @@ pub trait StorageArrayTrait<T> {
 }
 
 impl StorageArrayImpl<T, +Drop<T>, impl TStore: Store<T>> of StorageArrayTrait<T> {
+    #[inline]
+    fn fetch(address_domain: u32, base: StorageBaseAddress) -> StorageArray<T> {
+        StorageArray { address_domain, base }
+    }
+
     fn read_at(self: @StorageArray<T>, index: u64) -> T {
         // Get the storage address of the element
         let storage_address_felt: felt252 = storage_address_from_base(*self.base).into();

@@ -16,8 +16,8 @@ pub mod Book {
     };
     use starknet::storage::{Vec, VecTrait};
     use starknet::{Store, SyscallResult, SyscallResultTrait};
-    use openzeppelin_utils::structs::storage_array::{StorageArray};
     use clober_cairo::utils::constants::{TWO_POW_15, ZERO_ADDRESS, MAX_FELT252};
+    use clober_cairo::libraries::storage_array::{StorageArray, StorageArrayTrait};
 
     const NOT_IMPLEMENTED: felt252 = 'Not implemented';
     const MAX_ORDER: u64 = TWO_POW_15;
@@ -100,8 +100,7 @@ pub mod Book {
     #[derive(Drop)]
     pub struct Queue {
         tree: SegmentedSegmentTree,
-        // Todo to StorageArray
-        orders: Felt252Map<Order>
+        orders: StorageArray<Order>
     }
 
     impl QueueStoreImpl of Store<Queue> {
@@ -114,7 +113,7 @@ pub mod Book {
                     tree: SegmentedSegmentTree {
                         layers: Felt252MapTrait::fetch(address_domain, base)
                     },
-                    orders: Felt252MapTrait::fetch(
+                    orders: StorageArrayTrait::fetch(
                         address_domain,
                         storage_base_address_from_felt252(base_felt252 + tree_offset)
                     )
@@ -244,8 +243,7 @@ pub mod Book {
 
             queue.tree.update((order_index & (MAX_ORDER - 1)).into(), unit);
 
-            Self::_set_order(ref queue, order_index, Order { pending: unit, provider });
-            Self::_set_orders_length(ref queue, order_index + 1);
+            Self::_append_order(ref queue, Order { pending: unit, provider });
             order_index
         }
 
@@ -306,21 +304,19 @@ pub mod Book {
         }
 
         fn _get_order(self: @Queue, order_index: u64) -> Order {
-            Felt252MapTrait::read_at(self.orders, order_index.into())
+            StorageArrayTrait::read_at(self.orders, order_index)
         }
 
         fn _set_order(ref self: Queue, order_index: u64, order: Order) {
-            Felt252MapTrait::write_at(ref self.orders, order_index.into(), order);
+            StorageArrayTrait::write_at(ref self.orders, order_index, order);
+        }
+
+        fn _append_order(ref self: Queue, order: Order) {
+            StorageArrayTrait::append(ref self.orders, order);
         }
 
         fn _get_orders_length(self: @Queue) -> u64 {
-            Felt252MapTrait::read_at(self.orders, MAX_FELT252).pending
-        }
-
-        fn _set_orders_length(ref self: Queue, length: u64) {
-            Felt252MapTrait::write_at(
-                ref self.orders, MAX_FELT252, Order { pending: length, provider: ZERO_ADDRESS() }
-            )
+            StorageArrayTrait::len(self.orders)
         }
     }
 }
