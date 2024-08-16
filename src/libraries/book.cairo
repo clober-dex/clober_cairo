@@ -2,7 +2,7 @@ pub mod Book {
     use clober_cairo::libraries::tick::Tick;
     use clober_cairo::libraries::tick_bitmap::TickBitmap;
     use clober_cairo::libraries::tick_bitmap::TickBitmapTrait;
-    use clober_cairo::libraries::total_claimable_map::{add, get, sub};
+    use clober_cairo::libraries::total_claimable_map::{TotalClaimableOf, TotalClaimableOfTrait};
     use clober_cairo::libraries::fee_policy::FeePolicy;
     use clober_cairo::libraries::segmented_segment_tree::SegmentedSegmentTree;
     use clober_cairo::libraries::order_id::OrderId;
@@ -25,7 +25,7 @@ pub mod Book {
     pub struct Book {
         pub queues: Felt252Map<Queue>, // Todo to storage map
         pub tick_bitmap: TickBitmap,
-        pub total_claimable_of: Felt252Map<felt252>,
+        pub total_claimable_of: TotalClaimableOf,
     }
 
     impl BookStoreImpl of Store<Book> {
@@ -43,12 +43,14 @@ pub mod Book {
                             storage_base_address_from_felt252(base_felt252 + queues_offset)
                         )
                     },
-                    total_claimable_of: Felt252MapTrait::fetch(
-                        address_domain,
-                        storage_base_address_from_felt252(
-                            base_felt252 + queues_offset + tick_bitmap_offset
+                    total_claimable_of: TotalClaimableOf {
+                        map: Felt252MapTrait::fetch(
+                            address_domain,
+                            storage_base_address_from_felt252(
+                                base_felt252 + queues_offset + tick_bitmap_offset
+                            )
                         )
-                    )
+                    }
                 }
             )
         }
@@ -71,7 +73,7 @@ pub mod Book {
                 storage_base_address_from_felt252(
                     base_felt252 + queues_offset + tick_bitmap_offset
                 ),
-                value.total_claimable_of
+                value.total_claimable_of.map
             )
         }
 
@@ -165,7 +167,7 @@ pub mod Book {
         fn depth(self: @Book, tick: Tick) -> u64 {
             let mut tree = self.queues.read_at(tick.into()).tree;
             let mut total_claimable_of = *self.total_claimable_of;
-            (SegmentedSegmentTree::total(ref tree) - get(ref total_claimable_of, tick).into())
+            (SegmentedSegmentTree::total(ref tree) - total_claimable_of.get(tick).into())
                 .try_into()
                 .unwrap()
         }
@@ -214,7 +216,7 @@ pub mod Book {
                     ref queue.tree, (order_index & (MAX_ORDER - 1)).into()
                 );
                 if stale_ordered_unit > 0 {
-                    sub(ref self.total_claimable_of, tick, stale_ordered_unit);
+                    self.total_claimable_of.sub(tick, stale_ordered_unit);
                 }
             }
 
@@ -240,7 +242,7 @@ pub mod Book {
                 current_depth
             };
 
-            add(ref self.total_claimable_of, tick, taken_unit);
+            self.total_claimable_of.add(tick, taken_unit);
             taken_unit
         }
 
@@ -292,7 +294,7 @@ pub mod Book {
                 return order_unit;
             }
             let mut total_claimable_of = *self.total_claimable_of;
-            let total_claimable_unit = get(ref total_claimable_of, tick);
+            let total_claimable_unit = total_claimable_of.get(tick);
             let range_right = Self::_get_claim_range_right(ref queue, index, length);
             if range_right - order_unit >= total_claimable_unit {
                 return 0;

@@ -5,26 +5,34 @@ use clober_cairo::utils::packed_felt252::add_u62;
 use clober_cairo::utils::packed_felt252::sub_u62;
 use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
 
-pub fn get(ref totalClaimableMap: Felt252Map<felt252>, tick: Tick) -> u64 {
-    let (groupIndex, elementIndex) = _split_tick(tick);
-    get_u62(totalClaimableMap.read_at(groupIndex), elementIndex)
+#[derive(Destruct, Drop, Copy)]
+pub struct TotalClaimableOf {
+    pub map: Felt252Map<felt252>
 }
 
-pub fn add(ref totalClaimableMap: Felt252Map<felt252>, tick: Tick, n: u64) {
-    let (groupIndex, elementIndex) = _split_tick(tick);
-    let group = totalClaimableMap.read_at(groupIndex);
-    totalClaimableMap.write_at(groupIndex, add_u62(group, elementIndex, n));
-}
+#[generate_trait]
+pub impl TotalClaimableOfImpl of TotalClaimableOfTrait {
+    fn get(self: TotalClaimableOf, tick: Tick) -> u64 {
+        let (groupIndex, elementIndex) = Self::_split_tick(tick);
+        get_u62(self.map.read_at(groupIndex), elementIndex)
+    }
 
-pub fn sub(ref totalClaimableMap: Felt252Map<felt252>, tick: Tick, n: u64) {
-    let (groupIndex, elementIndex) = _split_tick(tick);
-    let group = totalClaimableMap.read_at(groupIndex);
-    totalClaimableMap.write_at(groupIndex, sub_u62(group, elementIndex, n));
-}
+    fn add(ref self: TotalClaimableOf, tick: Tick, n: u64) {
+        let (groupIndex, elementIndex) = Self::_split_tick(tick);
+        let group = self.map.read_at(groupIndex);
+        self.map.write_at(groupIndex, add_u62(group, elementIndex, n));
+    }
 
-fn _split_tick(tick: Tick) -> (felt252, u8) {
-    let value: u32 = (tick.into() + 0x80000).try_into().unwrap();
-    let groupIndex: felt252 = (value / 4).into();
-    let elementIndex: u8 = (value % 4).try_into().unwrap();
-    (groupIndex, elementIndex)
+    fn sub(ref self: TotalClaimableOf, tick: Tick, n: u64) {
+        let (groupIndex, elementIndex) = Self::_split_tick(tick);
+        let group = self.map.read_at(groupIndex);
+        self.map.write_at(groupIndex, sub_u62(group, elementIndex, n));
+    }
+
+    fn _split_tick(tick: Tick) -> (felt252, u8) {
+        let value: u32 = (tick.into() + 0x80000).try_into().unwrap();
+        let groupIndex: felt252 = (value / 4).into();
+        let elementIndex: u8 = (value % 4).try_into().unwrap();
+        (groupIndex, elementIndex)
+    }
 }

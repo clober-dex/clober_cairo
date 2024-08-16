@@ -8,7 +8,7 @@ use clober_cairo::libraries::tick::Tick;
 use starknet::storage_access::storage_base_address_from_felt252;
 use clober_cairo::libraries::segmented_segment_tree::SegmentedSegmentTree;
 use clober_cairo::libraries::order_id::OrderId;
-
+use clober_cairo::libraries::total_claimable_map::TotalClaimableOf;
 
 #[test]
 fn test_make() {
@@ -17,7 +17,9 @@ fn test_make() {
         tick_bitmap: TickBitmap {
             map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325))
         },
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: TotalClaimableOf {
+            map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        }
     };
     let mut tick: Tick = 0_i32.into();
     let mut index = book.make(tick, 100, ZERO_ADDRESS());
@@ -46,7 +48,9 @@ fn test_take() {
         tick_bitmap: TickBitmap {
             map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325))
         },
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: TotalClaimableOf {
+            map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        }
     };
     let mut tick: Tick = 0_i32.into();
 
@@ -77,7 +81,9 @@ fn test_cancel() {
         tick_bitmap: TickBitmap {
             map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325))
         },
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: TotalClaimableOf {
+            map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        }
     };
 
     let mut tick: Tick = 0_i32.into();
@@ -118,7 +124,9 @@ fn test_claim() {
         tick_bitmap: TickBitmap {
             map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325))
         },
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: TotalClaimableOf {
+            map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        }
     };
 
     let mut tick: Tick = 0_i32.into();
