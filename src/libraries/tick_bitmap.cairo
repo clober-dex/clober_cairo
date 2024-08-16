@@ -24,8 +24,7 @@ pub impl TickBitmapImpl of TickBitmapTrait {
         assert(!self.is_empty(), 'EmptyError');
 
         let b0: u32 = least_significant_bit(Self::_get(self, B0_BITMAP_KEY)).into();
-        let b0b1: u32 = (b0 * 256)
-            | least_significant_bit(Self::_get(self, (~b0).into())).into();
+        let b0b1: u32 = (b0 * 256) | least_significant_bit(Self::_get(self, (~b0).into())).into();
         let b2: u32 = least_significant_bit(Self::_get(self, b0b1.into())).into();
         Self::_to_tick(b0b1, b2)
     }

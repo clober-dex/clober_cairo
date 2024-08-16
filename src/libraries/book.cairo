@@ -229,7 +229,9 @@ pub mod Book {
                     assert(claimable == stale_pending_unit, 'Queue replace failed');
                 }
 
-                let stale_ordered_unit = queue.tree.get_node((order_index & (MAX_ORDER - 1)).into());
+                let stale_ordered_unit = queue
+                    .tree
+                    .get_node((order_index & (MAX_ORDER - 1)).into());
                 if stale_ordered_unit > 0 {
                     self.total_claimable_of.sub(tick, stale_ordered_unit);
                 }
