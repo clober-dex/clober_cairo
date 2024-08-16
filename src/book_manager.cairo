@@ -348,7 +348,10 @@ pub mod BookManager {
 
             let book_id = key.to_id();
             let mut book = self.books.read(book_id);
-            book.open(key);
+
+            assert(!book.is_opened(), 'Book already opened');
+            book.key = key;
+            self.books.write(book_id, book);
 
             self
                 .emit(

@@ -258,7 +258,11 @@ pub mod Book {
             );
 
             queue.orders.write_at(order_index.into(), Order { pending: unit, provider });
-            queue.orders.write_at(MAX_FELT252, Order { pending: order_index + 1, provider: ZERO_ADDRESS() });
+            queue
+                .orders
+                .write_at(
+                    MAX_FELT252, Order { pending: order_index + 1, provider: ZERO_ADDRESS() }
+                );
             order_index
         }
 
