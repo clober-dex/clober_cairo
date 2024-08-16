@@ -295,10 +295,6 @@ pub mod Book {
             Felt252MapTrait::read_at(self.queues, tick.into())
         }
 
-        fn write_queue(ref self: Book, tick: Tick, queue: Queue) {
-            Felt252MapTrait::write_at(ref self.queues, tick.into(), queue);
-        }
-
         fn _get_order(self: @Queue, order_index: u64) -> Order {
             StorageArrayTrait::read_at(self.orders, order_index)
         }
