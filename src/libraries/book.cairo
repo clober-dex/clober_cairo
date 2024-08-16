@@ -4,7 +4,9 @@ pub mod Book {
     use clober_cairo::libraries::tick_bitmap::TickBitmapTrait;
     use clober_cairo::libraries::total_claimable_map::{TotalClaimableOf, TotalClaimableOfTrait};
     use clober_cairo::libraries::fee_policy::FeePolicy;
-    use clober_cairo::libraries::segmented_segment_tree::SegmentedSegmentTree;
+    use clober_cairo::libraries::segmented_segment_tree::{
+        SegmentedSegmentTree, SegmentedSegmentTreeTrait
+    };
     use clober_cairo::libraries::order_id::OrderId;
     use clober_cairo::libraries::hooks::Hooks;
     use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
@@ -101,7 +103,7 @@ pub mod Book {
 
     #[derive(Drop)]
     pub struct Queue {
-        tree: Felt252Map<felt252>,
+        tree: SegmentedSegmentTree,
         // Todo to Vec
         orders: Felt252Map<Order>
     }
@@ -113,7 +115,9 @@ pub mod Book {
             let tree_offset: felt252 = Store::<Felt252Map<felt252>>::size().into();
             SyscallResult::Ok(
                 Queue {
-                    tree: Felt252MapTrait::fetch(address_domain, base),
+                    tree: SegmentedSegmentTree {
+                        layers: Felt252MapTrait::fetch(address_domain, base)
+                    },
                     orders: Felt252MapTrait::fetch(
                         address_domain,
                         storage_base_address_from_felt252(base_felt252 + tree_offset)
@@ -128,7 +132,7 @@ pub mod Book {
             let tree_offset: felt252 = Store::<Felt252Map<felt252>>::size().into();
 
             // Todo error check
-            Store::write(address_domain, base, value.tree);
+            Store::write(address_domain, base, value.tree.layers);
             Store::write(
                 address_domain,
                 storage_base_address_from_felt252(base_felt252 + tree_offset),
@@ -167,9 +171,7 @@ pub mod Book {
         fn depth(self: @Book, tick: Tick) -> u64 {
             let mut tree = self.queues.read_at(tick.into()).tree;
             let mut total_claimable_of = *self.total_claimable_of;
-            (SegmentedSegmentTree::total(ref tree) - total_claimable_of.get(tick).into())
-                .try_into()
-                .unwrap()
+            (tree.total() - total_claimable_of.get(tick).into()).try_into().unwrap()
         }
 
         fn highest(self: @Book) -> Tick {
@@ -212,17 +214,13 @@ pub mod Book {
                     }
                 }
 
-                let stale_ordered_unit = SegmentedSegmentTree::get(
-                    ref queue.tree, (order_index & (MAX_ORDER - 1)).into()
-                );
+                let stale_ordered_unit = queue.tree.get((order_index & (MAX_ORDER - 1)).into());
                 if stale_ordered_unit > 0 {
                     self.total_claimable_of.sub(tick, stale_ordered_unit);
                 }
             }
 
-            SegmentedSegmentTree::update(
-                ref queue.tree, (order_index & (MAX_ORDER - 1)).into(), unit
-            );
+            queue.tree.update((order_index & (MAX_ORDER - 1)).into(), unit);
 
             queue.orders.write_at(order_index.into(), Order { pending: unit, provider });
             queue
@@ -257,12 +255,12 @@ pub mod Book {
                 panic!("Cancel failed");
             }
             let canceled = order.pending - after_pending;
-            SegmentedSegmentTree::update(
-                ref queue.tree,
-                (order_index & (MAX_ORDER - 1)).into(),
-                SegmentedSegmentTree::get(ref queue.tree, (order_index & (MAX_ORDER - 1)).into())
-                    - canceled
-            );
+            queue
+                .tree
+                .update(
+                    (order_index & (MAX_ORDER - 1)).into(),
+                    queue.tree.get((order_index & (MAX_ORDER - 1)).into()) - canceled
+                );
             queue
                 .orders
                 .write_at(
@@ -311,10 +309,9 @@ pub mod Book {
             let l = length & (MAX_ORDER - 1);
             let r = (order_index + 1) & (MAX_ORDER - 1);
             if l < r {
-                SegmentedSegmentTree::query(ref self.tree, l.into(), r.into())
+                self.tree.query(l.into(), r.into())
             } else {
-                SegmentedSegmentTree::total(ref self.tree)
-                    - SegmentedSegmentTree::query(ref self.tree, r.into(), l.into())
+                self.tree.total() - self.tree.query(r.into(), l.into())
             }
         }
     }

@@ -1,8 +1,10 @@
-use clober_cairo::libraries::segmented_segment_tree::SegmentedSegmentTree;
+use clober_cairo::libraries::segmented_segment_tree::{
+    SegmentedSegmentTree, SegmentedSegmentTreeTrait
+};
 use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
 use starknet::storage_access::storage_base_address_from_felt252;
 
-fn _init(ref layers: Felt252Map<felt252>) {
+fn _init(ref tree: SegmentedSegmentTree) {
     let values = array![
         392516968262,
         685254941374,
@@ -53,40 +55,37 @@ fn _init(ref layers: Felt252Map<felt252>) {
     let mut i = 0;
 
     while i < length {
-        SegmentedSegmentTree::update(ref layers, i.into(), *values.at(i));
+        tree.update(i.into(), *values.at(i));
         i += 1;
     }
 }
 
 #[test]
 fn test_get() {
-    let mut layers: Felt252Map<felt252> = Felt252MapTrait::fetch(
-        0, storage_base_address_from_felt252(0x87654321)
-    );
-    _init(ref layers);
+    let mut tree = SegmentedSegmentTree {
+        layers: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
+    };
+    _init(ref tree);
     let mut i: u256 = 0;
     while i < 5 {
-        assert_eq!(
-            SegmentedSegmentTree::query(ref layers, i, i + 1),
-            SegmentedSegmentTree::get(ref layers, i).into()
-        );
+        assert_eq!(tree.query(i, i + 1), tree.get(i).into());
         i += 1;
     }
 }
 
 #[test]
 fn test_total() {
-    let mut layers: Felt252Map<felt252> = Felt252MapTrait::fetch(
-        0, storage_base_address_from_felt252(0x87654321)
-    );
-    _init(ref layers);
+    let mut tree = SegmentedSegmentTree {
+        layers: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
+    };
+    _init(ref tree);
     let mut length = 100;
-    let total = SegmentedSegmentTree::total(ref layers);
-    let query = SegmentedSegmentTree::query(ref layers, 0, length);
+    let total = tree.total();
+    let query = tree.query(0, length);
     assert_eq!(query, total);
     let mut sum = 0;
     while length > 0 {
-        sum += SegmentedSegmentTree::get(ref layers, length - 1).into();
+        sum += tree.get(length - 1).into();
         length -= 1;
     };
     assert_eq!(query, sum);
@@ -94,15 +93,15 @@ fn test_total() {
 
 #[test]
 fn test_query() {
-    let mut layers: Felt252Map<felt252> = Felt252MapTrait::fetch(
-        0, storage_base_address_from_felt252(0x87654321)
-    );
-    _init(ref layers);
+    let mut tree = SegmentedSegmentTree {
+        layers: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
+    };
+    _init(ref tree);
     let mut length = 30;
-    let query = SegmentedSegmentTree::query(ref layers, 10, length);
+    let query = tree.query(10, length);
     let mut sum = 0;
     while length > 10 {
-        sum += SegmentedSegmentTree::get(ref layers, length - 1).into();
+        sum += tree.get(length - 1).into();
         length -= 1;
     };
     assert_eq!(query, sum);
@@ -110,14 +109,14 @@ fn test_query() {
 
 #[test]
 fn test_update() {
-    let mut layers: Felt252Map<felt252> = Felt252MapTrait::fetch(
-        0, storage_base_address_from_felt252(0x87654321)
-    );
-    _init(ref layers);
+    let mut tree = SegmentedSegmentTree {
+        layers: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
+    };
+    _init(ref tree);
     let mut i: u256 = 0;
     while i < 20 {
-        SegmentedSegmentTree::update(ref layers, i, 0x654);
-        let value = SegmentedSegmentTree::get(ref layers, i);
+        tree.update(i, 0x654);
+        let value = tree.get(i);
         assert_eq!(value, 0x654);
         i += 1;
     }
