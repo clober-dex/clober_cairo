@@ -279,9 +279,6 @@ pub mod Book {
                 panic!("Cancel failed");
             }
             let canceled = order.pending - after_pending;
-            let tmp = SegmentedSegmentTree::get(
-                ref queue.tree, (order_index & (MAX_ORDER - 1)).into()
-            );
             SegmentedSegmentTree::update(
                 ref queue.tree,
                 (order_index & (MAX_ORDER - 1)).into(),

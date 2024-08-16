@@ -39,7 +39,7 @@ impl StoreFelt252Map<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of Store<Fel
     #[inline(always)]
     fn size() -> u8 {
         // 0 was selected because the read method doesn't actually read from storage
-        100_u8
+        1_u8
     }
 }
 
