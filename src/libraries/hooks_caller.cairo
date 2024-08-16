@@ -18,12 +18,12 @@ pub impl HooksCallerImpl of HooksCallerTrait {
         if length == 0 {
             ZERO_ADDRESS()
         } else {
-            self.hooks_list.read_at(length - 1).into()
+            self.hooks_list.read_at(length - 1)
         }
     }
 
     fn get_hook(self: @HooksCaller, i: u32) -> ContractAddress {
-        self.hooks_list.read_at(i).into()
+        self.hooks_list.read_at(i)
     }
 
     fn call_hook(
@@ -32,7 +32,7 @@ pub impl HooksCallerImpl of HooksCallerTrait {
         // @dev Set current hook here
         self.hooks_list.append(*hooks);
 
-        let mut res = syscalls::call_contract_syscall((*hooks).into(), expected_selector, hook_data)
+        let mut res = syscalls::call_contract_syscall(*hooks, expected_selector, hook_data)
             .unwrap_syscall();
 
         let selector = Serde::<felt252>::deserialize(ref res).unwrap();

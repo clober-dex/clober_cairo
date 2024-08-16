@@ -1,9 +1,6 @@
 use starknet::ContractAddress;
 
-#[derive(Copy, Drop, Hash, Serde, starknet::Store)]
-pub struct Hooks {
-    address: ContractAddress,
-}
+pub type Hooks = ContractAddress;
 
 pub struct Permissions {
     beforeOpen: bool,
@@ -31,34 +28,10 @@ pub mod Permission {
     pub const AFTER_CLAIM: u256 = 0x200; // 1 << 9
 }
 
-impl HooksIntoContractAddress of Into<Hooks, ContractAddress> {
-    fn into(self: Hooks) -> ContractAddress {
-        self.address
-    }
-}
-
-impl ContractAddressIntoHooks of Into<ContractAddress, Hooks> {
-    fn into(self: ContractAddress) -> Hooks {
-        Hooks { address: self }
-    }
-}
-
-impl HooksIntoFelt252 of Into<Hooks, felt252> {
-    fn into(self: Hooks) -> felt252 {
-        self.address.into()
-    }
-}
-
-impl Felt252TryIntoHooks of TryInto<felt252, Hooks> {
-    fn try_into(self: felt252) -> Option<Hooks> {
-        Option::Some(Hooks { address: self.try_into()? })
-    }
-}
-
 #[generate_trait]
 pub impl HooksImpl of HooksTrait {
     fn has_permission(self: @Hooks, flag: u256) -> bool {
-        let address_felt252: felt252 = (*self.address).into();
+        let address_felt252: felt252 = (*self).into();
         address_felt252.into() & flag != 0
     }
 
@@ -80,7 +53,7 @@ pub impl HooksImpl of HooksTrait {
 
     fn is_valid_hook_address(self: @Hooks) -> bool {
         // If a hook contract is set, it must have at least 1 flag set
-        let address_felt252: felt252 = (*self.address).into();
+        let address_felt252: felt252 = (*self).into();
         address_felt252 == 0 || address_felt252.into() >= Permission::AFTER_CLAIM
     }
 }
