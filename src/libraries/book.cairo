@@ -6,7 +6,6 @@ pub mod Book {
     use clober_cairo::libraries::fee_policy::FeePolicy;
     use clober_cairo::libraries::segmented_segment_tree::SegmentedSegmentTree;
     use clober_cairo::libraries::order_id::OrderId;
-    use clober_cairo::libraries::book_key::BookKey;
     use clober_cairo::libraries::hooks::Hooks;
     use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
     use starknet::ContractAddress;
@@ -24,7 +23,6 @@ pub mod Book {
 
     #[derive(Drop)]
     pub struct Book {
-        pub key: BookKey,
         pub queues: Felt252Map<Queue>, // Todo to storage map
         pub tick_bitmap: TickBitmap,
         pub total_claimable_of: Felt252Map<felt252>,
@@ -34,28 +32,21 @@ pub mod Book {
         #[inline(always)]
         fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Book> {
             let base_felt252: felt252 = storage_address_from_base(base).into();
-            let book_key_offset: felt252 = Store::<BookKey>::size().into();
             let queues_offset: felt252 = Store::<Felt252Map<Queue>>::size().into();
             let tick_bitmap_offset: felt252 = Store::<Felt252Map<u256>>::size().into();
             SyscallResult::Ok(
                 Book {
-                    key: Store::read(address_domain, base).unwrap_syscall(),
-                    queues: Felt252MapTrait::fetch(
-                        address_domain,
-                        storage_base_address_from_felt252(base_felt252 + book_key_offset)
-                    ),
+                    queues: Felt252MapTrait::fetch(address_domain, base),
                     tick_bitmap: TickBitmap {
                         map: Felt252MapTrait::fetch(
                             address_domain,
-                            storage_base_address_from_felt252(
-                                base_felt252 + book_key_offset + queues_offset
-                            )
+                            storage_base_address_from_felt252(base_felt252 + queues_offset)
                         )
                     },
                     total_claimable_of: Felt252MapTrait::fetch(
                         address_domain,
                         storage_base_address_from_felt252(
-                            base_felt252 + book_key_offset + queues_offset + tick_bitmap_offset
+                            base_felt252 + queues_offset + tick_bitmap_offset
                         )
                     )
                 }
@@ -65,26 +56,20 @@ pub mod Book {
         #[inline(always)]
         fn write(address_domain: u32, base: StorageBaseAddress, value: Book) -> SyscallResult<()> {
             let base_felt252: felt252 = storage_address_from_base(base).into();
-            let book_key_offset: felt252 = Store::<BookKey>::size().into();
             let queues_offset: felt252 = Store::<Felt252Map<Queue>>::size().into();
             let tick_bitmap_offset: felt252 = Store::<Felt252Map<u256>>::size().into();
 
             // Todo error check
-            Store::write(address_domain, base, value.key);
+            Store::write(address_domain, base, value.queues);
             Store::write(
                 address_domain,
-                storage_base_address_from_felt252(base_felt252 + book_key_offset),
-                value.queues
-            );
-            Store::write(
-                address_domain,
-                storage_base_address_from_felt252(base_felt252 + book_key_offset + queues_offset),
+                storage_base_address_from_felt252(base_felt252 + queues_offset),
                 value.tick_bitmap.map
             );
             Store::write(
                 address_domain,
                 storage_base_address_from_felt252(
-                    base_felt252 + book_key_offset + queues_offset + tick_bitmap_offset
+                    base_felt252 + queues_offset + tick_bitmap_offset
                 ),
                 value.total_claimable_of
             )
@@ -106,8 +91,7 @@ pub mod Book {
 
         #[inline(always)]
         fn size() -> u8 {
-            Store::<BookKey>::size()
-                + Store::<Felt252Map<Queue>>::size()
+            Store::<Felt252Map<Queue>>::size()
                 + Store::<Felt252Map<u256>>::size()
                 + Store::<Felt252Map<felt252>>::size()
         }
@@ -178,14 +162,6 @@ pub mod Book {
 
     #[generate_trait]
     pub impl BookImpl of BookTrait {
-        fn is_opened(self: @Book) -> bool {
-            *self.key.unit_size != 0
-        }
-
-        fn check_opened(self: @Book) {
-            assert(self.is_opened(), 'book_not_opened');
-        }
-
         fn depth(self: @Book, tick: Tick) -> u64 {
             let mut tree = self.queues.read_at(tick.into()).tree;
             let mut total_claimable_of = *self.total_claimable_of;

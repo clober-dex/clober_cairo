@@ -60,6 +60,7 @@ pub mod BookManager {
         contract_uri: ByteArray,
         default_provier: ContractAddress,
         reserves_of: Map<ContractAddress, u256>,
+        book_keys: Map<felt252, BookKey>,
         books: Map<felt252, Book>,
         is_whitelisted: Map<ContractAddress, bool>,
         token_owed: Map<(ContractAddress, ContractAddress), u256>,
@@ -191,6 +192,10 @@ pub mod BookManager {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
+        fn _check_opened(self: @ContractState, book_id: felt252) {
+            assert(self.is_opened(book_id), 'Book not opened');
+        }
+
         fn _check_locker(self: @ContractState) {
             let caller = get_caller_address();
             let locker = self.lockers.read().get_current_locker();
@@ -278,7 +283,7 @@ pub mod BookManager {
         }
 
         fn get_book_key(self: @ContractState, book_id: felt252) -> BookKey {
-            self.books.read(book_id).key
+            self.book_keys.read(book_id)
         }
 
         fn get_currency_delta(
@@ -311,7 +316,7 @@ pub mod BookManager {
         }
 
         fn is_opened(self: @ContractState, book_id: felt252) -> bool {
-            self.books.read(book_id).is_opened()
+            self.book_keys.read(book_id).unit_size > 0
         }
 
         fn is_empty(self: @ContractState, book_id: felt252) -> bool {
@@ -347,11 +352,8 @@ pub mod BookManager {
             hooks_caller.before_open(@key.hooks, @key, hook_data);
 
             let book_id = key.to_id();
-            let mut book = self.books.read(book_id);
-
-            assert(!book.is_opened(), 'Book already opened');
-            book.key = key;
-            self.books.write(book_id, book);
+            assert(!self.is_opened(book_id), 'Book already opened');
+            self.book_keys.write(book_id, key);
 
             self
                 .emit(
@@ -403,8 +405,8 @@ pub mod BookManager {
             params.tick.validate();
 
             let book_id = params.key.to_id();
+            self._check_opened(book_id);
             let mut book = self.books.read(book_id);
-            book.check_opened();
 
             let mut hooks_caller = self.hooks_caller.read();
             hooks_caller.before_make(@params.key.hooks, @params, hook_data);
@@ -446,8 +448,8 @@ pub mod BookManager {
             params.tick.validate();
 
             let book_id = params.key.to_id();
+            self._check_opened(book_id);
             let mut book = self.books.read(book_id);
-            book.check_opened();
 
             let mut hooks_caller = self.hooks_caller.read();
             hooks_caller.before_take(@params.key.hooks, @params, hook_data);
@@ -491,7 +493,7 @@ pub mod BookManager {
                 );
 
             let mut book = self.books.read(params.id);
-            let key = book.key;
+            let key = self.book_keys.read(params.id);
 
             let mut hooks_caller = self.hooks_caller.read();
             hooks_caller.before_cancel(@key.hooks, @params, hook_data);
@@ -528,7 +530,7 @@ pub mod BookManager {
 
             let decoded_order_id = OrderIdTrait::decode(id);
             let mut book = self.books.read(decoded_order_id.book_id);
-            let key = book.key;
+            let key = self.book_keys.read(decoded_order_id.book_id);
 
             let mut hooks_caller = self.hooks_caller.read();
             hooks_caller.before_claim(@key.hooks, id, hook_data);

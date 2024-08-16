@@ -1,5 +1,4 @@
 use clober_cairo::libraries::book::Book::{Queue, Book, BookImpl};
-use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
 use clober_cairo::libraries::fee_policy::FeePolicy;
 use clober_cairo::libraries::hooks::Hooks;
 use clober_cairo::libraries::tick_bitmap::TickBitmap;
@@ -13,16 +12,7 @@ use clober_cairo::libraries::order_id::OrderId;
 
 #[test]
 fn test_make() {
-    let key = BookKey {
-        base: 0x12345678.try_into().unwrap(),
-        quote: 0x87654321.try_into().unwrap(),
-        hooks: 0x0.try_into().unwrap(),
-        unit_size: 0x1,
-        maker_policy: FeePolicy { uses_quote: true, rate: 0 },
-        taker_policy: FeePolicy { uses_quote: true, rate: 0 }
-    };
     let mut book: Book = Book {
-        key: key,
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: TickBitmap {
             map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325))
@@ -51,16 +41,7 @@ fn test_make() {
 
 #[test]
 fn test_take() {
-    let key = BookKey {
-        base: 0x12345678.try_into().unwrap(),
-        quote: 0x87654321.try_into().unwrap(),
-        hooks: 0x0.try_into().unwrap(),
-        unit_size: 0x1,
-        maker_policy: FeePolicy { uses_quote: true, rate: 0 },
-        taker_policy: FeePolicy { uses_quote: true, rate: 0 }
-    };
     let mut book: Book = Book {
-        key: key,
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: TickBitmap {
             map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325))
@@ -90,16 +71,8 @@ fn test_take() {
 
 #[test]
 fn test_cancel() {
-    let key = BookKey {
-        base: 0x12345678.try_into().unwrap(),
-        quote: 0x87654321.try_into().unwrap(),
-        hooks: 0x0.try_into().unwrap(),
-        unit_size: 0x1,
-        maker_policy: FeePolicy { uses_quote: true, rate: 0 },
-        taker_policy: FeePolicy { uses_quote: true, rate: 0 }
-    };
+    let book_id = 0x12345678.try_into().unwrap();
     let mut book: Book = Book {
-        key: key,
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: TickBitmap {
             map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325))
@@ -119,19 +92,19 @@ fn test_cancel() {
     book.take(tick, 30);
     assert_eq!(book.depth(tick), 270);
 
-    let mut order_id = OrderId { book_id: key.to_id(), tick: tick, index: 0 };
+    let mut order_id = OrderId { book_id, tick: tick, index: 0 };
     let (canceled_unit, pending_unit) = book.cancel(order_id, 40);
     assert_eq!(pending_unit, 70);
     assert_eq!(canceled_unit, 30);
     assert_eq!(book.depth(tick), 240);
 
-    order_id = OrderId { book_id: key.to_id(), tick: tick, index: 1 };
+    order_id = OrderId { book_id, tick: tick, index: 1 };
     let (canceled_unit, pending_unit) = book.cancel(order_id, 150);
     assert_eq!(canceled_unit, 50);
     assert_eq!(book.depth(tick), 190);
     assert_eq!(pending_unit, 150);
 
-    order_id = OrderId { book_id: key.to_id(), tick: tick, index: 1 };
+    order_id = OrderId { book_id, tick: tick, index: 1 };
     let (canceled_unit, pending_unit) = book.cancel(order_id, 0);
     assert_eq!(canceled_unit, 150);
     assert_eq!(book.depth(tick), 40);
@@ -140,16 +113,7 @@ fn test_cancel() {
 
 #[test]
 fn test_claim() {
-    let key = BookKey {
-        base: 0x12345678.try_into().unwrap(),
-        quote: 0x87654321.try_into().unwrap(),
-        hooks: 0x0.try_into().unwrap(),
-        unit_size: 0x1,
-        maker_policy: FeePolicy { uses_quote: true, rate: 0 },
-        taker_policy: FeePolicy { uses_quote: true, rate: 0 }
-    };
     let mut book: Book = Book {
-        key: key,
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: TickBitmap {
             map: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325))
