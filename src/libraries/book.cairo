@@ -25,7 +25,7 @@ pub mod Book {
 
     #[derive(Drop)]
     pub struct Book {
-        pub queues: Felt252Map<Queue>, // Todo to storage map
+        pub queues: Felt252Map<Queue>, // Todo to StorageMap<Tick, Queue>
         pub tick_bitmap: TickBitmap,
         pub total_claimable_of: TotalClaimableOf,
     }
@@ -104,7 +104,7 @@ pub mod Book {
     #[derive(Drop)]
     pub struct Queue {
         tree: SegmentedSegmentTree,
-        // Todo to Vec
+        // Todo to StorageArray
         orders: Felt252Map<Order>
     }
 
