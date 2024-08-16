@@ -205,9 +205,7 @@ pub mod Book {
                 let stale_pending_unit = queue.orders.read_at(stale_order_index.into()).pending;
                 if stale_pending_unit > 0 {
                     let claimable = Self::calculate_claimable_unit(@self, tick, stale_order_index);
-                    if claimable != stale_pending_unit {
-                        panic!("Queue replace failed");
-                    }
+                    assert(claimable == stale_pending_unit, 'Queue replace failed');
                 }
 
                 let stale_ordered_unit = queue.tree.get((order_index & (MAX_ORDER - 1)).into());
@@ -247,9 +245,7 @@ pub mod Book {
             let order = queue.orders.read_at(order_index.into());
             let claimable_unit = Self::calculate_claimable_unit(@self, tick, order_index);
             let after_pending = to + claimable_unit;
-            if order.pending < after_pending {
-                panic!("Cancel failed");
-            }
+            assert(after_pending <= order.pending, 'Cancel failed');
             let canceled = order.pending - after_pending;
             queue
                 .tree
