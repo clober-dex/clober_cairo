@@ -62,22 +62,18 @@ fn _init(ref tree: SegmentedSegmentTree) {
 
 #[test]
 fn test_get() {
-    let mut tree = SegmentedSegmentTree {
-        layers: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
-    };
+    let mut tree = Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321));
     _init(ref tree);
     let mut i: u256 = 0;
     while i < 5 {
-        assert_eq!(tree.query(i, i + 1), tree.get(i).into());
+        assert_eq!(tree.query(i, i + 1), tree.get_node(i).into());
         i += 1;
     }
 }
 
 #[test]
 fn test_total() {
-    let mut tree = SegmentedSegmentTree {
-        layers: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
-    };
+    let mut tree = Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321));
     _init(ref tree);
     let mut length = 100;
     let total = tree.total();
@@ -85,7 +81,7 @@ fn test_total() {
     assert_eq!(query, total);
     let mut sum = 0;
     while length > 0 {
-        sum += tree.get(length - 1).into();
+        sum += tree.get_node(length - 1).into();
         length -= 1;
     };
     assert_eq!(query, sum);
@@ -93,15 +89,13 @@ fn test_total() {
 
 #[test]
 fn test_query() {
-    let mut tree = SegmentedSegmentTree {
-        layers: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
-    };
+    let mut tree = Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321));
     _init(ref tree);
     let mut length = 30;
     let query = tree.query(10, length);
     let mut sum = 0;
     while length > 10 {
-        sum += tree.get(length - 1).into();
+        sum += tree.get_node(length - 1).into();
         length -= 1;
     };
     assert_eq!(query, sum);
@@ -109,14 +103,12 @@ fn test_query() {
 
 #[test]
 fn test_update() {
-    let mut tree = SegmentedSegmentTree {
-        layers: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321))
-    };
+    let mut tree = Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321));
     _init(ref tree);
     let mut i: u256 = 0;
     while i < 20 {
         tree.update(i, 0x654);
-        let value = tree.get(i);
+        let value = tree.get_node(i);
         assert_eq!(value, 0x654);
         i += 1;
     }

@@ -14,10 +14,8 @@ const N_P: u256 = 4; // C * P = 2 ** `4`
 const MAX_NODES: u256 = 0x8000; // (R * P) * ((C * P) ** (L - 1)) = `32768`
 const MAX_NODES_P_MINUS_ONE: u256 = 14; // MAX_NODES / R = 2 ** `14`
 
-#[derive(Destruct, Drop, Copy)]
-pub struct SegmentedSegmentTree {
-    pub layers: Felt252Map<felt252>
-}
+
+pub type SegmentedSegmentTree = Felt252Map<felt252>;
 
 #[derive(Copy, Drop, Serde, Debug)]
 struct LayerIndex {
@@ -27,18 +25,18 @@ struct LayerIndex {
 
 #[generate_trait]
 pub impl SegmentedSegmentTreeImpl of SegmentedSegmentTreeTrait {
-    fn get(ref self: SegmentedSegmentTree, index: u256) -> u64 {
+    fn get_node(self: @SegmentedSegmentTree, index: u256) -> u64 {
         assert(index < MAX_NODES, 'INDEX_ERROR');
         let key: felt252 = ((L.into() - 1) * MAX_NODES + index / P.into()).try_into().unwrap();
-        get_u62(self.layers.read_at(key), (index & P_M).try_into().unwrap())
+        get_u62(self.read_at(key), (index & P_M).try_into().unwrap())
     }
 
     // Todo total can be overflow
-    fn total(ref self: SegmentedSegmentTree) -> u64 {
-        sum_u62(self.layers.read_at(0), 0, P.into()) + sum_u62(self.layers.read_at(1), 0, P.into())
+    fn total(self: @SegmentedSegmentTree) -> u64 {
+        sum_u62(self.read_at(0), 0, P.into()) + sum_u62(self.read_at(1), 0, P.into())
     }
 
-    fn query(ref self: SegmentedSegmentTree, left: u256, right: u256) -> u64 {
+    fn query(self: @SegmentedSegmentTree, left: u256, right: u256) -> u64 {
         if left == right {
             return 0;
         }
@@ -62,20 +60,20 @@ pub impl SegmentedSegmentTreeImpl of SegmentedSegmentTreeTrait {
 
             if right_index.group == left_index.group {
                 let key: felt252 = (l * MAX_NODES + left_index.group).try_into().unwrap();
-                ret += sum_u62(self.layers.read_at(key), left_node_index, right_node_index).into();
+                ret += sum_u62(self.read_at(key), left_node_index, right_node_index).into();
                 break;
             }
 
             if right_index.group - left_index.group < 4 {
                 let key: felt252 = (l * MAX_NODES + left_index.group).try_into().unwrap();
-                ret += sum_u62(self.layers.read_at(key), left_node_index, P).into();
+                ret += sum_u62(self.read_at(key), left_node_index, P).into();
 
                 let key: felt252 = (l * MAX_NODES + right_index.group).try_into().unwrap();
-                ret += sum_u62(self.layers.read_at(key), 0, right_node_index).into();
+                ret += sum_u62(self.read_at(key), 0, right_node_index).into();
                 let mut group = left_index.group + 1;
                 while group < right_index.group {
                     let key: felt252 = (l * MAX_NODES + group).try_into().unwrap();
-                    ret += sum_u62(self.layers.read_at(key), 0, P).into();
+                    ret += sum_u62(self.read_at(key), 0, P).into();
                     group += 1;
                 };
                 break;
@@ -83,41 +81,41 @@ pub impl SegmentedSegmentTreeImpl of SegmentedSegmentTreeTrait {
 
             if left_index.group % 4 == 0 {
                 let key: felt252 = (l * MAX_NODES + left_index.group).try_into().unwrap();
-                deficit += sum_u62(self.layers.read_at(key), 0, left_node_index).into();
+                deficit += sum_u62(self.read_at(key), 0, left_node_index).into();
                 left_node_index = 0;
             } else if left_index.group % 4 == 1 {
                 let key: felt252 = (l * MAX_NODES + left_index.group).try_into().unwrap();
-                deficit += sum_u62(self.layers.read_at(key - 1), 0, P).into();
-                deficit += sum_u62(self.layers.read_at(key), 0, left_node_index).into();
+                deficit += sum_u62(self.read_at(key - 1), 0, P).into();
+                deficit += sum_u62(self.read_at(key), 0, left_node_index).into();
                 left_node_index = 0;
             } else if left_index.group % 4 == 2 {
                 let key: felt252 = (l * MAX_NODES + left_index.group).try_into().unwrap();
-                ret += sum_u62(self.layers.read_at(key), left_node_index, P).into();
-                ret += sum_u62(self.layers.read_at(key + 1), 0, P).into();
+                ret += sum_u62(self.read_at(key), left_node_index, P).into();
+                ret += sum_u62(self.read_at(key + 1), 0, P).into();
                 left_node_index = 1;
             } else {
                 let key: felt252 = (l * MAX_NODES + left_index.group).try_into().unwrap();
-                ret += sum_u62(self.layers.read_at(key), left_node_index, P).into();
+                ret += sum_u62(self.read_at(key), left_node_index, P).into();
                 left_node_index = 1;
             }
 
             if right_index.group % 4 == 0 {
                 let key: felt252 = (l * MAX_NODES + right_index.group).try_into().unwrap();
-                ret += sum_u62(self.layers.read_at(key), 0, right_node_index).into();
+                ret += sum_u62(self.read_at(key), 0, right_node_index).into();
                 right_node_index = 0;
             } else if right_index.group % 4 == 1 {
                 let key: felt252 = (l * MAX_NODES + right_index.group).try_into().unwrap();
-                ret += sum_u62(self.layers.read_at(key - 1), 0, P).into();
-                ret += sum_u62(self.layers.read_at(key), 0, right_node_index).into();
+                ret += sum_u62(self.read_at(key - 1), 0, P).into();
+                ret += sum_u62(self.read_at(key), 0, right_node_index).into();
                 right_node_index = 0;
             } else if right_index.group % 4 == 2 {
                 let key: felt252 = (l * MAX_NODES + right_index.group).try_into().unwrap();
-                deficit += sum_u62(self.layers.read_at(key), right_node_index, P).into();
-                deficit += sum_u62(self.layers.read_at(key + 1), 0, P).into();
+                deficit += sum_u62(self.read_at(key), right_node_index, P).into();
+                deficit += sum_u62(self.read_at(key + 1), 0, P).into();
                 right_node_index = 1;
             } else {
                 let key: felt252 = (l * MAX_NODES + right_index.group).try_into().unwrap();
-                deficit += sum_u62(self.layers.read_at(key), right_node_index, P).into();
+                deficit += sum_u62(self.read_at(key), right_node_index, P).into();
                 right_node_index = 1;
             }
 
@@ -149,16 +147,15 @@ pub impl SegmentedSegmentTreeImpl of SegmentedSegmentTreeTrait {
         let indices: Array<LayerIndex> = Self::_get_layer_indices(index);
         let bottom_index: LayerIndex = *indices.at((L - 1).try_into().unwrap()).try_into().unwrap();
         let key: felt252 = (MAX_NODES * (L.into() - 1) + bottom_index.group).try_into().unwrap();
-        let replaced = get_u62(self.layers.read_at(key), bottom_index.node);
+        let replaced = get_u62(self.read_at(key), bottom_index.node);
         let mut l: u8 = 0;
         if replaced >= value {
             let diff = replaced - value;
             while l < L {
                 let layer_index: LayerIndex = *indices.at(l.into());
                 let key: felt252 = (l.into() * MAX_NODES + layer_index.group).try_into().unwrap();
-                let node: felt252 = self.layers.read_at(key);
+                let node: felt252 = self.read_at(key);
                 self
-                    .layers
                     .write_at(
                         key,
                         update_62(node, layer_index.node, get_u62(node, layer_index.node) - diff)
@@ -170,9 +167,8 @@ pub impl SegmentedSegmentTreeImpl of SegmentedSegmentTreeTrait {
             while l < L {
                 let layer_index: LayerIndex = *indices.at(l.into());
                 let key: felt252 = (l.into() * MAX_NODES + layer_index.group).try_into().unwrap();
-                let node: felt252 = self.layers.read_at(key);
+                let node: felt252 = self.read_at(key);
                 self
-                    .layers
                     .write_at(
                         key,
                         update_62(node, layer_index.node, get_u62(node, layer_index.node) + diff)
