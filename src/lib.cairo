@@ -28,6 +28,8 @@ pub mod utils {
 
 pub mod tests {
     #[cfg(test)]
+    pub mod book;
+    #[cfg(test)]
     pub mod order_id;
     #[cfg(test)]
     pub mod fee_policy;

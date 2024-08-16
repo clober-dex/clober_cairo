@@ -117,8 +117,7 @@ pub mod Book {
     pub struct Queue {
         tree: Felt252Map<felt252>,
         // Todo to Vec
-        orders: Felt252Map<Order>,
-        size: u64
+        orders: Felt252Map<Order>
     }
 
     impl QueueStoreImpl of Store<Queue> {
@@ -126,15 +125,13 @@ pub mod Book {
         fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Queue> {
             let base_felt252: felt252 = storage_address_from_base(base).into();
             let tree_offset: felt252 = Store::<Felt252Map<felt252>>::size().into();
-            let orders_offset: felt252 = Store::<Felt252Map<felt252>>::size().into();
             SyscallResult::Ok(
                 Queue {
                     tree: Felt252MapTrait::fetch(address_domain, base),
                     orders: Felt252MapTrait::fetch(
                         address_domain,
                         storage_base_address_from_felt252(base_felt252 + tree_offset)
-                    ),
-                    size: 0 // Todo use Vec
+                    )
                 }
             )
         }
@@ -143,7 +140,6 @@ pub mod Book {
         fn write(address_domain: u32, base: StorageBaseAddress, value: Queue) -> SyscallResult<()> {
             let base_felt252: felt252 = storage_address_from_base(base).into();
             let tree_offset: felt252 = Store::<Felt252Map<felt252>>::size().into();
-            let orders_offset: felt252 = Store::<Felt252Map<felt252>>::size().into();
 
             // Todo error check
             Store::write(address_domain, base, value.tree);
@@ -151,11 +147,6 @@ pub mod Book {
                 address_domain,
                 storage_base_address_from_felt252(base_felt252 + tree_offset),
                 value.orders
-            );
-            Store::write(
-                address_domain,
-                storage_base_address_from_felt252(base_felt252 + tree_offset + orders_offset),
-                value.size
             )
         }
 
@@ -175,9 +166,7 @@ pub mod Book {
 
         #[inline(always)]
         fn size() -> u8 {
-            Store::<Felt252Map<felt252>>::size()
-                + Store::<Felt252Map<Order>>::size()
-                + Store::<u64>::size()
+            Store::<Felt252Map<felt252>>::size() + Store::<Felt252Map<Order>>::size()
         }
     }
 
@@ -239,7 +228,7 @@ pub mod Book {
                 let stale_order_index: u64 = order_index - MAX_ORDER;
                 let stale_pending_unit = queue.orders.read_at(stale_order_index.into()).pending;
                 if stale_pending_unit > 0 {
-                    let claimable = self.calculate_claimable_unit(tick, stale_order_index);
+                    let claimable = Self::calculate_claimable_unit(@self, tick, stale_order_index);
                     if claimable != stale_pending_unit {
                         panic!("Queue replace failed");
                     }
@@ -284,14 +273,20 @@ pub mod Book {
             let order_index = order_id.index;
             let mut queue = self.queues.read_at(tick.into());
             let order = queue.orders.read_at(order_index.into());
-            let claimable_unit = self.calculate_claimable_unit(tick, order_index);
+            let claimable_unit = Self::calculate_claimable_unit(@self, tick, order_index);
             let after_pending = to + claimable_unit;
             if order.pending < after_pending {
                 panic!("Cancel failed");
             }
             let canceled = order.pending - after_pending;
+            let tmp = SegmentedSegmentTree::get(
+                ref queue.tree, (order_index & (MAX_ORDER - 1)).into()
+            );
             SegmentedSegmentTree::update(
-                ref queue.tree, (order_index & (MAX_ORDER - 1)).into(), canceled
+                ref queue.tree,
+                (order_index & (MAX_ORDER - 1)).into(),
+                SegmentedSegmentTree::get(ref queue.tree, (order_index & (MAX_ORDER - 1)).into())
+                    - canceled
             );
             queue
                 .orders
@@ -318,12 +313,14 @@ pub mod Book {
         fn calculate_claimable_unit(self: @Book, tick: Tick, index: u64) -> u64 {
             let order_unit = Self::get_order(self, tick, index).pending;
             let mut queue = self.queues.read_at(tick.into());
-            if index + MAX_ORDER < queue.size {
+            let length: u64 = queue.orders.read_at(MAX_FELT252).pending;
+
+            if index + MAX_ORDER < length {
                 return order_unit;
             }
             let mut total_claimable_of = *self.total_claimable_of;
             let total_claimable_unit = get(ref total_claimable_of, tick);
-            let range_right = Self::_get_claim_range_right(ref queue, index);
+            let range_right = Self::_get_claim_range_right(ref queue, index, length);
             if range_right - order_unit >= total_claimable_unit {
                 return 0;
             }
@@ -335,9 +332,9 @@ pub mod Book {
             }
         }
 
-        fn _get_claim_range_right(ref self: Queue, order_index: u64) -> u64 {
-            let l = self.size & MAX_ORDER;
-            let r = (order_index + 1) & MAX_ORDER;
+        fn _get_claim_range_right(ref self: Queue, order_index: u64, length: u64) -> u64 {
+            let l = length & (MAX_ORDER - 1);
+            let r = (order_index + 1) & (MAX_ORDER - 1);
             if l < r {
                 SegmentedSegmentTree::query(ref self.tree, l.into(), r.into())
             } else {
