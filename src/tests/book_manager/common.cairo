@@ -1,6 +1,6 @@
 use openzeppelin_token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin_token::erc20::ERC20Component;
-use openzeppelin_utils::test_utils::events::EventSpyExt;
+use openzeppelin_testing::events::EventSpyExt;
 use clober_cairo::book_manager::BookManager;
 use clober_cairo::book_manager::BookManager::{
     Open, Make, Take, Cancel, Claim, Collect, Whitelist, Delist, SetDefaultProvider

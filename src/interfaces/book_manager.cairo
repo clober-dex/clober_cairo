@@ -1,4 +1,4 @@
-use starknet::{ContractAddress};
+use starknet::ContractAddress;
 use clober_cairo::libraries::book_key::BookKey;
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::libraries::i257::i257;
