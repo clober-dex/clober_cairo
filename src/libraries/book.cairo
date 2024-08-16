@@ -165,9 +165,9 @@ pub mod Book {
     #[generate_trait]
     pub impl BookImpl of BookTrait {
         fn depth(self: @Book, tick: Tick) -> u64 {
-            let mut tree = self.queues.read_at(tick.into()).tree;
+            let mut tree = Self::_get_queue(self, tick).tree;
             let mut total_claimable_of = *self.total_claimable_of;
-            (tree.total() - total_claimable_of.get(tick).into()).try_into().unwrap()
+            tree.total() - total_claimable_of.get(tick)
         }
 
         fn highest(self: @Book) -> Tick {
@@ -186,7 +186,35 @@ pub mod Book {
         }
 
         fn get_order(self: @Book, tick: Tick, index: u64) -> Order {
-            self.queues.read_at(tick.into()).orders.read_at(index.into())
+            let mut queue = Self::_get_queue(self, tick);
+            Self::_get_order(@queue, index)
+        }
+
+        fn calculate_claimable_unit(self: @Book, tick: Tick, index: u64) -> u64 {
+            let mut queue = Self::_get_queue(self, tick);
+            let order_unit = Self::_get_order(@queue, index).pending;
+            let length: u64 = Self::_get_orders_length(@queue);
+
+            if index + MAX_ORDER < length {
+                return order_unit;
+            }
+            let mut total_claimable_of = *self.total_claimable_of;
+            let total_claimable_unit = total_claimable_of.get(tick);
+            let l = length & (MAX_ORDER - 1);
+            let r = (index + 1) & (MAX_ORDER - 1);
+            let range_right = if l < r {
+                queue.tree.query(l.into(), r.into())
+            } else {
+                queue.tree.total() - queue.tree.query(r.into(), l.into())
+            };
+
+            if range_right - order_unit >= total_claimable_unit {
+                0
+            } else if range_right <= total_claimable_unit {
+                order_unit
+            } else {
+                total_claimable_unit - (range_right - order_unit)
+            }
         }
 
         fn make(ref self: Book, tick: Tick, unit: u64, provider: ContractAddress) -> u64 {
@@ -196,13 +224,13 @@ pub mod Book {
                 TickBitmapTrait::set(ref tick_bitmap, tick);
             }
 
-            let mut queue = self.queues.read_at(tick.into());
+            let mut queue = Self::_get_queue(@self, tick);
             // Todo
-            let order_index: u64 = queue.orders.read_at(MAX_FELT252).pending;
+            let order_index: u64 = Self::_get_orders_length(@queue);
 
             if order_index >= MAX_ORDER {
                 let stale_order_index: u64 = order_index - MAX_ORDER;
-                let stale_pending_unit = queue.orders.read_at(stale_order_index.into()).pending;
+                let stale_pending_unit = Self::_get_order(@queue, stale_order_index).pending;
                 if stale_pending_unit > 0 {
                     let claimable = Self::calculate_claimable_unit(@self, tick, stale_order_index);
                     assert(claimable == stale_pending_unit, 'Queue replace failed');
@@ -216,12 +244,8 @@ pub mod Book {
 
             queue.tree.update((order_index & (MAX_ORDER - 1)).into(), unit);
 
-            queue.orders.write_at(order_index.into(), Order { pending: unit, provider });
-            queue
-                .orders
-                .write_at(
-                    MAX_FELT252, Order { pending: order_index + 1, provider: ZERO_ADDRESS() }
-                );
+            Self::_set_order(ref queue, order_index, Order { pending: unit, provider });
+            Self::_set_orders_length(ref queue, order_index + 1);
             order_index
         }
 
@@ -241,8 +265,8 @@ pub mod Book {
         fn cancel(ref self: Book, order_id: OrderId, to: u64) -> (u64, u64) {
             let tick = order_id.tick;
             let order_index = order_id.index;
-            let mut queue = self.queues.read_at(tick.into());
-            let order = queue.orders.read_at(order_index.into());
+            let mut queue = Self::_get_queue(@self, tick);
+            let order = Self::_get_order(@queue, order_index);
             let claimable_unit = Self::calculate_claimable_unit(@self, tick, order_index);
             let after_pending = to + claimable_unit;
             assert(after_pending <= order.pending, 'Cancel failed');
@@ -253,11 +277,9 @@ pub mod Book {
                     (order_index & (MAX_ORDER - 1)).into(),
                     queue.tree.get((order_index & (MAX_ORDER - 1)).into()) - canceled
                 );
-            queue
-                .orders
-                .write_at(
-                    order_index.into(), Order { pending: after_pending, provider: order.provider }
-                );
+            Self::_set_order(
+                ref queue, order_index, Order { pending: after_pending, provider: order.provider }
+            );
 
             if Self::depth(@self, tick) == 0 {
                 TickBitmapTrait::clear(ref self.tick_bitmap, tick);
@@ -267,44 +289,38 @@ pub mod Book {
         }
 
         fn claim(ref self: Book, tick: Tick, index: u64) -> u64 {
-            let mut order = Self::get_order(@self, tick, index);
+            let mut queue = Self::_get_queue(@self, tick);
+            let mut order = Self::_get_order(@queue, index);
             let claimable_unit = Self::calculate_claimable_unit(@self, tick, index);
             order.pending -= claimable_unit;
-            let mut queue = self.queues.read_at(tick.into());
-            queue.orders.write_at(index.into(), order);
+            Self::_set_order(ref queue, index, order);
             claimable_unit
         }
 
-        fn calculate_claimable_unit(self: @Book, tick: Tick, index: u64) -> u64 {
-            let order_unit = Self::get_order(self, tick, index).pending;
-            let mut queue = self.queues.read_at(tick.into());
-            let length: u64 = queue.orders.read_at(MAX_FELT252).pending;
-
-            if index + MAX_ORDER < length {
-                return order_unit;
-            }
-            let mut total_claimable_of = *self.total_claimable_of;
-            let total_claimable_unit = total_claimable_of.get(tick);
-            let range_right = Self::_get_claim_range_right(ref queue, index, length);
-            if range_right - order_unit >= total_claimable_unit {
-                return 0;
-            }
-
-            if range_right <= total_claimable_unit {
-                order_unit
-            } else {
-                total_claimable_unit - (range_right - order_unit)
-            }
+        fn _get_queue(self: @Book, tick: Tick) -> Queue {
+            Felt252MapTrait::read_at(self.queues, tick.into())
         }
 
-        fn _get_claim_range_right(ref self: Queue, order_index: u64, length: u64) -> u64 {
-            let l = length & (MAX_ORDER - 1);
-            let r = (order_index + 1) & (MAX_ORDER - 1);
-            if l < r {
-                self.tree.query(l.into(), r.into())
-            } else {
-                self.tree.total() - self.tree.query(r.into(), l.into())
-            }
+        fn write_queue(ref self: Book, tick: Tick, queue: Queue) {
+            Felt252MapTrait::write_at(ref self.queues, tick.into(), queue);
+        }
+
+        fn _get_order(self: @Queue, order_index: u64) -> Order {
+            Felt252MapTrait::read_at(self.orders, order_index.into())
+        }
+
+        fn _set_order(ref self: Queue, order_index: u64, order: Order) {
+            Felt252MapTrait::write_at(ref self.orders, order_index.into(), order);
+        }
+
+        fn _get_orders_length(self: @Queue) -> u64 {
+            Felt252MapTrait::read_at(self.orders, MAX_FELT252).pending
+        }
+
+        fn _set_orders_length(ref self: Queue, length: u64) {
+            Felt252MapTrait::write_at(
+                ref self.orders, MAX_FELT252, Order { pending: length, provider: ZERO_ADDRESS() }
+            )
         }
     }
 }
