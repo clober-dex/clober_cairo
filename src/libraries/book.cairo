@@ -15,7 +15,8 @@ pub mod Book {
     };
     use starknet::storage::{Vec, VecTrait};
     use starknet::{Store, SyscallResult, SyscallResultTrait};
-    use clober_cairo::utils::constants::{TWO_POW_15};
+    use openzeppelin_utils::structs::storage_array::{StorageArray};
+    use clober_cairo::utils::constants::{TWO_POW_15, ZERO_ADDRESS, MAX_FELT252};
 
     const NOT_IMPLEMENTED: felt252 = 'Not implemented';
     const MAX_ORDER: u64 = TWO_POW_15;
@@ -113,7 +114,7 @@ pub mod Book {
     }
 
     #[derive(Drop)]
-    struct Queue {
+    pub struct Queue {
         tree: Felt252Map<felt252>,
         // Todo to Vec
         orders: Felt252Map<Order>,
@@ -188,13 +189,6 @@ pub mod Book {
 
     #[generate_trait]
     pub impl BookImpl of BookTrait {
-        fn open(ref self: Book, key: BookKey) {
-            if self.key.unit_size != 0 {
-                panic!("book_already_opened");
-            }
-            self.key = key;
-        }
-
         fn is_opened(self: @Book) -> bool {
             *self.key.unit_size != 0
         }
@@ -238,7 +232,8 @@ pub mod Book {
             }
 
             let mut queue = self.queues.read_at(tick.into());
-            let order_index: u64 = queue.size;
+            // Todo
+            let order_index: u64 = queue.orders.read_at(MAX_FELT252).pending;
 
             if order_index >= MAX_ORDER {
                 let stale_order_index: u64 = order_index - MAX_ORDER;
@@ -261,7 +256,9 @@ pub mod Book {
             SegmentedSegmentTree::update(
                 ref queue.tree, (order_index & (MAX_ORDER - 1)).into(), unit
             );
+
             queue.orders.write_at(order_index.into(), Order { pending: unit, provider });
+            queue.orders.write_at(MAX_FELT252, Order { pending: order_index + 1, provider: ZERO_ADDRESS() });
             order_index
         }
 
