@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-// This code was originally written by OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (utils/structs/storage_array.cairo)
+// This code was originally written by OpenZeppelin Contracts for Cairo v0.15.0-rc.0
+// (utils/structs/storage_array.cairo)
 // Modified by Clober
 
 use core::hash::{HashStateExTrait, HashStateTrait};

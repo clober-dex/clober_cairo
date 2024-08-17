@@ -55,24 +55,7 @@ pub mod Book {
 
         #[inline(always)]
         fn write(address_domain: u32, base: StorageBaseAddress, value: Book) -> SyscallResult<()> {
-            let base_felt252: felt252 = storage_address_from_base(base).into();
-            let queues_offset: felt252 = Store::<Felt252Map<Queue>>::size().into();
-            let tick_bitmap_offset: felt252 = Store::<Felt252Map<u256>>::size().into();
-
-            // Todo error check
-            Store::write(address_domain, base, value.queues);
-            Store::write(
-                address_domain,
-                storage_base_address_from_felt252(base_felt252 + queues_offset),
-                value.tick_bitmap
-            );
-            Store::write(
-                address_domain,
-                storage_base_address_from_felt252(
-                    base_felt252 + queues_offset + tick_bitmap_offset
-                ),
-                value.total_claimable_of
-            )
+            SyscallResult::Err(array![NOT_IMPLEMENTED])
         }
 
         #[inline(always)]
@@ -121,16 +104,7 @@ pub mod Book {
 
         #[inline(always)]
         fn write(address_domain: u32, base: StorageBaseAddress, value: Queue) -> SyscallResult<()> {
-            let base_felt252: felt252 = storage_address_from_base(base).into();
-            let tree_offset: felt252 = Store::<Felt252Map<felt252>>::size().into();
-
-            // Todo error check
-            Store::write(address_domain, base, value.tree);
-            Store::write(
-                address_domain,
-                storage_base_address_from_felt252(base_felt252 + tree_offset),
-                value.orders
-            )
+            SyscallResult::Err(array![NOT_IMPLEMENTED])
         }
 
         #[inline(always)]
