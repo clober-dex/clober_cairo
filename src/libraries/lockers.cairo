@@ -7,7 +7,7 @@ use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
 
 const NOT_IMPLEMENTED: felt252 = 'Not implemented';
 
-#[derive(Copy, Drop)]
+#[derive(Drop)]
 pub struct Lockers {
     lockers: Felt252Map<(ContractAddress, ContractAddress)>
 }

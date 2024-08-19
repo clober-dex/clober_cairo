@@ -17,7 +17,7 @@ const MAX_NODES_P_MINUS_ONE: u64 = 14; // MAX_NODES / R = 2 ** `14`
 
 pub type SegmentedSegmentTree = Felt252Map<felt252>;
 
-#[derive(Copy, Drop, Serde, Debug)]
+#[derive(Copy, Drop)]
 struct LayerIndex {
     pub group: u64,
     pub node: u8

@@ -125,7 +125,7 @@ pub mod Book {
         }
     }
 
-    #[derive(Copy, Drop, starknet::Store)]
+    #[derive(Drop, starknet::Store)]
     pub struct Order {
         pub provider: ContractAddress,
         pub pending: u64
