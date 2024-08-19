@@ -20,9 +20,7 @@ pub impl OrderIdImpl of OrderIdTrait {
             self.tick.into()
         };
         assert(t < 0x1000000_i32, 'tick overflow');
-        return self.book_id.try_into().unwrap() * TWO_POW_64.try_into().unwrap()
-            + t.into() * TWO_POW_40.try_into().unwrap()
-            + self.index.into();
+        return self.book_id * TWO_POW_64.into() + t.into() * TWO_POW_40.into() + self.index.into();
     }
 
     fn decode(value: felt252) -> OrderId {
