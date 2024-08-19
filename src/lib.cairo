@@ -8,7 +8,7 @@ pub mod libraries {
     pub mod book_key;
     pub mod book;
     pub mod fee_policy;
-    pub mod hooks_caller;
+    pub mod hooks_list;
     pub mod hooks;
     pub mod i257;
     pub mod lockers;

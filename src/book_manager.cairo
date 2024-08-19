@@ -17,7 +17,7 @@ pub mod BookManager {
     use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
     use clober_cairo::libraries::tick::{Tick, TickTrait};
     use clober_cairo::libraries::hooks::{Hooks, HooksTrait};
-    use clober_cairo::libraries::hooks_caller::{HooksCaller, HooksCallerTrait};
+    use clober_cairo::libraries::hooks_list::{HooksList, HooksListTrait};
     use clober_cairo::libraries::lockers::{Lockers, LockersTrait};
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
@@ -55,7 +55,7 @@ pub mod BookManager {
         #[substorage(v0)]
         src5: SRC5Component::Storage,
         lockers: Lockers,
-        hooks_caller: HooksCaller,
+        hooks_list: HooksList,
         currency_delta: Map<(ContractAddress, ContractAddress), i257>,
         contract_uri: ByteArray,
         default_provier: ContractAddress,
@@ -199,7 +199,7 @@ pub mod BookManager {
         fn _check_locker(self: @ContractState) {
             let caller = get_caller_address();
             let locker = self.lockers.read().get_current_locker();
-            let hook = self.hooks_caller.read().get_current_hook();
+            let hook = self.hooks_list.read().get_current_hook();
             assert(caller == locker || caller == hook, Errors::INVALID_LOCKER);
         }
 
@@ -275,11 +275,11 @@ pub mod BookManager {
         }
 
         fn get_current_hook(self: @ContractState) -> ContractAddress {
-            self.hooks_caller.read().get_current_hook()
+            self.hooks_list.read().get_current_hook()
         }
 
         fn get_hook(self: @ContractState, i: u32) -> ContractAddress {
-            self.hooks_caller.read().get_hook(i)
+            self.hooks_list.read().get_hook(i)
         }
 
         fn get_book_key(self: @ContractState, book_id: felt252) -> BookKey {
@@ -348,8 +348,8 @@ pub mod BookManager {
 
             assert(key.hooks.is_valid_hook_address(), Errors::INVALID_HOOKS);
 
-            let mut hooks_caller = self.hooks_caller.read();
-            hooks_caller.before_open(@key.hooks, @key, hook_data);
+            let mut hooks_list = self.hooks_list.read();
+            hooks_list.before_open(@key.hooks, @key, hook_data);
 
             let book_id = key.to_id();
             assert(!self.is_opened(book_id), 'Book already opened');
@@ -368,7 +368,7 @@ pub mod BookManager {
                     }
                 );
 
-            hooks_caller.after_open(@key.hooks, @key, hook_data);
+            hooks_list.after_open(@key.hooks, @key, hook_data);
         }
 
         fn lock(
@@ -408,8 +408,8 @@ pub mod BookManager {
             self._check_opened(book_id);
             let mut book = self.books.read(book_id);
 
-            let mut hooks_caller = self.hooks_caller.read();
-            hooks_caller.before_make(@params.key.hooks, @params, hook_data);
+            let mut hooks_list = self.hooks_list.read();
+            hooks_list.before_make(@params.key.hooks, @params, hook_data);
 
             let order_index = book.make(params.tick, params.unit, params.provider);
             let order_id = (OrderId { book_id, tick: params.tick, index: order_index }).encode();
@@ -436,7 +436,7 @@ pub mod BookManager {
                     }
                 );
 
-            hooks_caller.after_make(@params.key.hooks, @params, order_id, hook_data);
+            hooks_list.after_make(@params.key.hooks, @params, order_id, hook_data);
 
             (order_id, quote_amount)
         }
@@ -451,8 +451,8 @@ pub mod BookManager {
             self._check_opened(book_id);
             let mut book = self.books.read(book_id);
 
-            let mut hooks_caller = self.hooks_caller.read();
-            hooks_caller.before_take(@params.key.hooks, @params, hook_data);
+            let mut hooks_list = self.hooks_list.read();
+            hooks_list.before_take(@params.key.hooks, @params, hook_data);
 
             let taken_unit = book.take(params.tick, params.max_unit);
             let mut quote_amount: u256 = taken_unit.into() * params.key.unit_size.into();
@@ -480,7 +480,7 @@ pub mod BookManager {
                     }
                 );
 
-            hooks_caller.after_take(@params.key.hooks, @params, taken_unit, hook_data);
+            hooks_list.after_take(@params.key.hooks, @params, taken_unit, hook_data);
             (quote_amount, base_amount)
         }
 
@@ -495,8 +495,8 @@ pub mod BookManager {
             let mut book = self.books.read(params.id);
             let key = self.book_keys.read(params.id);
 
-            let mut hooks_caller = self.hooks_caller.read();
-            hooks_caller.before_cancel(@key.hooks, @params, hook_data);
+            let mut hooks_list = self.hooks_list.read();
+            hooks_list.before_cancel(@key.hooks, @params, hook_data);
 
             let decoded_order_id = OrderIdTrait::decode(params.id);
             let (canceled_unit, pending_unit) = book.cancel(decoded_order_id, params.to_unit);
@@ -515,7 +515,7 @@ pub mod BookManager {
 
             self.emit(Cancel { order_id: params.id, unit: canceled_unit });
 
-            hooks_caller.after_cancel(@key.hooks, @params, canceled_unit, hook_data);
+            hooks_list.after_cancel(@key.hooks, @params, canceled_unit, hook_data);
 
             canceled_amount
         }
@@ -532,8 +532,8 @@ pub mod BookManager {
             let mut book = self.books.read(decoded_order_id.book_id);
             let key = self.book_keys.read(decoded_order_id.book_id);
 
-            let mut hooks_caller = self.hooks_caller.read();
-            hooks_caller.before_claim(@key.hooks, id, hook_data);
+            let mut hooks_list = self.hooks_list.read();
+            hooks_list.before_claim(@key.hooks, id, hook_data);
 
             let claimed_unit = book.claim(decoded_order_id.tick, decoded_order_id.index);
 
@@ -585,7 +585,7 @@ pub mod BookManager {
 
             self.emit(Claim { order_id: id, unit: claimed_unit });
 
-            hooks_caller.after_claim(@key.hooks, id, claimed_unit, hook_data);
+            hooks_list.after_claim(@key.hooks, id, claimed_unit, hook_data);
 
             claimed_amount
         }
