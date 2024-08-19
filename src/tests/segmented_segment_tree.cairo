@@ -64,7 +64,7 @@ fn _init(ref tree: SegmentedSegmentTree) {
 fn test_get() {
     let mut tree = Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321));
     _init(ref tree);
-    let mut i: u256 = 0;
+    let mut i: u64 = 0;
     while i < 5 {
         assert_eq!(tree.query(i, i + 1), tree.get_node(i).into());
         i += 1;
@@ -105,7 +105,7 @@ fn test_query() {
 fn test_update() {
     let mut tree = Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321));
     _init(ref tree);
-    let mut i: u256 = 0;
+    let mut i: u64 = 0;
     while i < 20 {
         tree.update(i, 0x654);
         let value = tree.get_node(i);
