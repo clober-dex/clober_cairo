@@ -16,7 +16,7 @@ pub mod Book {
     };
     use starknet::storage::{Vec, VecTrait};
     use starknet::{Store, SyscallResult, SyscallResultTrait};
-    use clober_cairo::utils::constants::{TWO_POW_15, ZERO_ADDRESS};
+    use clober_cairo::utils::constants::{TWO_POW_15, MASK_15, ZERO_ADDRESS};
     use clober_cairo::libraries::storage_array::{StorageArray, StorageArrayTrait};
 
     const NOT_IMPLEMENTED: felt252 = 'Not implemented';
@@ -168,8 +168,8 @@ pub mod Book {
             }
             let mut total_claimable_of = *self.total_claimable_of;
             let total_claimable_unit = total_claimable_of.get(tick);
-            let l = length & (MAX_ORDER - 1);
-            let r = (index + 1) & (MAX_ORDER - 1);
+            let l = length & MASK_15;
+            let r = (index + 1) & MASK_15;
             let range_right = if l < r {
                 queue.tree.query(l.into(), r.into())
             } else {
@@ -205,13 +205,13 @@ pub mod Book {
 
                 let stale_ordered_unit = queue
                     .tree
-                    .get_node((order_index & (MAX_ORDER - 1)).into());
+                    .get_node((order_index & MASK_15).into());
                 if stale_ordered_unit > 0 {
                     self.total_claimable_of.sub(tick, stale_ordered_unit);
                 }
             }
 
-            queue.tree.update((order_index & (MAX_ORDER - 1)).into(), unit);
+            queue.tree.update((order_index & MASK_15).into(), unit);
 
             Self::_append_order(ref queue, Order { pending: unit, provider });
             order_index
@@ -242,8 +242,8 @@ pub mod Book {
             queue
                 .tree
                 .update(
-                    (order_index & (MAX_ORDER - 1)).into(),
-                    queue.tree.get_node((order_index & (MAX_ORDER - 1)).into()) - canceled
+                    (order_index & MASK_15).into(),
+                    queue.tree.get_node((order_index & MASK_15).into()) - canceled
                 );
             Self::_set_order(
                 ref queue, order_index, Order { pending: after_pending, provider: order.provider }

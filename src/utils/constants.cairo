@@ -16,6 +16,7 @@ pub(crate) const TWO_POW_15: u64 = 0x8000; // 2**15
 
 pub(crate) const MASK_64: u64 = 0xFFFFFFFFFFFFFFFF; // 2**64 - 1
 pub(crate) const MASK_62: u64 = 0x3fffffffffffffff; // 2**62 - 1
+pub(crate) const MASK_15: u64 = 0x7fff; // 2**15 - 1
 
 pub(crate) const RATE_PRECISION: u32 = 1000000;
 
