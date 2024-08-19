@@ -28,6 +28,12 @@ pub mod Book {
         pub total_claimable_of: TotalClaimableOf,
     }
 
+    #[derive(Drop)]
+    pub struct Queue {
+        tree: SegmentedSegmentTree,
+        orders: StorageArray<Order>
+    }
+
     impl BookStoreImpl of Store<Book> {
         #[inline(always)]
         fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Book> {
@@ -76,12 +82,6 @@ pub mod Book {
                 + Store::<Felt252Map<u256>>::size()
                 + Store::<Felt252Map<felt252>>::size()
         }
-    }
-
-    #[derive(Drop)]
-    pub struct Queue {
-        tree: SegmentedSegmentTree,
-        orders: StorageArray<Order>
     }
 
     impl QueueStoreImpl of Store<Queue> {
