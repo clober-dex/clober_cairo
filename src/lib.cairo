@@ -31,7 +31,8 @@ pub mod mocks {
     pub mod open_router;
 }
 
-pub mod tests {
+mod tests {
+    pub mod book_manager;
     pub mod utils;
     #[cfg(test)]
     pub mod book;
@@ -54,3 +55,5 @@ pub mod tests {
 }
 
 pub mod book_manager;
+
+pub use book_manager::BookManager;
