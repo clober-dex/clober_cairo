@@ -88,6 +88,8 @@ pub impl Felt252MapImpl<T, +Drop<T>, impl TStore: Store<T>> of Felt252MapTrait<T
 pub type StorageMap<K, V> = Felt252Map<V>;
 
 pub trait StorageMapTrait<K, V> {
+    fn fetch(address_domain: u32, base: StorageBaseAddress) -> StorageMap<K, V>;
+    fn get_base_storage_address(self: @StorageMap<K, V>) -> (u32, StorageBaseAddress);
     fn address_at(self: @StorageMap<K, V>, key: K) -> felt252;
     fn read_at(self: @StorageMap<K, V>, key: K) -> V;
     fn write_at(ref self: StorageMap<K, V>, key: K, value: V);
@@ -96,6 +98,15 @@ pub trait StorageMapTrait<K, V> {
 impl StorageMapIntoImpl<
     K, V, +Into<K, felt252>, +Drop<K>, +Drop<V>, impl TStore: Store<V>
 > of StorageMapTrait<K, V> {
+    #[inline]
+    fn fetch(address_domain: u32, base: StorageBaseAddress) -> StorageMap<K, V> {
+        Felt252MapTrait::fetch(address_domain, base)
+    }
+
+    fn get_base_storage_address(self: @StorageMap<K, V>) -> (u32, StorageBaseAddress) {
+        Felt252MapTrait::get_base_storage_address(self)
+    }
+
     fn address_at(self: @StorageMap<K, V>, key: K) -> felt252 {
         Felt252MapTrait::address_at(self, key.into())
     }
@@ -112,6 +123,15 @@ impl StorageMapIntoImpl<
 impl StorageMapHashImpl<
     K, V, +Hash<K, HashState>, +Drop<K>, +Drop<V>, impl TStore: Store<V>
 > of StorageMapTrait<K, V> {
+    #[inline]
+    fn fetch(address_domain: u32, base: StorageBaseAddress) -> StorageMap<K, V> {
+        Felt252MapTrait::fetch(address_domain, base)
+    }
+
+    fn get_base_storage_address(self: @StorageMap<K, V>) -> (u32, StorageBaseAddress) {
+        Felt252MapTrait::get_base_storage_address(self)
+    }
+
     fn address_at(self: @StorageMap<K, V>, key: K) -> felt252 {
         Felt252MapTrait::address_at(self, PoseidonTrait::new().update_with(key).finalize())
     }
