@@ -30,7 +30,8 @@ pub impl FeePolicyImpl of FeePolicyTrait {
         } else {
             is_positive
         };
-        let abs_fee: i257 = divide(amount * abs_rate.into(), RATE_PRECISION.into(), rounding_up).into();
+        let abs_fee: i257 = divide(amount * abs_rate.into(), RATE_PRECISION.into(), rounding_up)
+            .into();
         if (is_positive) {
             abs_fee
         } else {
