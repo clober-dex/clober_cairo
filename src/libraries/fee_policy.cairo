@@ -6,7 +6,7 @@ use clober_cairo::libraries::i257::i257;
 const MAX_FEE_RATE: i32 = 500000;
 const MIN_FEE_RATE: i32 = -500000;
 
-#[derive(Copy, Drop, Serde, Debug, Hash)]
+#[derive(Copy, Drop, Serde, Debug, Hash, PartialEq)]
 pub struct FeePolicy {
     pub uses_quote: bool,
     pub rate: i32,
