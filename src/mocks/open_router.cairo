@@ -1,6 +1,6 @@
 #[starknet::contract]
 pub mod OpenRouter {
-    use starknet::{ContractAddress, get_caller_address};
+    use starknet::{ContractAddress, get_contract_address};
     use clober_cairo::interfaces::book_manager::{
         IBookManager, IBookManagerDispatcher, IBookManagerDispatcherTrait
     };
@@ -30,7 +30,7 @@ pub mod OpenRouter {
             Serde::serialize(@hook_data, ref data);
 
             let bm = IBookManagerDispatcher { contract_address: self.book_manager.read() };
-            bm.lock(get_caller_address(), data.span());
+            bm.lock(get_contract_address(), data.span());
         }
     }
 
