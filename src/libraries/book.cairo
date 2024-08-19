@@ -16,7 +16,7 @@ pub mod Book {
     };
     use starknet::storage::{Vec, VecTrait};
     use starknet::{Store, SyscallResult, SyscallResultTrait};
-    use clober_cairo::utils::constants::{TWO_POW_15, ZERO_ADDRESS, MAX_FELT252};
+    use clober_cairo::utils::constants::{TWO_POW_15, ZERO_ADDRESS};
     use clober_cairo::libraries::storage_array::{StorageArray, StorageArrayTrait};
 
     const NOT_IMPLEMENTED: felt252 = 'Not implemented';

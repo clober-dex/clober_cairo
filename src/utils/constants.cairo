@@ -22,9 +22,6 @@ pub(crate) const RATE_PRECISION: u32 = 1000000;
 pub(crate) const MAX_TICK: i32 = 0x7ffff;
 pub(crate) const MIN_TICK: i32 = -MAX_TICK;
 
-pub(crate) const MAX_FELT252: felt252 =
-    3618502788666131213697322783095070105623107215331596699973092056135872020480;
-
 pub(crate) fn ZERO_ADDRESS() -> ContractAddress {
     contract_address_const::<0>()
 }
