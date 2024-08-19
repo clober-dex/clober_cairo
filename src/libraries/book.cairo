@@ -20,8 +20,6 @@ pub mod Book {
     use clober_cairo::libraries::storage_array::{StorageArray, StorageArrayTrait};
 
     const NOT_IMPLEMENTED: felt252 = 'Not implemented';
-    const MAX_ORDER: u64 = TWO_POW_15;
-
 
     #[derive(Drop)]
     pub struct Book {
@@ -163,7 +161,7 @@ pub mod Book {
             let order_unit = Self::_get_order(@queue, index).pending;
             let length: u64 = Self::_get_orders_length(@queue);
 
-            if index + MAX_ORDER < length {
+            if index + TWO_POW_15 < length {
                 return order_unit;
             }
             let mut total_claimable_of = *self.total_claimable_of;
@@ -195,8 +193,8 @@ pub mod Book {
             // Todo
             let order_index: u64 = Self::_get_orders_length(@queue);
 
-            if order_index >= MAX_ORDER {
-                let stale_order_index: u64 = order_index - MAX_ORDER;
+            if order_index >= TWO_POW_15 {
+                let stale_order_index: u64 = order_index - TWO_POW_15;
                 let stale_pending_unit = Self::_get_order(@queue, stale_order_index).pending;
                 if stale_pending_unit > 0 {
                     let claimable = Self::calculate_claimable_unit(@self, tick, stale_order_index);
