@@ -3,8 +3,8 @@ use clober_cairo::utils::math::{divide};
 use clober_cairo::utils::constants::{RATE_PRECISION};
 use clober_cairo::libraries::i257::i257;
 
-const MAX_FEE_RATE: i32 = 500000;
-const MIN_FEE_RATE: i32 = -500000;
+pub const MAX_FEE_RATE: i32 = 500000;
+pub const MIN_FEE_RATE: i32 = -500000;
 
 #[derive(Copy, Drop, Serde, Hash, PartialEq)]
 pub struct FeePolicy {
