@@ -1,26 +1,20 @@
 use starknet::ContractAddress;
 use clober_cairo::interfaces::book_manager::{IBookManagerDispatcher, IBookManagerDispatcherTrait};
-use clober_cairo::book_manager::BookManager;
 use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
 use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait, MAX_FEE_RATE, MIN_FEE_RATE};
 use clober_cairo::mocks::open_router::OpenRouter::{
     IOpenRouterDispatcher, IOpenRouterDispatcherTrait
 };
 use clober_cairo::tests::utils::deploy_token_pairs;
-use clober_cairo::tests::book_manager::common::BookManagerSpyHelpers;
+use clober_cairo::tests::book_manager::common::{
+    BookManagerSpyHelpers, valid_key, BASE_URI, CONTRACT_URI
+};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ZERO, OWNER, SPENDER, RECIPIENT, OTHER, NAME, SYMBOL};
+use openzeppelin_testing::constants::{OWNER, SPENDER, RECIPIENT, OTHER, NAME, SYMBOL};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{spy_events, EventSpy, start_cheat_caller_address};
-
-fn BASE_URI() -> ByteArray {
-    "base_uri"
-}
-fn CONTRACT_URI() -> ByteArray {
-    "contract_uri"
-}
 
 fn setup_dispatcher() -> (IBookManagerDispatcher, IOpenRouterDispatcher) {
     let mut calldata = array![];
@@ -43,19 +37,8 @@ fn setup_dispatcher() -> (IBookManagerDispatcher, IOpenRouterDispatcher) {
     )
 }
 
-fn valid_key(base: ContractAddress, quote: ContractAddress) -> BookKey {
-    BookKey {
-        base,
-        quote,
-        hooks: ZERO(),
-        unit_size: 1,
-        taker_policy: FeePolicy { uses_quote: true, rate: 0 },
-        maker_policy: FeePolicy { uses_quote: true, rate: 0 },
-    }
-}
-
 #[test]
-fn test_open() {
+fn test_success() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
 
     let (bm, router) = setup_dispatcher();

@@ -1,13 +1,31 @@
-use openzeppelin_token::erc20::ERC20Component::{Approval, Transfer};
-use openzeppelin_token::erc20::ERC20Component;
 use openzeppelin_testing::events::EventSpyExt;
-use clober_cairo::book_manager::BookManager;
+use openzeppelin_testing::constants::ZERO;
 use clober_cairo::book_manager::BookManager::{
     Open, Make, Take, Cancel, Claim, Collect, Whitelist, Delist, SetDefaultProvider
 };
+use clober_cairo::libraries::book_key::BookKey;
 use clober_cairo::libraries::fee_policy::FeePolicy;
 use snforge_std::EventSpy;
 use starknet::ContractAddress;
+
+pub fn BASE_URI() -> ByteArray {
+    "base_uri"
+}
+
+pub fn CONTRACT_URI() -> ByteArray {
+    "contract_uri"
+}
+
+pub fn valid_key(base: ContractAddress, quote: ContractAddress) -> BookKey {
+    BookKey {
+        base,
+        quote,
+        hooks: ZERO(),
+        unit_size: 1,
+        taker_policy: FeePolicy { uses_quote: true, rate: 0 },
+        maker_policy: FeePolicy { uses_quote: true, rate: 0 },
+    }
+}
 
 #[generate_trait]
 pub impl BookManagerSpyHelpersImpl of BookManagerSpyHelpers {
