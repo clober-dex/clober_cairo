@@ -2,7 +2,8 @@ use starknet::ContractAddress;
 use clober_cairo::interfaces::book_manager::{IBookManagerDispatcher, IBookManagerDispatcherTrait};
 use clober_cairo::book_manager::BookManager;
 use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
-use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait};
+use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait, MAX_FEE_RATE
+    ,MIN_FEE_RATE};
 use clober_cairo::mocks::open_router::OpenRouter::{
     IOpenRouterDispatcher, IOpenRouterDispatcherTrait
 };
@@ -14,7 +15,6 @@ use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTra
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{spy_events, EventSpy, start_cheat_caller_address};
-use starknet::contract_address_const;
 
 fn BASE_URI() -> ByteArray {
     "base_uri"
@@ -44,19 +44,23 @@ fn setup_dispatcher() -> (IBookManagerDispatcher, IOpenRouterDispatcher) {
     )
 }
 
+fn valid_key(base: ContractAddress, quote: ContractAddress) -> BookKey {
+    BookKey {
+        base,
+        quote,
+        hooks: ZERO(),
+        unit_size: 1,
+        taker_policy: FeePolicy { uses_quote: true, rate: 0 },
+        maker_policy: FeePolicy { uses_quote: true, rate: 0 },
+    }
+}
+
 #[test]
 fn test_open() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
 
     let (bm, router) = setup_dispatcher();
-    let key = BookKey {
-        base: base.contract_address,
-        quote: quote.contract_address,
-        hooks: ZERO(),
-        unit_size: 1,
-        taker_policy: FeePolicy { uses_quote: true, rate: 0 },
-        maker_policy: FeePolicy { uses_quote: true, rate: 0 },
-    };
+    let key = valid_key(base.contract_address, quote.contract_address);
     let book_id = key.to_id();
 
     // let mut spy = spy_events();
@@ -85,4 +89,151 @@ fn test_open() {
     assert_eq!(key.taker_policy, remote_book_key.taker_policy);
     assert_eq!(key.hooks, remote_book_key.hooks);
     assert!(bm.is_opened(book_id));
+}
+
+#[test]
+#[should_panic(expected: ('Invalid unit size',))]
+fn test_open_with_invalid_unit_size() {
+    let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
+    let (_, router) = setup_dispatcher();
+
+    let mut key = valid_key(base.contract_address, quote.contract_address);
+    key.unit_size = 0;
+    start_cheat_caller_address(router.contract_address, OWNER());
+    router.open(key, ArrayTrait::new().span());
+}
+
+#[test]
+#[should_panic(expected: ('Invalid fee policy',))]
+fn test_open_with_invalid_fee_policy_boundary1() {
+    let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
+    let (_, router) = setup_dispatcher();
+
+    let valid_key = valid_key(base.contract_address, quote.contract_address);
+    let mut invalid_key = valid_key.clone();
+    invalid_key.maker_policy.rate = MIN_FEE_RATE - 1;
+    start_cheat_caller_address(router.contract_address, OWNER());
+    router.open(invalid_key, ArrayTrait::new().span());
+}
+
+#[test]
+#[should_panic(expected: ('Invalid fee policy',))]
+fn test_open_with_invalid_fee_policy_boundary2() {
+    let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
+    let (_, router) = setup_dispatcher();
+
+    let valid_key = valid_key(base.contract_address, quote.contract_address);
+    let mut invalid_key = valid_key.clone();
+    invalid_key.maker_policy.rate = MAX_FEE_RATE + 1;
+    start_cheat_caller_address(router.contract_address, OWNER());
+    router.open(invalid_key, ArrayTrait::new().span());
+}
+
+
+#[test]
+#[should_panic(expected: ('Invalid fee policy',))]
+fn test_open_with_invalid_fee_policy_boundary3() {
+    let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
+    let (_, router) = setup_dispatcher();
+
+    let valid_key = valid_key(base.contract_address, quote.contract_address);
+    let mut invalid_key = valid_key.clone();
+    invalid_key.taker_policy.rate = MIN_FEE_RATE - 1;
+    start_cheat_caller_address(router.contract_address, OWNER());
+    router.open(invalid_key, ArrayTrait::new().span());
+}
+
+#[test]
+#[should_panic(expected: ('Invalid fee policy',))]
+fn test_open_with_invalid_fee_policy_boundary4() {
+    let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
+    let (_, router) = setup_dispatcher();
+
+    let valid_key = valid_key(base.contract_address, quote.contract_address);
+    let mut invalid_key = valid_key.clone();
+    invalid_key.taker_policy.rate = MAX_FEE_RATE + 1;
+    start_cheat_caller_address(router.contract_address, OWNER());
+    router.open(invalid_key, ArrayTrait::new().span());
+}
+
+#[test]
+#[should_panic(expected: ('Invalid fee policy',))]
+fn test_open_with_invalid_fee_policy_negative_sum() {
+    let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
+    let (_, router) = setup_dispatcher();
+
+    let valid_key = valid_key(base.contract_address, quote.contract_address);
+    let mut invalid_key = valid_key.clone();
+    invalid_key.taker_policy.rate = 1000;
+    invalid_key.maker_policy.rate = -1001;
+    start_cheat_caller_address(router.contract_address, OWNER());
+    router.open(invalid_key, ArrayTrait::new().span());
+}
+
+#[test]
+#[should_panic(expected: ('Invalid fee policy',))]
+fn test_open_with_invalid_fee_policy_unmatched1() {
+    let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
+    let (_, router) = setup_dispatcher();
+
+    let valid_key = valid_key(base.contract_address, quote.contract_address);
+    let mut invalid_key = valid_key.clone();
+    invalid_key.taker_policy = FeePolicy { uses_quote: false, rate: -1 };
+    invalid_key.maker_policy = FeePolicy { uses_quote: true, rate: 2 };
+    start_cheat_caller_address(router.contract_address, OWNER());
+    router.open(invalid_key, ArrayTrait::new().span());
+}
+
+#[test]
+#[should_panic(expected: ('Invalid fee policy',))]
+fn test_open_with_invalid_fee_policy_unmatched2() {
+    let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
+    let (_, router) = setup_dispatcher();
+
+    let valid_key = valid_key(base.contract_address, quote.contract_address);
+    let mut invalid_key = valid_key.clone();
+    invalid_key.taker_policy = FeePolicy { uses_quote: true, rate: -1 };
+    invalid_key.maker_policy = FeePolicy { uses_quote: false, rate: 2 };
+    start_cheat_caller_address(router.contract_address, OWNER());
+    router.open(invalid_key, ArrayTrait::new().span());
+}
+
+#[test]
+#[should_panic(expected: ('Invalid fee policy',))]
+fn test_open_with_invalid_fee_policy_unmatched3() {
+    let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
+    let (_, router) = setup_dispatcher();
+
+    let valid_key = valid_key(base.contract_address, quote.contract_address);
+    let mut invalid_key = valid_key.clone();
+    invalid_key.taker_policy = FeePolicy { uses_quote: false, rate: 2 };
+    invalid_key.maker_policy = FeePolicy { uses_quote: true, rate: -1 };
+    start_cheat_caller_address(router.contract_address, OWNER());
+    router.open(invalid_key, ArrayTrait::new().span());
+}
+
+#[test]
+#[should_panic(expected: ('Invalid fee policy',))]
+fn test_open_with_invalid_fee_policy_unmatched4() {
+    let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
+    let (_, router) = setup_dispatcher();
+
+    let valid_key = valid_key(base.contract_address, quote.contract_address);
+    let mut invalid_key = valid_key.clone();
+    invalid_key.taker_policy = FeePolicy { uses_quote: true, rate: 2 };
+    invalid_key.maker_policy = FeePolicy { uses_quote: false, rate: -1 };
+    start_cheat_caller_address(router.contract_address, OWNER());
+    router.open(invalid_key, ArrayTrait::new().span());
+}
+
+#[test]
+#[should_panic(expected: ('Book already opened',))]
+fn test_open_duplicated() {
+    let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
+    let (_, router) = setup_dispatcher();
+
+    let key = valid_key(base.contract_address, quote.contract_address);
+    start_cheat_caller_address(router.contract_address, OWNER());
+    router.open(key, ArrayTrait::new().span());
+    router.open(key, ArrayTrait::new().span());
 }
