@@ -171,6 +171,8 @@ pub mod BookManager {
         pub const INVALID_PROVIDER: felt252 = 'Invalid provider';
         pub const INVALID_LOCKER: felt252 = 'Invalid locker';
         pub const INVALID_HOOKS: felt252 = 'Invalid hooks';
+        pub const BOOK_ALREADY_OPENED: felt252 = 'Book already opened';
+        pub const BOOK_NOT_OPENED: felt252 = 'Book not opened';
         pub const CURRENCY_NOT_SETTLED: felt252 = 'Currency not settled';
     }
 
@@ -193,7 +195,7 @@ pub mod BookManager {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn _check_opened(self: @ContractState, book_id: felt252) {
-            assert(self.is_opened(book_id), 'Book not opened');
+            assert(self.is_opened(book_id), Errors::BOOK_NOT_OPENED);
         }
 
         fn _check_locker(self: @ContractState) {
@@ -352,7 +354,7 @@ pub mod BookManager {
             hooks_list.before_open(@key.hooks, @key, hook_data);
 
             let book_id = key.to_id();
-            assert(!self.is_opened(book_id), 'Book already opened');
+            assert(!self.is_opened(book_id), Errors::BOOK_ALREADY_OPENED);
             self.book_keys.write(book_id, key);
 
             self
