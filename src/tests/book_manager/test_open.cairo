@@ -2,8 +2,7 @@ use starknet::ContractAddress;
 use clober_cairo::interfaces::book_manager::{IBookManagerDispatcher, IBookManagerDispatcherTrait};
 use clober_cairo::book_manager::BookManager;
 use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
-use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait, MAX_FEE_RATE
-    ,MIN_FEE_RATE};
+use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait, MAX_FEE_RATE, MIN_FEE_RATE};
 use clober_cairo::mocks::open_router::OpenRouter::{
     IOpenRouterDispatcher, IOpenRouterDispatcherTrait
 };
