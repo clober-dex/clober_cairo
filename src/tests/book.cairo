@@ -1,4 +1,4 @@
-use clober_cairo::libraries::book::Book::{Queue, Book, BookImpl};
+use clober_cairo::libraries::book::{Queue, Book, BookImpl};
 use clober_cairo::libraries::fee_policy::FeePolicy;
 use clober_cairo::libraries::hooks::Hooks;
 use clober_cairo::libraries::tick_bitmap::TickBitmap;

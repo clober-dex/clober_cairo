@@ -12,7 +12,7 @@ pub mod BookManager {
     use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams, OrderInfo};
     use clober_cairo::libraries::i257::{i257, I257Trait};
     use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
-    use clober_cairo::libraries::book::Book::{Book, BookTrait, Order};
+    use clober_cairo::libraries::book::{Book, BookTrait, Order};
     use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait};
     use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
     use clober_cairo::libraries::tick::{Tick, TickTrait};
