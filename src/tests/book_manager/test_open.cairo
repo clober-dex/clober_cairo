@@ -16,7 +16,7 @@ use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{spy_events, EventSpy, start_cheat_caller_address};
 
-fn setup_dispatcher() -> (IBookManagerDispatcher, IOpenRouterDispatcher) {
+fn setup() -> (IBookManagerDispatcher, IOpenRouterDispatcher) {
     let mut calldata = array![];
 
     calldata.append_serde(OWNER());
@@ -41,7 +41,7 @@ fn setup_dispatcher() -> (IBookManagerDispatcher, IOpenRouterDispatcher) {
 fn test_success() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
 
-    let (bm, router) = setup_dispatcher();
+    let (bm, router) = setup();
     let key = valid_key(base.contract_address, quote.contract_address);
     let book_id = key.to_id();
 
@@ -77,7 +77,7 @@ fn test_success() {
 #[should_panic(expected: ('Invalid unit size',))]
 fn test_open_with_invalid_unit_size() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
-    let (_, router) = setup_dispatcher();
+    let (_, router) = setup();
 
     let mut key = valid_key(base.contract_address, quote.contract_address);
     key.unit_size = 0;
@@ -89,7 +89,7 @@ fn test_open_with_invalid_unit_size() {
 #[should_panic(expected: ('Invalid fee policy',))]
 fn test_open_with_invalid_fee_policy_boundary1() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
-    let (_, router) = setup_dispatcher();
+    let (_, router) = setup();
 
     let valid_key = valid_key(base.contract_address, quote.contract_address);
     let mut invalid_key = valid_key.clone();
@@ -102,7 +102,7 @@ fn test_open_with_invalid_fee_policy_boundary1() {
 #[should_panic(expected: ('Invalid fee policy',))]
 fn test_open_with_invalid_fee_policy_boundary2() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
-    let (_, router) = setup_dispatcher();
+    let (_, router) = setup();
 
     let valid_key = valid_key(base.contract_address, quote.contract_address);
     let mut invalid_key = valid_key.clone();
@@ -116,7 +116,7 @@ fn test_open_with_invalid_fee_policy_boundary2() {
 #[should_panic(expected: ('Invalid fee policy',))]
 fn test_open_with_invalid_fee_policy_boundary3() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
-    let (_, router) = setup_dispatcher();
+    let (_, router) = setup();
 
     let valid_key = valid_key(base.contract_address, quote.contract_address);
     let mut invalid_key = valid_key.clone();
@@ -129,7 +129,7 @@ fn test_open_with_invalid_fee_policy_boundary3() {
 #[should_panic(expected: ('Invalid fee policy',))]
 fn test_open_with_invalid_fee_policy_boundary4() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
-    let (_, router) = setup_dispatcher();
+    let (_, router) = setup();
 
     let valid_key = valid_key(base.contract_address, quote.contract_address);
     let mut invalid_key = valid_key.clone();
@@ -142,7 +142,7 @@ fn test_open_with_invalid_fee_policy_boundary4() {
 #[should_panic(expected: ('Invalid fee policy',))]
 fn test_open_with_invalid_fee_policy_negative_sum() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
-    let (_, router) = setup_dispatcher();
+    let (_, router) = setup();
 
     let valid_key = valid_key(base.contract_address, quote.contract_address);
     let mut invalid_key = valid_key.clone();
@@ -156,7 +156,7 @@ fn test_open_with_invalid_fee_policy_negative_sum() {
 #[should_panic(expected: ('Invalid fee policy',))]
 fn test_open_with_invalid_fee_policy_unmatched1() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
-    let (_, router) = setup_dispatcher();
+    let (_, router) = setup();
 
     let valid_key = valid_key(base.contract_address, quote.contract_address);
     let mut invalid_key = valid_key.clone();
@@ -170,7 +170,7 @@ fn test_open_with_invalid_fee_policy_unmatched1() {
 #[should_panic(expected: ('Invalid fee policy',))]
 fn test_open_with_invalid_fee_policy_unmatched2() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
-    let (_, router) = setup_dispatcher();
+    let (_, router) = setup();
 
     let valid_key = valid_key(base.contract_address, quote.contract_address);
     let mut invalid_key = valid_key.clone();
@@ -184,7 +184,7 @@ fn test_open_with_invalid_fee_policy_unmatched2() {
 #[should_panic(expected: ('Invalid fee policy',))]
 fn test_open_with_invalid_fee_policy_unmatched3() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
-    let (_, router) = setup_dispatcher();
+    let (_, router) = setup();
 
     let valid_key = valid_key(base.contract_address, quote.contract_address);
     let mut invalid_key = valid_key.clone();
@@ -198,7 +198,7 @@ fn test_open_with_invalid_fee_policy_unmatched3() {
 #[should_panic(expected: ('Invalid fee policy',))]
 fn test_open_with_invalid_fee_policy_unmatched4() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
-    let (_, router) = setup_dispatcher();
+    let (_, router) = setup();
 
     let valid_key = valid_key(base.contract_address, quote.contract_address);
     let mut invalid_key = valid_key.clone();
@@ -212,7 +212,7 @@ fn test_open_with_invalid_fee_policy_unmatched4() {
 #[should_panic(expected: ('Book already opened',))]
 fn test_open_duplicated() {
     let (quote, base) = deploy_token_pairs(1000000, 1000000000000000000, OWNER(), OWNER());
-    let (_, router) = setup_dispatcher();
+    let (_, router) = setup();
 
     let key = valid_key(base.contract_address, quote.contract_address);
     start_cheat_caller_address(router.contract_address, OWNER());
