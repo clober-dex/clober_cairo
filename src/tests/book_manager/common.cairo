@@ -1,5 +1,6 @@
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_testing::constants::ZERO;
+use clober_cairo::book_manager::BookManager;
 use clober_cairo::book_manager::BookManager::{
     Open, Make, Take, Cancel, Claim, Collect, Whitelist, Delist, SetDefaultProvider
 };
@@ -40,7 +41,9 @@ pub impl BookManagerSpyHelpersImpl of BookManagerSpyHelpers {
         taker_policy: FeePolicy,
         hooks: ContractAddress
     ) {
-        let expected = Open { id, base, quote, unit_size, maker_policy, taker_policy, hooks };
+        let expected = BookManager::Event::Open(
+            Open { id, base, quote, unit_size, maker_policy, taker_policy, hooks }
+        );
         self.assert_emitted_single(contract, expected);
     }
 
@@ -72,7 +75,9 @@ pub impl BookManagerSpyHelpersImpl of BookManagerSpyHelpers {
         unit: u64,
         provider: ContractAddress
     ) {
-        let expected = Make { book_id, user, tick, order_index, unit, provider };
+        let expected = BookManager::Event::Make(
+            Make { book_id, user, tick, order_index, unit, provider }
+        );
         self.assert_emitted_single(contract, expected);
     }
 
@@ -98,7 +103,7 @@ pub impl BookManagerSpyHelpersImpl of BookManagerSpyHelpers {
         tick: i32,
         unit: u64
     ) {
-        let expected = Take { book_id, user, tick, unit };
+        let expected = BookManager::Event::Take(Take { book_id, user, tick, unit });
         self.assert_emitted_single(contract, expected);
     }
 
@@ -117,7 +122,7 @@ pub impl BookManagerSpyHelpersImpl of BookManagerSpyHelpers {
     fn assert_event_cancel(
         ref self: EventSpy, contract: ContractAddress, order_id: felt252, unit: u64
     ) {
-        let expected = Cancel { order_id, unit };
+        let expected = BookManager::Event::Cancel(Cancel { order_id, unit });
         self.assert_emitted_single(contract, expected);
     }
 
@@ -131,7 +136,7 @@ pub impl BookManagerSpyHelpersImpl of BookManagerSpyHelpers {
     fn assert_event_claim(
         ref self: EventSpy, contract: ContractAddress, order_id: felt252, unit: u64
     ) {
-        let expected = Claim { order_id, unit };
+        let expected = BookManager::Event::Claim(Claim { order_id, unit });
         self.assert_emitted_single(contract, expected);
     }
 
@@ -150,7 +155,9 @@ pub impl BookManagerSpyHelpersImpl of BookManagerSpyHelpers {
         currency: ContractAddress,
         amount: u256
     ) {
-        let expected = Collect { provider, recipient, currency, amount };
+        let expected = BookManager::Event::Collect(
+            Collect { provider, recipient, currency, amount }
+        );
         self.assert_emitted_single(contract, expected);
     }
 
@@ -169,7 +176,7 @@ pub impl BookManagerSpyHelpersImpl of BookManagerSpyHelpers {
     fn assert_event_whitelist(
         ref self: EventSpy, contract: ContractAddress, provider: ContractAddress
     ) {
-        let expected = Whitelist { provider };
+        let expected = BookManager::Event::Whitelist(Whitelist { provider });
         self.assert_emitted_single(contract, expected);
     }
 
@@ -183,7 +190,7 @@ pub impl BookManagerSpyHelpersImpl of BookManagerSpyHelpers {
     fn assert_event_delist(
         ref self: EventSpy, contract: ContractAddress, provider: ContractAddress
     ) {
-        let expected = Delist { provider };
+        let expected = BookManager::Event::Delist(Delist { provider });
         self.assert_emitted_single(contract, expected);
     }
 
@@ -197,7 +204,7 @@ pub impl BookManagerSpyHelpersImpl of BookManagerSpyHelpers {
     fn assert_event_set_default_provider(
         ref self: EventSpy, contract: ContractAddress, provider: ContractAddress
     ) {
-        let expected = SetDefaultProvider { provider };
+        let expected = BookManager::Event::SetDefaultProvider(SetDefaultProvider { provider });
         self.assert_emitted_single(contract, expected);
     }
 
