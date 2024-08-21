@@ -2,8 +2,8 @@
 name = "clober_cairo"
 version = "0.1.0"
 edition = "2023_11"
-cairo-version = "2.7.0"
-scarb-version = "2.7.0"
+cairo-version = "2.7.1"
+scarb-version = "2.7.1"
 authors = ["Clober <dev@clober.io>"]
 description = "Core Contracts written in Cairo for StarkNet"
 readme = "README.md"
@@ -11,7 +11,7 @@ repository = "https://github.com/clober-dex/clober_cairo"
 # license-file = "LICENSE"
 
 [dependencies]
-starknet = "2.7.0"
+starknet = "2.7.1"
 openzeppelin_access = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.1" }
 openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.1" }
 openzeppelin_introspection = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.1" }
