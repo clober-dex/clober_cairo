@@ -27,5 +27,5 @@ pub struct CancelParams {
 pub struct OrderInfo {
     pub provider: ContractAddress,
     pub open: u64,
-    pub cliamable: u64,
+    pub claimable: u64,
 }
