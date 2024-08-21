@@ -3,32 +3,23 @@ use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTra
 use openzeppelin_testing as utils;
 use openzeppelin_utils::serde::SerializedAppend;
 
-fn QUOTE_NAME() -> ByteArray {
-    "Quote"
-}
-fn QUOTE_SYMBOL() -> ByteArray {
-    "QUOTE"
-}
 fn BASE_NAME() -> ByteArray {
     "Base"
 }
 fn BASE_SYMBOL() -> ByteArray {
     "BASE"
 }
+fn QUOTE_NAME() -> ByteArray {
+    "Quote"
+}
+fn QUOTE_SYMBOL() -> ByteArray {
+    "QUOTE"
+}
 
 pub fn deploy_token_pairs(
-    quote_supply: u256, base_supply: u256, recipient: ContractAddress, owner: ContractAddress
+    base_supply: u256, quote_supply: u256, recipient: ContractAddress, owner: ContractAddress
 ) -> (IERC20Dispatcher, IERC20Dispatcher) {
     let contract = utils::declare_class("ERC20Upgradeable");
-
-    let mut quote_calldata = array![];
-    quote_calldata.append_serde(QUOTE_NAME());
-    quote_calldata.append_serde(QUOTE_SYMBOL());
-    quote_calldata.append_serde(quote_supply);
-    quote_calldata.append_serde(recipient);
-    quote_calldata.append_serde(owner);
-    let quote_address = contract_address_const::<'quote'>();
-    utils::deploy_at(contract, quote_address, quote_calldata);
 
     let mut base_calldata = array![];
     base_calldata.append_serde(BASE_NAME());
@@ -39,9 +30,18 @@ pub fn deploy_token_pairs(
     let base_address = contract_address_const::<'base'>();
     utils::deploy_at(contract, base_address, base_calldata);
 
+    let mut quote_calldata = array![];
+    quote_calldata.append_serde(QUOTE_NAME());
+    quote_calldata.append_serde(QUOTE_SYMBOL());
+    quote_calldata.append_serde(quote_supply);
+    quote_calldata.append_serde(recipient);
+    quote_calldata.append_serde(owner);
+    let quote_address = contract_address_const::<'quote'>();
+    utils::deploy_at(contract, quote_address, quote_calldata);
+
     (
-        IERC20Dispatcher { contract_address: quote_address },
-        IERC20Dispatcher { contract_address: base_address }
+        IERC20Dispatcher { contract_address: base_address },
+        IERC20Dispatcher { contract_address: quote_address }
     )
 }
 
