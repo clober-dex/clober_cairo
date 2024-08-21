@@ -31,7 +31,7 @@ pub type Tick = i32;
 #[generate_trait]
 pub impl TickImpl of TickTrait {
     fn validate(self: Tick) {
-        assert(self >= MIN_TICK || self <= MAX_TICK, 'invalid_tick');
+        assert(self >= MIN_TICK && self <= MAX_TICK, 'invalid_tick');
     }
 
     fn to_price(self: Tick) -> u256 {
