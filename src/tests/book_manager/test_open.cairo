@@ -45,22 +45,22 @@ fn test_success() {
     let key = valid_key(base.contract_address, quote.contract_address);
     let book_id = key.to_id();
 
-    // let mut spy = spy_events();
+    let mut spy = spy_events();
 
     start_cheat_caller_address(router.contract_address, OWNER());
     router.open(key, ArrayTrait::new().span());
 
-    // spy
-    //     .assert_only_event_open(
-    //         bm.contract_address,
-    //         book_id,
-    //         key.base,
-    //         key.quote,
-    //         key.unit_size,
-    //         key.maker_policy,
-    //         key.taker_policy,
-    //         key.hooks
-    //     );
+    spy
+        .assert_only_event_open(
+            bm.contract_address,
+            book_id,
+            key.base,
+            key.quote,
+            key.unit_size,
+            key.maker_policy,
+            key.taker_policy,
+            key.hooks
+        );
 
     let remote_book_key = bm.get_book_key(book_id);
 
