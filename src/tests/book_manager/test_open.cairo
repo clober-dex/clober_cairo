@@ -14,7 +14,7 @@ use openzeppelin_testing::constants::{OWNER, SPENDER, RECIPIENT, OTHER, NAME, SY
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{spy_events, EventSpy, start_cheat_caller_address};
+use snforge_std::{spy_events, EventSpy, cheat_caller_address, CheatSpan};
 
 fn setup() -> (IBookManagerDispatcher, IOpenRouterDispatcher) {
     let mut calldata = array![];
@@ -47,7 +47,7 @@ fn test_success() {
 
     let mut spy = spy_events();
 
-    start_cheat_caller_address(router.contract_address, OWNER());
+    cheat_caller_address(router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     router.open(key, ArrayTrait::new().span());
 
     spy
@@ -81,7 +81,7 @@ fn test_open_with_invalid_unit_size() {
 
     let mut key = valid_key(base.contract_address, quote.contract_address);
     key.unit_size = 0;
-    start_cheat_caller_address(router.contract_address, OWNER());
+    cheat_caller_address(router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     router.open(key, ArrayTrait::new().span());
 }
 
@@ -94,7 +94,7 @@ fn test_open_with_invalid_fee_policy_boundary1() {
     let valid_key = valid_key(base.contract_address, quote.contract_address);
     let mut invalid_key = valid_key.clone();
     invalid_key.maker_policy.rate = MIN_FEE_RATE - 1;
-    start_cheat_caller_address(router.contract_address, OWNER());
+    cheat_caller_address(router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     router.open(invalid_key, ArrayTrait::new().span());
 }
 
@@ -107,7 +107,7 @@ fn test_open_with_invalid_fee_policy_boundary2() {
     let valid_key = valid_key(base.contract_address, quote.contract_address);
     let mut invalid_key = valid_key.clone();
     invalid_key.maker_policy.rate = MAX_FEE_RATE + 1;
-    start_cheat_caller_address(router.contract_address, OWNER());
+    cheat_caller_address(router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     router.open(invalid_key, ArrayTrait::new().span());
 }
 
@@ -121,7 +121,7 @@ fn test_open_with_invalid_fee_policy_boundary3() {
     let valid_key = valid_key(base.contract_address, quote.contract_address);
     let mut invalid_key = valid_key.clone();
     invalid_key.taker_policy.rate = MIN_FEE_RATE - 1;
-    start_cheat_caller_address(router.contract_address, OWNER());
+    cheat_caller_address(router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     router.open(invalid_key, ArrayTrait::new().span());
 }
 
@@ -134,7 +134,7 @@ fn test_open_with_invalid_fee_policy_boundary4() {
     let valid_key = valid_key(base.contract_address, quote.contract_address);
     let mut invalid_key = valid_key.clone();
     invalid_key.taker_policy.rate = MAX_FEE_RATE + 1;
-    start_cheat_caller_address(router.contract_address, OWNER());
+    cheat_caller_address(router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     router.open(invalid_key, ArrayTrait::new().span());
 }
 
@@ -148,7 +148,7 @@ fn test_open_with_invalid_fee_policy_negative_sum() {
     let mut invalid_key = valid_key.clone();
     invalid_key.taker_policy.rate = 1000;
     invalid_key.maker_policy.rate = -1001;
-    start_cheat_caller_address(router.contract_address, OWNER());
+    cheat_caller_address(router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     router.open(invalid_key, ArrayTrait::new().span());
 }
 
@@ -162,7 +162,7 @@ fn test_open_with_invalid_fee_policy_unmatched1() {
     let mut invalid_key = valid_key.clone();
     invalid_key.taker_policy = FeePolicy { uses_quote: false, rate: -1 };
     invalid_key.maker_policy = FeePolicy { uses_quote: true, rate: 2 };
-    start_cheat_caller_address(router.contract_address, OWNER());
+    cheat_caller_address(router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     router.open(invalid_key, ArrayTrait::new().span());
 }
 
@@ -176,7 +176,7 @@ fn test_open_with_invalid_fee_policy_unmatched2() {
     let mut invalid_key = valid_key.clone();
     invalid_key.taker_policy = FeePolicy { uses_quote: true, rate: -1 };
     invalid_key.maker_policy = FeePolicy { uses_quote: false, rate: 2 };
-    start_cheat_caller_address(router.contract_address, OWNER());
+    cheat_caller_address(router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     router.open(invalid_key, ArrayTrait::new().span());
 }
 
@@ -190,7 +190,7 @@ fn test_open_with_invalid_fee_policy_unmatched3() {
     let mut invalid_key = valid_key.clone();
     invalid_key.taker_policy = FeePolicy { uses_quote: false, rate: 2 };
     invalid_key.maker_policy = FeePolicy { uses_quote: true, rate: -1 };
-    start_cheat_caller_address(router.contract_address, OWNER());
+    cheat_caller_address(router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     router.open(invalid_key, ArrayTrait::new().span());
 }
 
@@ -204,7 +204,7 @@ fn test_open_with_invalid_fee_policy_unmatched4() {
     let mut invalid_key = valid_key.clone();
     invalid_key.taker_policy = FeePolicy { uses_quote: true, rate: 2 };
     invalid_key.maker_policy = FeePolicy { uses_quote: false, rate: -1 };
-    start_cheat_caller_address(router.contract_address, OWNER());
+    cheat_caller_address(router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     router.open(invalid_key, ArrayTrait::new().span());
 }
 
@@ -215,7 +215,7 @@ fn test_open_duplicated() {
     let (_, router) = setup();
 
     let key = valid_key(base.contract_address, quote.contract_address);
-    start_cheat_caller_address(router.contract_address, OWNER());
+    cheat_caller_address(router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     router.open(key, ArrayTrait::new().span());
     router.open(key, ArrayTrait::new().span());
 }
