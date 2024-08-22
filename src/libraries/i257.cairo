@@ -4,6 +4,7 @@ use core::ops::SubAssign;
 use core::ops::MulAssign;
 use core::ops::DivAssign;
 use core::ops::RemAssign;
+use core::fmt::{Display, Formatter, Error};
 // ====================== INT 257 ======================
 
 // i257 represents a 129-bit integer.
@@ -13,6 +14,15 @@ use core::ops::RemAssign;
 pub struct i257 {
     abs: u256,
     is_negative: bool,
+}
+
+pub impl DisplayI257Impl of Display<i257> {
+    fn fmt(self: @i257, ref f: Formatter) -> Result<(), Error> {
+        if *self.is_negative {
+            write!(f, "-")?;
+        }
+        self.abs.fmt(ref f)
+    }
 }
 
 #[generate_trait]
