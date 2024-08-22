@@ -28,10 +28,11 @@ pub mod utils {
 }
 
 pub mod mocks {
-    pub mod open_router;
-    pub mod make_router;
-    pub mod take_router;
     pub mod cancel_router;
+    pub mod claim_router;
+    pub mod make_router;
+    pub mod open_router;
+    pub mod take_router;
 }
 
 mod tests {
