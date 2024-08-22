@@ -84,7 +84,7 @@ fn test_success() {
             MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span()
         );
     let order_info = bm.get_order(id);
-    let erc721_dispatcher = IERC721Dispatcher { contract_address: bm.contract_address };
+    let erc721 = IERC721Dispatcher { contract_address: bm.contract_address };
 
     spy
         .assert_event_make(
@@ -100,8 +100,8 @@ fn test_success() {
     assert_eq!(OrderId { book_id: key.to_id(), tick, index: 0 }.encode(), id);
     assert_eq!(quote_amount, make_unit.into() * key.unit_size.into());
     assert_eq!(quote.balance_of(OWNER()), before_quote_balance - quote_amount);
-    assert_eq!(erc721_dispatcher.balance_of(OWNER()), 1);
-    assert_eq!(erc721_dispatcher.owner_of(id.into()), OWNER());
+    assert_eq!(erc721.balance_of(OWNER()), 1);
+    assert_eq!(erc721.owner_of(id.into()), OWNER());
     assert_eq!(bm.reserves_of(quote.contract_address), quote_amount);
     assert_eq!(bm.get_depth(key.to_id(), tick), make_unit);
     assert_eq!(bm.get_highest(key.to_id()), tick);

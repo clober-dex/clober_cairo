@@ -31,6 +31,7 @@ pub mod mocks {
     pub mod open_router;
     pub mod make_router;
     pub mod take_router;
+    pub mod cancel_router;
 }
 
 mod tests {
