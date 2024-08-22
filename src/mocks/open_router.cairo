@@ -1,6 +1,6 @@
 #[starknet::contract]
 pub mod OpenRouter {
-    use starknet::{ContractAddress, get_contract_address};
+    use starknet::{ContractAddress, get_contract_address, get_caller_address};
     use clober_cairo::interfaces::book_manager::{
         IBookManager, IBookManagerDispatcher, IBookManagerDispatcherTrait
     };
@@ -40,6 +40,7 @@ pub mod OpenRouter {
             ref self: ContractState, lock_caller: ContractAddress, mut data: Span<felt252>
         ) -> Span<felt252> {
             let bm = IBookManagerDispatcher { contract_address: self.book_manager.read() };
+            assert(bm.contract_address == get_caller_address(), 'Invalid caller');
             let (book_key, hook_data) = Serde::<(BookKey, Span<felt252>)>::deserialize(ref data)
                 .unwrap();
             bm.open(book_key, hook_data);

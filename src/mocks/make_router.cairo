@@ -53,6 +53,7 @@ pub mod MakeRouter {
             ref self: ContractState, lock_caller: ContractAddress, mut data: Span<felt252>
         ) -> Span<felt252> {
             let bm = IBookManagerDispatcher { contract_address: self.book_manager.read() };
+            assert(bm.contract_address == get_caller_address(), 'Invalid caller');
             let (payer, params, hook_data) = Serde::<
                 (ContractAddress, MakeParams, Span<felt252>)
             >::deserialize(ref data)
