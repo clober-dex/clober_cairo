@@ -492,13 +492,13 @@ pub mod BookManager {
                     self.erc721._owner_of(params.id.into()), get_caller_address(), params.id.into()
                 );
 
-            let mut book = self.books.read(params.id);
-            let key = self.book_keys.read(params.id);
+            let decoded_order_id = OrderIdTrait::decode(params.id);
+            let mut book = self.books.read(decoded_order_id.book_id);
+            let key = self.book_keys.read(decoded_order_id.book_id);
 
             let mut hooks_list = self.hooks_list.read();
             hooks_list.before_cancel(@key.hooks, @params, hook_data);
 
-            let decoded_order_id = OrderIdTrait::decode(params.id);
             let (canceled_unit, pending_unit) = book.cancel(decoded_order_id, params.to_unit);
 
             let mut canceled_amount: u256 = canceled_unit.into() * key.unit_size.into();
