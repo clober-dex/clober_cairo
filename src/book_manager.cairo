@@ -468,7 +468,7 @@ pub mod BookManager {
                 base_amount = base_delta.try_into().unwrap();
             }
             self._account_delta(params.key.quote, quote_delta);
-            self._account_delta(params.key.base, base_delta);
+            self._account_delta(params.key.base, -base_delta);
 
             self
                 .emit(
