@@ -1,10 +1,12 @@
 pub mod common;
 
 #[cfg(test)]
-mod test_open;
+mod test_cancel;
+#[cfg(test)]
+mod test_claim;
 #[cfg(test)]
 mod test_make;
 #[cfg(test)]
-mod test_take;
+mod test_open;
 #[cfg(test)]
-mod test_cancel;
+mod test_take;
