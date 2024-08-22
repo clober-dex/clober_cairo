@@ -42,7 +42,7 @@ pub mod MakeRouter {
             let mut result = bm.lock(get_contract_address(), data.span());
             let (id, quote_amount) = Serde::<(felt252, u256)>::deserialize(ref result).unwrap();
             IERC721Dispatcher { contract_address: bm_address }
-                .transfer_from(get_contract_address(), get_contract_address(), id.into());
+                .transfer_from(get_contract_address(), get_caller_address(), id.into());
             (id, quote_amount)
         }
     }
@@ -60,7 +60,7 @@ pub mod MakeRouter {
             let (id, quote_amount) = bm.make(params, hook_data);
             if (quote_amount > 0) {
                 let currency = IERC20Dispatcher { contract_address: params.key.quote };
-                currency.transfer_from(payer, get_caller_address(), quote_amount);
+                currency.transfer_from(payer, bm.contract_address, quote_amount);
                 bm.settle(params.key.quote);
             }
 
