@@ -1,8 +1,7 @@
 use starknet::ContractAddress;
 use clober_cairo::interfaces::book_manager::{IBookManagerDispatcher, IBookManagerDispatcherTrait};
 use clober_cairo::interfaces::params::MakeParams;
-use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
-use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait, MAX_FEE_RATE, MIN_FEE_RATE};
+use clober_cairo::libraries::book_key::BookKeyTrait;
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
 use clober_cairo::utils::constants::{MAX_TICK, MIN_TICK};
@@ -17,7 +16,7 @@ use clober_cairo::tests::book_manager::common::{
     BookManagerSpyHelpers, valid_key, BASE_URI, CONTRACT_URI
 };
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ZERO, OWNER, SPENDER, RECIPIENT, OTHER, NAME, SYMBOL};
+use openzeppelin_testing::constants::{ZERO, OWNER, OTHER, NAME, SYMBOL};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin_testing::events::EventSpyExt;
@@ -45,7 +44,7 @@ fn setup() -> (
     calldata.append_serde(book_manager);
     let open_router = utils::declare_and_deploy("OpenRouter", calldata);
     let (base, quote) = deploy_token_pairs(
-        1000000 * 1000000000000000000, 1000000 * 1000000, OWNER(), OWNER()
+        1000000000000000000 * 1000000000000000000, 1000000000000000000 * 1000000, OWNER(), OWNER()
     );
 
     let mut calldata = array![];
@@ -53,10 +52,10 @@ fn setup() -> (
     let make_router = utils::declare_and_deploy("MakeRouter", calldata);
 
     cheat_caller_address(base.contract_address, OWNER(), CheatSpan::TargetCalls(1));
-    base.approve(make_router, 1000000 * 1000000000000000000);
+    base.approve(make_router, 1000000000000000000 * 1000000000000000000);
 
     cheat_caller_address(quote.contract_address, OWNER(), CheatSpan::TargetCalls(1));
-    quote.approve(make_router, 1000000 * 1000000);
+    quote.approve(make_router, 1000000000000000000 * 1000000);
 
     (
         IBookManagerDispatcher { contract_address: book_manager },
@@ -74,7 +73,7 @@ fn test_success() {
     open_router.open(key, ArrayTrait::new().span());
 
     let make_unit = 10000;
-    let tick: Tick = 100000;
+    let tick: Tick = -80000;
     let before_quote_balance = quote.balance_of(OWNER());
 
     cheat_caller_address(make_router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
@@ -121,7 +120,7 @@ fn test_make_with_invalid_provider() {
 
     make_router
         .make(
-            MakeParams { key, tick: 100000, unit: 10000, provider: SPENDER() },
+            MakeParams { key, tick: 100000, unit: 10000, provider: OTHER() },
             ArrayTrait::new().span()
         );
 }
