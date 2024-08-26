@@ -7,6 +7,8 @@ mod test_cancel;
 #[cfg(test)]
 mod test_claim;
 #[cfg(test)]
+mod test_fee;
+#[cfg(test)]
 mod test_make;
 #[cfg(test)]
 mod test_open;
