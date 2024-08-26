@@ -14,9 +14,7 @@ pub trait IBookManager<TContractState> {
     fn check_authorized(
         self: @TContractState, owner: ContractAddress, spender: ContractAddress, token_id: felt252
     );
-    fn token_owed(
-        self: @TContractState, owner: ContractAddress, currency: ContractAddress, token_id: felt252
-    ) -> u256;
+    fn token_owed(self: @TContractState, owner: ContractAddress, currency: ContractAddress) -> u256;
     fn get_lock(self: @TContractState, i: u32) -> (ContractAddress, ContractAddress);
     fn get_lock_data(self: @TContractState) -> (u32, u128);
     fn get_current_hook(self: @TContractState) -> ContractAddress;

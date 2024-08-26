@@ -260,10 +260,7 @@ pub mod BookManager {
         }
 
         fn token_owed(
-            self: @ContractState,
-            owner: ContractAddress,
-            currency: ContractAddress,
-            token_id: felt252
+            self: @ContractState, owner: ContractAddress, currency: ContractAddress
         ) -> u256 {
             self.token_owed.read((owner, currency))
         }
