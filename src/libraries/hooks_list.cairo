@@ -1,9 +1,9 @@
 use starknet::{SyscallResultTrait, ContractAddress, syscalls, get_caller_address};
 use starknet::storage::Map;
-use openzeppelin_utils::structs::storage_array::{StorageArray, StorageArrayTrait};
 use clober_cairo::utils::constants::ZERO_ADDRESS;
 use clober_cairo::libraries::hooks::{Hooks, HooksTrait, Permission};
 use clober_cairo::libraries::book_key::BookKey;
+use clober_cairo::libraries::storage_array::{StorageArray, StorageArrayTrait};
 use clober_cairo::interfaces::book_manager::{MakeParams, TakeParams, CancelParams};
 
 pub type HooksList = StorageArray<Hooks>;
@@ -20,7 +20,7 @@ pub impl HooksListImpl of HooksListTrait {
     }
 
     fn get_hook(self: @HooksList, i: u32) -> ContractAddress {
-        self.read_at(i)
+        self.read_at(i.into())
     }
 
     fn call_hook(
@@ -35,8 +35,7 @@ pub impl HooksListImpl of HooksListTrait {
         let selector = Serde::<felt252>::deserialize(ref res).unwrap();
 
         // @dev Clear current hook here
-        // TODO: check this
-        // self.hooks_list.pop();
+        self.pop();
 
         assert(selector == expected_selector, 'InvalidHookResponse');
     }
