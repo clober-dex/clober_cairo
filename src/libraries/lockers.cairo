@@ -3,11 +3,11 @@ use starknet::storage_access::{
     StorageBaseAddress, storage_address_from_base, storage_base_address_from_felt252
 };
 use clober_cairo::utils::constants::{ZERO_ADDRESS, TWO_POW_32};
-use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
+use clober_cairo::libraries::storage_map::{StorageMap, Felt252MapTrait};
 
 const NOT_IMPLEMENTED: felt252 = 'Not implemented';
 
-pub type Lockers = Felt252Map<(ContractAddress, ContractAddress)>;
+pub type Lockers = StorageMap<u32, (ContractAddress, ContractAddress)>;
 
 impl StoreLockers of Store<Lockers> {
     #[inline(always)]

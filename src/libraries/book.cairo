@@ -8,7 +8,7 @@ use clober_cairo::libraries::segmented_segment_tree::{
 };
 use clober_cairo::libraries::order_id::OrderId;
 use clober_cairo::libraries::hooks::Hooks;
-use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
+use clober_cairo::libraries::storage_map::{StorageMap, Felt252Map, Felt252MapTrait};
 use starknet::ContractAddress;
 use starknet::storage_access::{
     StorageBaseAddress, storage_address_from_base, storage_base_address_from_felt252
@@ -22,7 +22,7 @@ const NOT_IMPLEMENTED: felt252 = 'Not implemented';
 
 #[derive(Drop)]
 pub struct Book {
-    pub queues: Felt252Map<Queue>, // Todo to StorageMap<Tick, Queue>
+    pub queues: StorageMap<Tick, Queue>,
     pub tick_bitmap: TickBitmap,
     pub total_claimable_of: TotalClaimableOf,
 }
@@ -37,7 +37,7 @@ impl BookStoreImpl of Store<Book> {
     #[inline(always)]
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Book> {
         let base_felt252: felt252 = storage_address_from_base(base).into();
-        let queues_offset: felt252 = Store::<Felt252Map<Queue>>::size().into();
+        let queues_offset: felt252 = Store::<StorageMap<Tick, Queue>>::size().into();
         let tick_bitmap_offset: felt252 = Store::<Felt252Map<u256>>::size().into();
         SyscallResult::Ok(
             Book {
@@ -76,7 +76,7 @@ impl BookStoreImpl of Store<Book> {
 
     #[inline(always)]
     fn size() -> u8 {
-        Store::<Felt252Map<Queue>>::size()
+        Store::<StorageMap<Tick, Queue>>::size()
             + Store::<Felt252Map<u256>>::size()
             + Store::<Felt252Map<felt252>>::size()
     }
