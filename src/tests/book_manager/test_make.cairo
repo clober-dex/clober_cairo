@@ -1,6 +1,7 @@
 use starknet::ContractAddress;
-use clober_cairo::interfaces::book_manager::{IBookManagerDispatcher, IBookManagerDispatcherTrait};
-use clober_cairo::interfaces::params::MakeParams;
+use clober_cairo::interfaces::book_manager::{
+    IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams
+};
 use clober_cairo::libraries::book_key::BookKeyTrait;
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};

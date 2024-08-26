@@ -1,6 +1,7 @@
 use starknet::ContractAddress;
-use clober_cairo::interfaces::book_manager::{IBookManagerDispatcher, IBookManagerDispatcherTrait};
-use clober_cairo::interfaces::params::{MakeParams, TakeParams};
+use clober_cairo::interfaces::book_manager::{
+    IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams, TakeParams
+};
 use clober_cairo::libraries::book_key::BookKeyTrait;
 use clober_cairo::libraries::tick::{Tick, TickTrait};
 use clober_cairo::mocks::open_router::OpenRouter::{

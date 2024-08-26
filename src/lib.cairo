@@ -1,7 +1,6 @@
 pub mod interfaces {
     pub mod book_manager;
     pub mod locker;
-    pub mod params;
 }
 
 pub mod libraries {

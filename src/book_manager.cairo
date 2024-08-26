@@ -7,9 +7,10 @@ pub mod BookManager {
     use core::num::traits::zero::Zero;
     use starknet::storage::Map;
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
-    use clober_cairo::interfaces::book_manager::IBookManager;
+    use clober_cairo::interfaces::book_manager::{
+        IBookManager, MakeParams, TakeParams, CancelParams, OrderInfo
+    };
     use clober_cairo::interfaces::locker::{ILockerDispatcher, ILockerDispatcherTrait};
-    use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams, OrderInfo};
     use clober_cairo::libraries::i257::{i257, I257Trait};
     use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
     use clober_cairo::libraries::book::{Book, BookTrait, Order};

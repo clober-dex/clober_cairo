@@ -4,7 +4,7 @@ use openzeppelin_utils::structs::storage_array::{StorageArray, StorageArrayTrait
 use clober_cairo::utils::constants::ZERO_ADDRESS;
 use clober_cairo::libraries::hooks::{Hooks, HooksTrait, Permission};
 use clober_cairo::libraries::book_key::BookKey;
-use clober_cairo::interfaces::params::{MakeParams, TakeParams, CancelParams};
+use clober_cairo::interfaces::book_manager::{MakeParams, TakeParams, CancelParams};
 
 pub type HooksList = StorageArray<Hooks>;
 
