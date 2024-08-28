@@ -8,6 +8,7 @@ dependencies = [
  "openzeppelin_access",
  "openzeppelin_introspection",
  "openzeppelin_presets",
+ "openzeppelin_security",
  "openzeppelin_testing",
  "openzeppelin_token",
  "openzeppelin_utils",
@@ -57,6 +58,11 @@ dependencies = [
  "openzeppelin_token",
  "openzeppelin_upgrades",
 ]
+
+[[package]]
+name = "openzeppelin_security"
+version = "0.15.1"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?tag=v0.15.1#2f8a93d762858714095a1d391afffa9e21df6983"
 
 [[package]]
 name = "openzeppelin_testing"

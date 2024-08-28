@@ -18,6 +18,7 @@ openzeppelin_introspection = { git = "https://github.com/OpenZeppelin/cairo-cont
 openzeppelin_utils = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.1" }
 openzeppelin_testing = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.1" }
 openzeppelin_presets = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.1" }
+openzeppelin_security = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.1" }
 
 [dev-dependencies]
 snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.26.0" }
