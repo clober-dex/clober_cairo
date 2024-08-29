@@ -65,8 +65,7 @@ scarb build
 command_output=$(starkli declare ../target/dev/clober_cairo_BookManager.contract_class.json --rpc=$rpc --compiler-version=2.7.1 --account $account $key_command2)
 
 from_string="Class hash declared:"
-# class_hash="${command_output#*$from_string}"
-class_hash="0x1234...5678"
+class_hash="${command_output#*$from_string}"
 
 base_uri=$(echo -n "${args[2]}" | xxd -p | tr -d '\n')
 
