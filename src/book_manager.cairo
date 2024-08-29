@@ -183,12 +183,10 @@ pub mod BookManager {
         owner: ContractAddress,
         default_provider: ContractAddress,
         base_uri: ByteArray,
-        contract_uri: ByteArray,
-        name: ByteArray,
-        symbol: ByteArray,
+        contract_uri: ByteArray
     ) {
         self.ownable.initializer(owner);
-        self.erc721.initializer(name, symbol, base_uri);
+        self.erc721.initializer("Clober Orderbook Maker Order", "CLOB-ORDER", base_uri);
         self._set_default_provider(default_provider);
         self.contract_uri.write(contract_uri);
     }

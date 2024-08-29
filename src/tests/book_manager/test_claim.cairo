@@ -21,7 +21,7 @@ use clober_cairo::tests::book_manager::common::{
     BookManagerSpyHelpers, valid_key, BASE_URI, CONTRACT_URI
 };
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ZERO, OWNER, NAME, SYMBOL};
+use openzeppelin_testing::constants::{ZERO, OWNER};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin_testing::events::EventSpyExt;
@@ -43,8 +43,6 @@ fn setup() -> (
     calldata.append_serde(OWNER());
     calldata.append_serde(BASE_URI());
     calldata.append_serde(CONTRACT_URI());
-    calldata.append_serde(NAME());
-    calldata.append_serde(SYMBOL());
     let book_manager = utils::declare_and_deploy("BookManager", calldata);
 
     let mut calldata = array![];
