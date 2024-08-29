@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Deployment script for BookManager
-# Example: ./deploy_bookmanager.sh --network dev 0x1234...5678 0x1234...5678 'BASE_URI' 'CONTRACT_URI'
+# Example: ./deploy_book_manager.sh --network dev 0x1234...5678 0x1234...5678 'BASE_URI' 'CONTRACT_URI'
 
 # Parse the network flag and remove it from the arguments
 network_provided=false
@@ -28,7 +28,7 @@ fi
 
 # Check if the number of arguments is correct
 if [[ "${#args[@]}" -ne 4 ]]; then
-    echo "Error: Arguments missing. Usage: ./deploy_bookmanager.sh --network dev 0x1234...5678 0x1234...5678 'BASE_URI' 'CONTRACT_URI'"
+    echo "Error: Arguments missing. Usage: ./deploy_book_manager.sh --network dev 0x1234...5678 0x1234...5678 'BASE_URI' 'CONTRACT_URI'"
     exit 1
 fi
 
