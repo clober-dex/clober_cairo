@@ -1,5 +1,6 @@
 use starknet::ContractAddress;
 use clober_cairo::libraries::tick::Tick;
+use clober_cairo::libraries::book_key::BookKey;
 
 #[starknet::interface]
 pub trait IController<TContractState> {
@@ -12,4 +13,32 @@ pub trait IController<TContractState> {
     fn from_price(self: @TContractState, price: u256) -> Tick;
 
     fn to_price(self: @TContractState, tick: Tick) -> u256;
+
+    fn open(ref self: TContractState, book_key: BookKey, hook_data: Span<felt252>) -> felt252;
+
+    fn make(
+        ref self: TContractState,
+        book_id: felt252,
+        tick: Tick,
+        quote_amount: u256,
+        hook_data: Span<felt252>
+    ) -> u256;
+
+    fn take(
+        ref self: TContractState,
+        book_id: felt252,
+        limit_price: u256,
+        quote_amount: u256,
+        max_base_amount: u256,
+        hook_data: Span<felt252>
+    );
+
+    fn spend(
+        ref self: TContractState,
+        book_id: felt252,
+        limit_price: u256,
+        base_amount: u256,
+        min_quote_amount: u256,
+        hook_data: Span<felt252>
+    );
 }
