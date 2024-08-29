@@ -118,7 +118,8 @@ pub mod Controller {
             assert!(lock_caller == get_contract_address(), "Invalid lock caller");
             let (user, action, data) = Serde::<
                 (ContractAddress, Actions, Span<felt252>)
-            >::deserialize(ref data).unwrap();
+            >::deserialize(ref data)
+                .unwrap();
             data
         }
     }

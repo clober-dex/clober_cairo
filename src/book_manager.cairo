@@ -325,7 +325,7 @@ pub mod BookManager {
             book_key.to_id()
         }
 
-        fn open(ref self: ContractState, key: BookKey, hook_data: Span<felt252>) {
+        fn open(ref self: ContractState, key: BookKey, hook_data: Span<felt252>) -> felt252 {
             self._check_locker();
             // @dev Also, the book opener should set unit size at least circulatingTotalSupply /
             // type(uint64).max to avoid overflow.
@@ -367,6 +367,8 @@ pub mod BookManager {
                 );
 
             hooks_list.after_open(@key.hooks, @key, hook_data);
+
+            book_id
         }
 
         fn lock(

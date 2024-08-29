@@ -57,7 +57,7 @@ pub trait IBookManager<TContractState> {
     fn is_opened(self: @TContractState, book_id: felt252) -> bool;
     fn is_empty(self: @TContractState, book_id: felt252) -> bool;
     fn encode_book_key(self: @TContractState, book_key: BookKey) -> felt252;
-    fn open(ref self: TContractState, key: BookKey, hook_data: Span<felt252>);
+    fn open(ref self: TContractState, key: BookKey, hook_data: Span<felt252>) -> felt252;
     fn lock(
         ref self: TContractState, locker: ContractAddress, data: Span<felt252>
     ) -> Span<felt252>;
