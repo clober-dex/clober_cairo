@@ -3,7 +3,7 @@ pub mod Controller {
     use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_security::reentrancyguard::ReentrancyGuardComponent;
-    use starknet::{ContractAddress, get_caller_address, get_contract_address};
+    use starknet::{ContractAddress, get_caller_address, get_contract_address, get_block_timestamp};
     use clober_cairo::interfaces::book_manager::{
         IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams, TakeParams, CancelParams,
         OrderInfo
@@ -113,7 +113,10 @@ pub mod Controller {
             tick.to_price()
         }
 
-        fn open(ref self: ContractState, book_key: BookKey, hook_data: Span<felt252>) -> felt252 {
+        fn open(
+            ref self: ContractState, book_key: BookKey, hook_data: Span<felt252>, deadline: u64
+        ) -> felt252 {
+            self._check_deadline(deadline);
             let book_manager = IBookManagerDispatcher {
                 contract_address: self.book_manager.read()
             };
@@ -134,8 +137,10 @@ pub mod Controller {
             book_id: felt252,
             tick: Tick,
             quote_amount: u256,
-            hook_data: Span<felt252>
+            hook_data: Span<felt252>,
+            deadline: u64
         ) -> felt252 {
+            self._check_deadline(deadline);
             let book_manager = IBookManagerDispatcher {
                 contract_address: self.book_manager.read()
             };
@@ -161,8 +166,10 @@ pub mod Controller {
             tick: Tick,
             quote_amount: u256,
             take_hook_data: Span<felt252>,
-            make_hook_data: Span<felt252>
+            make_hook_data: Span<felt252>,
+            deadline: u64
         ) -> felt252 {
+            self._check_deadline(deadline);
             let book_manager = IBookManagerDispatcher {
                 contract_address: self.book_manager.read()
             };
@@ -189,8 +196,10 @@ pub mod Controller {
             limit_price: u256,
             quote_amount: u256,
             max_base_amount: u256,
-            hook_data: Span<felt252>
+            hook_data: Span<felt252>,
+            deadline: u64
         ) {
+            self._check_deadline(deadline);
             let book_manager = IBookManagerDispatcher {
                 contract_address: self.book_manager.read()
             };
@@ -214,8 +223,10 @@ pub mod Controller {
             limit_price: u256,
             base_amount: u256,
             min_quote_amount: u256,
-            hook_data: Span<felt252>
+            hook_data: Span<felt252>,
+            deadline: u64
         ) {
+            self._check_deadline(deadline);
             let book_manager = IBookManagerDispatcher {
                 contract_address: self.book_manager.read()
             };
@@ -237,8 +248,10 @@ pub mod Controller {
             ref self: ContractState,
             order_id: felt252,
             left_quote_amount: u256,
-            hook_data: Span<felt252>
+            hook_data: Span<felt252>,
+            deadline: u64
         ) {
+            self._check_deadline(deadline);
             let book_manager = IBookManagerDispatcher {
                 contract_address: self.book_manager.read()
             };
@@ -254,7 +267,10 @@ pub mod Controller {
             book_manager.lock(get_contract_address(), data.span());
         }
 
-        fn claim(ref self: ContractState, order_id: felt252, hook_data: Span<felt252>) {
+        fn claim(
+            ref self: ContractState, order_id: felt252, hook_data: Span<felt252>, deadline: u64
+        ) {
+            self._check_deadline(deadline);
             let book_manager = IBookManagerDispatcher {
                 contract_address: self.book_manager.read()
             };
@@ -292,8 +308,7 @@ pub mod Controller {
                     let book_manager = IBookManagerDispatcher {
                         contract_address: self.book_manager.read()
                     };
-                    let mut tokens = ArrayTrait::new();
-                    (book_manager.open(key, hook_data), tokens.span())
+                    (book_manager.open(key, hook_data), ArrayTrait::new().span())
                 },
                 Actions::Make => {
                     let (book_id, tick, quote_amount, hook_data) = Serde::<
@@ -387,6 +402,11 @@ pub mod Controller {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
+        #[inline(always)]
+        fn _check_deadline(self: @ContractState, deadline: u64) {
+            assert!(deadline >= get_block_timestamp(), "ControllerDeadline");
+        }
+
         fn _make(
             self: @ContractState,
             book_id: felt252,

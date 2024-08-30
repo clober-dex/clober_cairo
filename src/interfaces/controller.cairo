@@ -14,14 +14,17 @@ pub trait IController<TContractState> {
 
     fn to_price(self: @TContractState, tick: Tick) -> u256;
 
-    fn open(ref self: TContractState, book_key: BookKey, hook_data: Span<felt252>) -> felt252;
+    fn open(
+        ref self: TContractState, book_key: BookKey, hook_data: Span<felt252>, deadline: u64
+    ) -> felt252;
 
     fn make(
         ref self: TContractState,
         book_id: felt252,
         tick: Tick,
         quote_amount: u256,
-        hook_data: Span<felt252>
+        hook_data: Span<felt252>,
+        deadline: u64
     ) -> felt252;
 
     fn limit(
@@ -32,7 +35,8 @@ pub trait IController<TContractState> {
         tick: Tick,
         quote_amount: u256,
         take_hook_data: Span<felt252>,
-        make_hook_data: Span<felt252>
+        make_hook_data: Span<felt252>,
+        deadline: u64
     ) -> felt252;
 
     fn take(
@@ -41,7 +45,8 @@ pub trait IController<TContractState> {
         limit_price: u256,
         quote_amount: u256,
         max_base_amount: u256,
-        hook_data: Span<felt252>
+        hook_data: Span<felt252>,
+        deadline: u64
     );
 
     fn spend(
@@ -50,15 +55,17 @@ pub trait IController<TContractState> {
         limit_price: u256,
         base_amount: u256,
         min_quote_amount: u256,
-        hook_data: Span<felt252>
+        hook_data: Span<felt252>,
+        deadline: u64
     );
 
-    fn claim(ref self: TContractState, order_id: felt252, hook_data: Span<felt252>);
+    fn claim(ref self: TContractState, order_id: felt252, hook_data: Span<felt252>, deadline: u64);
 
     fn cancel(
         ref self: TContractState,
         order_id: felt252,
         left_quote_amount: u256,
-        hook_data: Span<felt252>
+        hook_data: Span<felt252>,
+        deadline: u64
     );
 }
