@@ -9,14 +9,6 @@ use clober_cairo::libraries::fee_policy::FeePolicy;
 use snforge_std::EventSpy;
 use starknet::ContractAddress;
 
-pub fn BASE_URI() -> ByteArray {
-    "base_uri"
-}
-
-pub fn CONTRACT_URI() -> ByteArray {
-    "contract_uri"
-}
-
 pub fn valid_key(base: ContractAddress, quote: ContractAddress) -> BookKey {
     BookKey {
         base,

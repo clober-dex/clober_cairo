@@ -16,9 +16,9 @@ use clober_cairo::mocks::take_router::TakeRouter::{
 use clober_cairo::mocks::claim_router::ClaimRouter::{
     IClaimRouterDispatcher, IClaimRouterDispatcherTrait
 };
-use clober_cairo::tests::utils::deploy_token_pairs;
+use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 use clober_cairo::tests::book_manager::common::{
-    BookManagerSpyHelpers, valid_key, BASE_URI, CONTRACT_URI
+    BookManagerSpyHelpers, valid_key
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ZERO, OWNER};

@@ -3,6 +3,12 @@ use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTra
 use openzeppelin_testing as utils;
 use openzeppelin_utils::serde::SerializedAppend;
 
+pub fn BASE_URI() -> ByteArray {
+    "base_uri"
+}
+pub fn CONTRACT_URI() -> ByteArray {
+    "contract_uri"
+}
 fn BASE_NAME() -> ByteArray {
     "Base"
 }
