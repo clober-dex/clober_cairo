@@ -610,7 +610,9 @@ pub mod Controller {
 
                 if currency_delta.is_negative() {
                     token_dispatcher
-                        .transfer_from(user, controller_address, currency_delta.abs().into());
+                        .transfer_from(
+                            user, book_manager.contract_address, currency_delta.abs().into()
+                        );
                     book_manager.settle(token);
                 }
 

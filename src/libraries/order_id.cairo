@@ -2,7 +2,7 @@ use starknet::storage_access::{StorePacking};
 use clober_cairo::utils::constants::{TWO_POW_192, TWO_POW_64, TWO_POW_40};
 use clober_cairo::libraries::tick::Tick;
 
-#[derive(Drop)]
+#[derive(Drop, Copy)]
 pub struct OrderId {
     pub book_id: felt252, // u187
     pub tick: Tick, // i24

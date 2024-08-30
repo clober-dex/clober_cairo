@@ -9,6 +9,7 @@ pub fn BASE_URI() -> ByteArray {
 pub fn CONTRACT_URI() -> ByteArray {
     "contract_uri"
 }
+
 fn BASE_NAME() -> ByteArray {
     "Base"
 }

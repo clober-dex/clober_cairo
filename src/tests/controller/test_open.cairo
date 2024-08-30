@@ -3,7 +3,9 @@ use clober_cairo::interfaces::book_manager::{IBookManagerDispatcher, IBookManage
 use clober_cairo::interfaces::controller::{IControllerDispatcher, IControllerDispatcherTrait};
 use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
 use clober_cairo::libraries::fee_policy::FeePolicy;
+use clober_cairo::utils::constants::WAD;
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
+use clober_cairo::tests::controller::common::valid_key;
 
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ZERO, OWNER};
@@ -25,17 +27,7 @@ fn setup() -> (IControllerDispatcher, IBookManagerDispatcher, IERC20Dispatcher, 
     let mut calldata = array![];
     calldata.append_serde(book_manager);
     let controller = utils::declare_and_deploy("Controller", calldata);
-    let (base, quote) = deploy_token_pairs(
-        1000000000000000000 * 1000000000000000000, 1000000000000000000 * 1000000, OWNER(), OWNER()
-    );
-
-    cheat_caller_address(base.contract_address, OWNER(), CheatSpan::TargetCalls(2));
-    base.approve(controller, 1000000000000000000 * 1000000000000000000);
-    base.approve(controller, 1000000000000000000 * 1000000000000000000);
-
-    cheat_caller_address(quote.contract_address, OWNER(), CheatSpan::TargetCalls(2));
-    quote.approve(controller, 1000000000000000000 * 1000000);
-    quote.approve(controller, 1000000000000000000 * 1000000);
+    let (base, quote) = deploy_token_pairs(WAD * WAD, WAD * 1000000, OWNER(), OWNER());
 
     (
         IControllerDispatcher { contract_address: controller },
@@ -49,14 +41,7 @@ fn setup() -> (IControllerDispatcher, IBookManagerDispatcher, IERC20Dispatcher, 
 fn test_open() {
     let (controller, book_manager, base, quote) = setup();
 
-    let book_key = BookKey {
-        base: base.contract_address,
-        quote: quote.contract_address,
-        hooks: ZERO(),
-        unit_size: 1000000000000,
-        taker_policy: FeePolicy { uses_quote: true, rate: -100 },
-        maker_policy: FeePolicy { uses_quote: true, rate: 100 },
-    };
+    let book_key = valid_key(base, quote);
     let book_id = book_key.to_id();
 
     assert_eq!(book_manager.is_opened(book_id), false);

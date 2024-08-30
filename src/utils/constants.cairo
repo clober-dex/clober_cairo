@@ -14,6 +14,8 @@ pub(crate) const TWO_POW_24: u32 = 0x1000000; // 2**24
 pub(crate) const TWO_POW_16: u32 = 0x10000; // 2**16
 pub(crate) const TWO_POW_15: u64 = 0x8000; // 2**15
 
+pub(crate) const WAD: u256 = 1000000000000000000; // 10**18
+
 pub(crate) const MASK_64: u64 = 0xFFFFFFFFFFFFFFFF; // 2**64 - 1
 pub(crate) const MASK_62: u64 = 0x3fffffffffffffff; // 2**62 - 1
 pub(crate) const MASK_15: u64 = 0x7fff; // 2**15 - 1
