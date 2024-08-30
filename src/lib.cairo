@@ -37,6 +37,7 @@ pub mod mocks {
 
 mod tests {
     pub mod book_manager;
+    pub mod controller;
     pub mod utils;
     #[cfg(test)]
     pub mod book;
