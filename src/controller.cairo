@@ -1,6 +1,7 @@
 #[starknet::contract]
 pub mod Controller {
     use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
+    use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_security::reentrancyguard::ReentrancyGuardComponent;
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
     use clober_cairo::interfaces::book_manager::{
@@ -42,9 +43,9 @@ pub mod Controller {
     pub enum Actions {
         Open,
         Make,
+        Limit,
         Take,
         Spend,
-        Limit,
         Cancel,
         Claim,
     }
@@ -231,6 +232,42 @@ pub mod Controller {
             Serde::serialize(@params, ref data);
             book_manager.lock(get_contract_address(), data.span());
         }
+
+        fn cancel(
+            ref self: ContractState,
+            order_id: felt252,
+            left_quote_amount: u256,
+            hook_data: Span<felt252>
+        ) {
+            let book_manager = IBookManagerDispatcher {
+                contract_address: self.book_manager.read()
+            };
+            let mut params = ArrayTrait::new();
+            Serde::serialize(@order_id, ref params);
+            Serde::serialize(@left_quote_amount, ref params);
+            Serde::serialize(@hook_data, ref params);
+
+            let mut data = ArrayTrait::new();
+            Serde::serialize(@get_caller_address(), ref data);
+            Serde::serialize(@Actions::Cancel, ref data);
+            Serde::serialize(@params, ref data);
+            book_manager.lock(get_contract_address(), data.span());
+        }
+
+        fn claim(ref self: ContractState, order_id: felt252, hook_data: Span<felt252>) {
+            let book_manager = IBookManagerDispatcher {
+                contract_address: self.book_manager.read()
+            };
+            let mut params = ArrayTrait::new();
+            Serde::serialize(@order_id, ref params);
+            Serde::serialize(@hook_data, ref params);
+
+            let mut data = ArrayTrait::new();
+            Serde::serialize(@get_caller_address(), ref data);
+            Serde::serialize(@Actions::Claim, ref data);
+            Serde::serialize(@params, ref data);
+            book_manager.lock(get_contract_address(), data.span());
+        }
     }
 
     #[abi(embed_v0)]
@@ -245,36 +282,49 @@ pub mod Controller {
                 (ContractAddress, Actions, Span<felt252>)
             >::deserialize(ref data)
                 .unwrap();
-            let mut result = ArrayTrait::new();
-            Serde::serialize(
-                @match action {
-                    Actions::Open => {
-                        let (key, hook_data) = Serde::<
-                            (BookKey, Span<felt252>)
-                        >::deserialize(ref params)
-                            .unwrap();
-                        let book_manager = IBookManagerDispatcher {
+
+            let (data, tokens) = match action {
+                Actions::Open => {
+                    let (key, hook_data) = Serde::<
+                        (BookKey, Span<felt252>)
+                    >::deserialize(ref params)
+                        .unwrap();
+                    let book_manager = IBookManagerDispatcher {
+                        contract_address: self.book_manager.read()
+                    };
+                    let mut tokens = ArrayTrait::new();
+                    (book_manager.open(key, hook_data), tokens.span())
+                },
+                Actions::Make => {
+                    let (book_id, tick, quote_amount, hook_data) = Serde::<
+                        (felt252, Tick, u256, Span<felt252>)
+                    >::deserialize(ref params)
+                        .unwrap();
+                    let (order_id, tokens) = self._make(book_id, tick, quote_amount, hook_data);
+                    if (order_id != 0) {
+                        let book_manager = IERC721Dispatcher {
                             contract_address: self.book_manager.read()
                         };
-                        book_manager.open(key, hook_data)
-                    },
-                    Actions::Make => {
-                        let (book_id, tick, quote_amount, hook_data) = Serde::<
-                            (felt252, Tick, u256, Span<felt252>)
-                        >::deserialize(ref params)
-                            .unwrap();
-                        let order_id = self._make(book_id, tick, quote_amount, hook_data);
-                        if (order_id != 0) {
-                            let book_manager = IERC721Dispatcher {
-                                contract_address: self.book_manager.read()
-                            };
-                            book_manager
-                                .transfer_from(get_contract_address(), user, order_id.into());
-                        }
-                        order_id
-                    },
-                    Actions::Limit => {
-                        let (
+                        book_manager.transfer_from(get_contract_address(), user, order_id.into());
+                    }
+                    (order_id, tokens)
+                },
+                Actions::Limit => {
+                    let (
+                        take_book_id,
+                        make_book_id,
+                        limit_price,
+                        tick,
+                        quote_amount,
+                        take_hook_data,
+                        make_hook_data
+                    ) =
+                        Serde::<
+                        (felt252, felt252, u256, Tick, u256, Span<felt252>, Span<felt252>)
+                    >::deserialize(ref params)
+                        .unwrap();
+                    let (order_id, tokens) = self
+                        ._limit(
                             take_book_id,
                             make_book_id,
                             limit_price,
@@ -282,54 +332,54 @@ pub mod Controller {
                             quote_amount,
                             take_hook_data,
                             make_hook_data
-                        ) =
-                            Serde::<
-                            (felt252, felt252, u256, Tick, u256, Span<felt252>, Span<felt252>)
-                        >::deserialize(ref params)
-                            .unwrap();
-                        let order_id = self
-                            ._limit(
-                                take_book_id,
-                                make_book_id,
-                                limit_price,
-                                tick,
-                                quote_amount,
-                                take_hook_data,
-                                make_hook_data
-                            );
-                        if (order_id != 0) {
-                            let book_manager = IERC721Dispatcher {
-                                contract_address: self.book_manager.read()
-                            };
-                            book_manager
-                                .transfer_from(get_contract_address(), user, order_id.into());
-                        }
-                        order_id
-                    },
-                    Actions::Take => {
-                        let (book_id, limit_price, quote_amount, max_base_amount, hook_data) =
-                            Serde::<
-                            (felt252, u256, u256, u256, Span<felt252>)
-                        >::deserialize(ref params)
-                            .unwrap();
-                        self._take(book_id, limit_price, quote_amount, max_base_amount, hook_data);
-                        0
-                    },
-                    Actions::Spend => {
-                        let (book_id, limit_price, base_amount, min_quote_amount, hook_data) =
-                            Serde::<
-                            (felt252, u256, u256, u256, Span<felt252>)
-                        >::deserialize(ref params)
-                            .unwrap();
-                        self._spend(book_id, limit_price, base_amount, min_quote_amount, hook_data);
-                        0
-                    },
-                    Actions::Cancel => 0,
-                    Actions::Claim => 0,
+                        );
+                    if (order_id != 0) {
+                        let book_manager = IERC721Dispatcher {
+                            contract_address: self.book_manager.read()
+                        };
+                        book_manager.transfer_from(get_contract_address(), user, order_id.into());
+                    }
+                    (order_id, tokens)
                 },
-                ref result
-            );
-            // self._settleTokens(user);
+                Actions::Take => {
+                    let (book_id, limit_price, quote_amount, max_base_amount, hook_data) = Serde::<
+                        (felt252, u256, u256, u256, Span<felt252>)
+                    >::deserialize(ref params)
+                        .unwrap();
+                    let (_, _, tokens) = self
+                        ._take(book_id, limit_price, quote_amount, max_base_amount, hook_data);
+                    (0, tokens)
+                },
+                Actions::Spend => {
+                    let (book_id, limit_price, base_amount, min_quote_amount, hook_data) = Serde::<
+                        (felt252, u256, u256, u256, Span<felt252>)
+                    >::deserialize(ref params)
+                        .unwrap();
+                    let (_, _, tokens) = self
+                        ._spend(book_id, limit_price, base_amount, min_quote_amount, hook_data);
+                    (0, tokens)
+                },
+                Actions::Cancel => {
+                    let (order_id, left_quote_amount, hook_data) = Serde::<
+                        (felt252, u256, Span<felt252>)
+                    >::deserialize(ref params)
+                        .unwrap();
+                    let tokens = self._cancel(order_id, left_quote_amount, hook_data);
+                    (0, tokens)
+                },
+                Actions::Claim => {
+                    let (order_id, hook_data) = Serde::<
+                        (felt252, Span<felt252>)
+                    >::deserialize(ref params)
+                        .unwrap();
+                    let tokens = self._claim(order_id, hook_data);
+                    (0, tokens)
+                },
+            };
+
+            let mut result = ArrayTrait::new();
+            Serde::serialize(@data, ref result);
+            self._settle_tokens(user, tokens);
 
             result.span()
         }
@@ -343,18 +393,20 @@ pub mod Controller {
             tick: Tick,
             quote_amount: u256,
             hook_data: Span<felt252>
-        ) -> felt252 {
+        ) -> (felt252, Span<felt252>) {
             let book_manager = IBookManagerDispatcher {
                 contract_address: self.book_manager.read()
             };
             let key = book_manager.get_book_key(book_id);
             let unit = (quote_amount / key.unit_size.into()).try_into().unwrap();
+            let mut tokens = ArrayTrait::new();
             if unit == 0 {
-                return 0;
+                return (0, tokens.span());
             }
             let (order_id, _) = book_manager
                 .make(MakeParams { key, tick, unit, provider: ZERO_ADDRESS(), }, hook_data);
-            order_id
+            Serde::serialize(@key.quote, ref tokens);
+            (order_id, tokens.span())
         }
 
         fn _limit(
@@ -366,14 +418,15 @@ pub mod Controller {
             mut quote_amount: u256,
             take_hook_data: Span<felt252>,
             make_hook_data: Span<felt252>
-        ) -> felt252 {
-            let (is_quote_remained, spent_quote_amount) = self
+        ) -> (felt252, Span<felt252>) {
+            let (is_quote_remained, spent_quote_amount, tokens) = self
                 ._spend(take_book_id, limit_price, quote_amount, 0, take_hook_data);
             quote_amount -= spent_quote_amount;
             if is_quote_remained {
-                self._make(make_book_id, tick, quote_amount, make_hook_data)
+                let (order_id, _) = self._make(make_book_id, tick, quote_amount, make_hook_data);
+                (order_id, tokens)
             } else {
-                0
+                (0, tokens)
             }
         }
 
@@ -384,7 +437,7 @@ pub mod Controller {
             quote_amount: u256,
             max_base_amount: u256,
             hook_data: Span<felt252>
-        ) -> (u256, u256) {
+        ) -> (u256, u256, Span<felt252>) {
             let book_manager = IBookManagerDispatcher {
                 contract_address: self.book_manager.read()
             };
@@ -423,7 +476,11 @@ pub mod Controller {
             };
 
             assert!(max_base_amount >= spent_base_amount, "ControllerSlippage");
-            (taken_quote_amount, spent_base_amount)
+            let mut tokens = ArrayTrait::new();
+            Serde::serialize(@key.quote, ref tokens);
+            Serde::serialize(@key.base, ref tokens);
+
+            (taken_quote_amount, spent_base_amount, tokens.span())
         }
 
         fn _spend(
@@ -433,7 +490,7 @@ pub mod Controller {
             base_amount: u256,
             min_quote_amount: u256,
             hook_data: Span<felt252>
-        ) -> (bool, u256) {
+        ) -> (bool, u256, Span<felt252>) {
             let book_manager = IBookManagerDispatcher {
                 contract_address: self.book_manager.read()
             };
@@ -475,7 +532,78 @@ pub mod Controller {
                 spent_base_amount += base_amount;
             };
             assert!(min_quote_amount <= taken_quote_amount, "ControllerSlippage");
-            (is_base_remained, spent_base_amount)
+            let mut tokens = ArrayTrait::new();
+            Serde::serialize(@key.quote, ref tokens);
+            Serde::serialize(@key.base, ref tokens);
+
+            (is_base_remained, spent_base_amount, tokens.span())
+        }
+
+        fn _cancel(
+            self: @ContractState,
+            order_id: felt252,
+            left_quote_amount: u256,
+            hook_data: Span<felt252>
+        ) -> Span<felt252> {
+            let book_manager = IBookManagerDispatcher {
+                contract_address: self.book_manager.read()
+            };
+            let key = book_manager.get_book_key(OrderIdTrait::decode(order_id).book_id);
+            // Todo try catch
+            book_manager
+                .cancel(
+                    CancelParams {
+                        id: order_id,
+                        to_unit: (left_quote_amount / key.unit_size.into()).try_into().unwrap()
+                    },
+                    hook_data
+                );
+            let mut tokens = ArrayTrait::new();
+            Serde::serialize(@key.quote, ref tokens);
+            tokens.span()
+        }
+
+        fn _claim(
+            self: @ContractState, order_id: felt252, hook_data: Span<felt252>
+        ) -> Span<felt252> {
+            let book_manager = IBookManagerDispatcher {
+                contract_address: self.book_manager.read()
+            };
+            let key = book_manager.get_book_key(OrderIdTrait::decode(order_id).book_id);
+            book_manager.claim(order_id, hook_data);
+
+            let mut tokens = ArrayTrait::new();
+            Serde::serialize(@key.base, ref tokens);
+            tokens.span()
+        }
+
+        fn _settle_tokens(self: @ContractState, user: ContractAddress, tokens: Span<felt252>) {
+            let book_manager = IBookManagerDispatcher {
+                contract_address: self.book_manager.read()
+            };
+            let controller_address = get_contract_address();
+            for address in tokens {
+                let token: ContractAddress = (*address).try_into().unwrap();
+                let mut currency_delta = book_manager.get_currency_delta(controller_address, token);
+
+                let token_dispatcher = IERC20Dispatcher { contract_address: token };
+
+                if currency_delta.is_negative() {
+                    token_dispatcher
+                        .transfer_from(user, controller_address, currency_delta.abs().into());
+                    book_manager.settle(token);
+                }
+
+                currency_delta = book_manager.get_currency_delta(controller_address, token);
+                if !currency_delta.is_negative() {
+                    book_manager.withdraw(token, user, currency_delta.abs().into());
+                }
+
+                let balance = token_dispatcher.balance_of(controller_address);
+                if balance > 0 {
+                    token_dispatcher.transfer(user, balance);
+                }
+            }
         }
     }
 }

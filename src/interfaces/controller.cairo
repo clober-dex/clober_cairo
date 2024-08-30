@@ -52,4 +52,13 @@ pub trait IController<TContractState> {
         min_quote_amount: u256,
         hook_data: Span<felt252>
     );
+
+    fn claim(ref self: TContractState, order_id: felt252, hook_data: Span<felt252>);
+
+    fn cancel(
+        ref self: TContractState,
+        order_id: felt252,
+        left_quote_amount: u256,
+        hook_data: Span<felt252>
+    );
 }
