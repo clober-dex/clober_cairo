@@ -6,9 +6,7 @@ use clober_cairo::mocks::open_router::OpenRouter::{
     IOpenRouterDispatcher, IOpenRouterDispatcherTrait
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
-use clober_cairo::tests::book_manager::common::{
-    BookManagerSpyHelpers, valid_key
-};
+use clober_cairo::tests::book_manager::common::{BookManagerSpyHelpers, valid_key};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{OWNER, SPENDER, RECIPIENT, OTHER};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};

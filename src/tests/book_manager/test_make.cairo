@@ -13,9 +13,7 @@ use clober_cairo::mocks::make_router::MakeRouter::{
     IMakeRouterDispatcher, IMakeRouterDispatcherTrait
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
-use clober_cairo::tests::book_manager::common::{
-    BookManagerSpyHelpers, valid_key
-};
+use clober_cairo::tests::book_manager::common::{BookManagerSpyHelpers, valid_key};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ZERO, OWNER, OTHER};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
