@@ -22,7 +22,18 @@ pub trait IController<TContractState> {
         tick: Tick,
         quote_amount: u256,
         hook_data: Span<felt252>
-    ) -> u256;
+    ) -> felt252;
+
+    fn limit(
+        ref self: TContractState,
+        take_book_id: felt252,
+        make_book_id: felt252,
+        limit_price: u256,
+        tick: Tick,
+        quote_amount: u256,
+        take_hook_data: Span<felt252>,
+        make_hook_data: Span<felt252>
+    ) -> felt252;
 
     fn take(
         ref self: TContractState,

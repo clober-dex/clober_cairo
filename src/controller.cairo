@@ -134,7 +134,7 @@ pub mod Controller {
             tick: Tick,
             quote_amount: u256,
             hook_data: Span<felt252>
-        ) -> u256 {
+        ) -> felt252 {
             let book_manager = IBookManagerDispatcher {
                 contract_address: self.book_manager.read()
             };
@@ -147,6 +147,36 @@ pub mod Controller {
             let mut data = ArrayTrait::new();
             Serde::serialize(@get_caller_address(), ref data);
             Serde::serialize(@Actions::Make, ref data);
+            Serde::serialize(@params, ref data);
+            let mut result = book_manager.lock(get_contract_address(), data.span());
+            Serde::deserialize(ref result).unwrap()
+        }
+
+        fn limit(
+            ref self: ContractState,
+            take_book_id: felt252,
+            make_book_id: felt252,
+            limit_price: u256,
+            tick: Tick,
+            quote_amount: u256,
+            take_hook_data: Span<felt252>,
+            make_hook_data: Span<felt252>
+        ) -> felt252 {
+            let book_manager = IBookManagerDispatcher {
+                contract_address: self.book_manager.read()
+            };
+            let mut params = ArrayTrait::new();
+            Serde::serialize(@take_book_id, ref params);
+            Serde::serialize(@make_book_id, ref params);
+            Serde::serialize(@limit_price, ref params);
+            Serde::serialize(@tick, ref params);
+            Serde::serialize(@quote_amount, ref params);
+            Serde::serialize(@take_hook_data, ref params);
+            Serde::serialize(@make_hook_data, ref params);
+
+            let mut data = ArrayTrait::new();
+            Serde::serialize(@get_caller_address(), ref data);
+            Serde::serialize(@Actions::Limit, ref data);
             Serde::serialize(@params, ref data);
             let mut result = book_manager.lock(get_contract_address(), data.span());
             Serde::deserialize(ref result).unwrap()
@@ -243,6 +273,39 @@ pub mod Controller {
                         }
                         order_id
                     },
+                    Actions::Limit => {
+                        let (
+                            take_book_id,
+                            make_book_id,
+                            limit_price,
+                            tick,
+                            quote_amount,
+                            take_hook_data,
+                            make_hook_data
+                        ) =
+                            Serde::<
+                            (felt252, felt252, u256, Tick, u256, Span<felt252>, Span<felt252>)
+                        >::deserialize(ref params)
+                            .unwrap();
+                        let order_id = self
+                            ._limit(
+                                take_book_id,
+                                make_book_id,
+                                limit_price,
+                                tick,
+                                quote_amount,
+                                take_hook_data,
+                                make_hook_data
+                            );
+                        if (order_id != 0) {
+                            let book_manager = IERC721Dispatcher {
+                                contract_address: self.book_manager.read()
+                            };
+                            book_manager
+                                .transfer_from(get_contract_address(), user, order_id.into());
+                        }
+                        order_id
+                    },
                     Actions::Take => {
                         let (book_id, limit_price, quote_amount, max_base_amount, hook_data) =
                             Serde::<
@@ -258,12 +321,11 @@ pub mod Controller {
                             (felt252, u256, u256, u256, Span<felt252>)
                         >::deserialize(ref params)
                             .unwrap();
-                        self._take(book_id, limit_price, base_amount, min_quote_amount, hook_data);
+                        self._spend(book_id, limit_price, base_amount, min_quote_amount, hook_data);
                         0
                     },
                     Actions::Cancel => 0,
                     Actions::Claim => 0,
-                    Actions::Limit => 0,
                 },
                 ref result
             );
@@ -293,6 +355,26 @@ pub mod Controller {
             let (order_id, _) = book_manager
                 .make(MakeParams { key, tick, unit, provider: ZERO_ADDRESS(), }, hook_data);
             order_id
+        }
+
+        fn _limit(
+            self: @ContractState,
+            take_book_id: felt252,
+            make_book_id: felt252,
+            limit_price: u256,
+            tick: Tick,
+            mut quote_amount: u256,
+            take_hook_data: Span<felt252>,
+            make_hook_data: Span<felt252>
+        ) -> felt252 {
+            let (is_quote_remained, spent_quote_amount) = self
+                ._spend(take_book_id, limit_price, quote_amount, 0, take_hook_data);
+            quote_amount -= spent_quote_amount;
+            if is_quote_remained {
+                self._make(make_book_id, tick, quote_amount, make_hook_data)
+            } else {
+                0
+            }
         }
 
         fn _take(
@@ -343,53 +425,57 @@ pub mod Controller {
             assert!(max_base_amount >= spent_base_amount, "ControllerSlippage");
             (taken_quote_amount, spent_base_amount)
         }
-    }
 
-    fn _spend(
-        self: @ContractState,
-        book_id: felt252,
-        limit_price: u256,
-        base_amount: u256,
-        min_quote_amount: u256,
-        hook_data: Span<felt252>
-    ) -> (bool, u256) {
-        let book_manager = IBookManagerDispatcher { contract_address: self.book_manager.read() };
-        let key = book_manager.get_book_key(book_id);
-        let mut taken_quote_amount = 0;
-        let mut spent_base_amount = 0;
-        let mut is_base_remained = false;
-
-        while base_amount > spent_base_amount {
-            if book_manager.is_empty(book_id) {
-                is_base_remained = true;
-                break;
-            }
-            let tick = book_manager.get_highest(book_id);
-            if limit_price > tick.to_price() {
-                break;
-            }
-            let max_amount = if key.taker_policy.uses_quote {
-                base_amount - taken_quote_amount
-            } else {
-                key.taker_policy.calculate_original_amount(base_amount - taken_quote_amount, false)
+        fn _spend(
+            self: @ContractState,
+            book_id: felt252,
+            limit_price: u256,
+            base_amount: u256,
+            min_quote_amount: u256,
+            hook_data: Span<felt252>
+        ) -> (bool, u256) {
+            let book_manager = IBookManagerDispatcher {
+                contract_address: self.book_manager.read()
             };
-            if max_amount == 0 {
-                break;
-            }
+            let key = book_manager.get_book_key(book_id);
+            let mut taken_quote_amount = 0;
+            let mut spent_base_amount = 0;
+            let mut is_base_remained = false;
 
-            let max_unit: u64 = (tick.base_to_quote(max_amount, false) / key.unit_size.into())
-                .try_into()
-                .unwrap();
-            let (quote_amount, base_amount) = book_manager
-                .take(TakeParams { key, tick, max_unit }, hook_data);
-            if base_amount == 0 {
-                break;
-            }
+            while base_amount > spent_base_amount {
+                if book_manager.is_empty(book_id) {
+                    is_base_remained = true;
+                    break;
+                }
+                let tick = book_manager.get_highest(book_id);
+                if limit_price > tick.to_price() {
+                    break;
+                }
+                let max_amount = if key.taker_policy.uses_quote {
+                    base_amount - taken_quote_amount
+                } else {
+                    key
+                        .taker_policy
+                        .calculate_original_amount(base_amount - taken_quote_amount, false)
+                };
+                if max_amount == 0 {
+                    break;
+                }
 
-            taken_quote_amount += quote_amount;
-            spent_base_amount += base_amount;
-        };
-        assert!(min_quote_amount <= taken_quote_amount, "ControllerSlippage");
-        (is_base_remained, spent_base_amount)
+                let max_unit: u64 = (tick.base_to_quote(max_amount, false) / key.unit_size.into())
+                    .try_into()
+                    .unwrap();
+                let (quote_amount, base_amount) = book_manager
+                    .take(TakeParams { key, tick, max_unit }, hook_data);
+                if base_amount == 0 {
+                    break;
+                }
+
+                taken_quote_amount += quote_amount;
+                spent_base_amount += base_amount;
+            };
+            assert!(min_quote_amount <= taken_quote_amount, "ControllerSlippage");
+            (is_base_remained, spent_base_amount)
+        }
     }
 }
