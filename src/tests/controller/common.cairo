@@ -21,6 +21,9 @@ pub fn QUOTE_AMOUNT2() -> u256 {
 pub fn QUOTE_AMOUNT3() -> u256 {
     94 * WAD + 461767
 }
+pub fn BASE_AMOUNT1() -> u256 {
+    12 * WAD + 23432
+}
 pub fn MAKER1() -> ContractAddress {
     contract_address_const::<'maker1'>()
 }
@@ -75,5 +78,13 @@ pub fn take_order(controller: IControllerDispatcher, book_key: BookKey, quote_am
             TWO_POW_248,
             ArrayTrait::new().span(),
             get_block_timestamp()
+        );
+}
+
+
+pub fn spend_order(controller: IControllerDispatcher, book_key: BookKey, base_amount: u256,) {
+    controller
+        .spend(
+            book_key.to_id(), 0, base_amount, 0, ArrayTrait::new().span(), get_block_timestamp()
         );
 }

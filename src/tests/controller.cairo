@@ -6,4 +6,6 @@ mod test_open;
 mod test_make;
 #[cfg(test)]
 mod test_take;
+#[cfg(test)]
+mod test_spend;
 

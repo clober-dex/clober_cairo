@@ -507,7 +507,7 @@ pub mod Controller {
             self: @ContractState,
             book_id: felt252,
             limit_price: u256,
-            base_amount: u256,
+            max_base_amount: u256,
             min_quote_amount: u256,
             hook_data: Span<felt252>
         ) -> (bool, u256, Span<felt252>) {
@@ -519,7 +519,7 @@ pub mod Controller {
             let mut spent_base_amount = 0;
             let mut is_base_remained = false;
 
-            while base_amount > spent_base_amount {
+            while max_base_amount > spent_base_amount {
                 if book_manager.is_empty(book_id) {
                     is_base_remained = true;
                     break;
@@ -529,11 +529,11 @@ pub mod Controller {
                     break;
                 }
                 let max_amount = if key.taker_policy.uses_quote {
-                    base_amount - taken_quote_amount
+                    max_base_amount - spent_base_amount
                 } else {
                     key
                         .taker_policy
-                        .calculate_original_amount(base_amount - taken_quote_amount, false)
+                        .calculate_original_amount(max_base_amount - spent_base_amount, false)
                 };
                 if max_amount == 0 {
                     break;
