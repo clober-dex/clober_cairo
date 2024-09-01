@@ -92,3 +92,7 @@ pub fn cancel_order(controller: IControllerDispatcher, order_id: felt252, to: u2
     controller.cancel(order_id, to, ArrayTrait::new().span(), get_block_timestamp());
 }
 
+pub fn claim_order(controller: IControllerDispatcher, order_id: felt252) {
+    controller.claim(order_id, ArrayTrait::new().span(), get_block_timestamp());
+}
+

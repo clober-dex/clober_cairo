@@ -88,7 +88,7 @@ pub mod Controller {
             let mut claimable_amount = decoded_order_id
                 .tick
                 .quote_to_base(unit_size.into() * order_info.claimable.into(), false);
-            if maker_policy.uses_quote {
+            if !maker_policy.uses_quote {
                 let fee = maker_policy.calculate_fee(claimable_amount, false);
                 claimable_amount =
                     if !fee.is_negative() {

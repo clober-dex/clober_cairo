@@ -10,4 +10,6 @@ mod test_take;
 mod test_spend;
 #[cfg(test)]
 mod test_cancel;
+#[cfg(test)]
+mod test_claim;
 
