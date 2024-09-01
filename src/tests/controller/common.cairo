@@ -81,10 +81,14 @@ pub fn take_order(controller: IControllerDispatcher, book_key: BookKey, quote_am
         );
 }
 
-
 pub fn spend_order(controller: IControllerDispatcher, book_key: BookKey, base_amount: u256,) {
     controller
         .spend(
             book_key.to_id(), 0, base_amount, 0, ArrayTrait::new().span(), get_block_timestamp()
         );
 }
+
+pub fn cancel_order(controller: IControllerDispatcher, order_id: felt252, to: u256) {
+    controller.cancel(order_id, to, ArrayTrait::new().span(), get_block_timestamp());
+}
+

@@ -8,4 +8,6 @@ mod test_make;
 mod test_take;
 #[cfg(test)]
 mod test_spend;
+#[cfg(test)]
+mod test_cancel;
 
