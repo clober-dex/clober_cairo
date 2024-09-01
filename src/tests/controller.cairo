@@ -5,6 +5,8 @@ mod test_open;
 #[cfg(test)]
 mod test_make;
 #[cfg(test)]
+mod test_limit;
+#[cfg(test)]
 mod test_take;
 #[cfg(test)]
 mod test_spend;
@@ -12,4 +14,3 @@ mod test_spend;
 mod test_cancel;
 #[cfg(test)]
 mod test_claim;
-

@@ -69,6 +69,28 @@ pub fn make_order(
     )
 }
 
+pub fn limit_order(
+    controller: IControllerDispatcher,
+    take_book_key: BookKey,
+    book_key: BookKey,
+    tick: Tick,
+    quote_amount: u256,
+) -> OrderId {
+    OrderIdTrait::decode(
+        controller
+            .limit(
+                take_book_key.to_id(),
+                book_key.to_id(),
+                0,
+                tick,
+                quote_amount,
+                ArrayTrait::new().span(),
+                ArrayTrait::new().span(),
+                get_block_timestamp()
+            )
+    )
+}
+
 pub fn take_order(controller: IControllerDispatcher, book_key: BookKey, quote_amount: u256,) {
     controller
         .take(

@@ -63,11 +63,9 @@ fn setup() -> (IControllerDispatcher, IBookManagerDispatcher, IERC20Dispatcher, 
     cheat_caller_address(base.contract_address, TAKER3(), CheatSpan::TargetCalls(1));
     base.approve(controller, 1000 * WAD);
 
-    let controller_dispatcher = IControllerDispatcher { contract_address: controller };
-    controller_dispatcher
-        .open(valid_key(base, quote), ArrayTrait::new().span(), get_block_timestamp());
-
     let key = valid_key(base, quote);
+    let controller_dispatcher = IControllerDispatcher { contract_address: controller };
+    controller_dispatcher.open(key, ArrayTrait::new().span(), get_block_timestamp());
 
     cheat_caller_address(controller, MAKER1(), CheatSpan::TargetCalls(1));
     make_order(controller_dispatcher, key, PRICE_TICK(), QUOTE_AMOUNT1());
