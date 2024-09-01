@@ -5,7 +5,7 @@ use clober_cairo::libraries::fee_policy::FeePolicy;
 use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::interfaces::controller::{IControllerDispatcher, IControllerDispatcherTrait};
-use clober_cairo::utils::constants::WAD;
+use clober_cairo::utils::constants::{WAD, TWO_POW_248};
 
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
@@ -15,8 +15,29 @@ pub fn PRICE_TICK() -> Tick {
 pub fn QUOTE_AMOUNT1() -> u256 {
     200 * WAD + 123
 }
+pub fn QUOTE_AMOUNT2() -> u256 {
+    152 * WAD + 7347
+}
+pub fn QUOTE_AMOUNT3() -> u256 {
+    94 * WAD + 461767
+}
 pub fn MAKER1() -> ContractAddress {
     contract_address_const::<'maker1'>()
+}
+pub fn MAKER2() -> ContractAddress {
+    contract_address_const::<'maker2'>()
+}
+pub fn MAKER3() -> ContractAddress {
+    contract_address_const::<'maker3'>()
+}
+pub fn TAKER1() -> ContractAddress {
+    contract_address_const::<'taker1'>()
+}
+pub fn TAKER2() -> ContractAddress {
+    contract_address_const::<'taker2'>()
+}
+pub fn TAKER3() -> ContractAddress {
+    contract_address_const::<'taker3'>()
 }
 
 pub fn valid_key(base: IERC20Dispatcher, quote: IERC20Dispatcher) -> BookKey {
@@ -31,13 +52,7 @@ pub fn valid_key(base: IERC20Dispatcher, quote: IERC20Dispatcher) -> BookKey {
 }
 
 pub fn make_order(
-    controller: IControllerDispatcher,
-    book_key: BookKey,
-    tick: Tick,
-    quote_amount: u256,
-    base: IERC20Dispatcher,
-    quote: IERC20Dispatcher,
-    maker: ContractAddress
+    controller: IControllerDispatcher, book_key: BookKey, tick: Tick, quote_amount: u256,
 ) -> OrderId {
     OrderIdTrait::decode(
         controller
@@ -49,4 +64,16 @@ pub fn make_order(
                 get_block_timestamp()
             )
     )
+}
+
+pub fn take_order(controller: IControllerDispatcher, book_key: BookKey, quote_amount: u256,) {
+    controller
+        .take(
+            book_key.to_id(),
+            0,
+            quote_amount,
+            TWO_POW_248,
+            ArrayTrait::new().span(),
+            get_block_timestamp()
+        );
 }

@@ -17,7 +17,7 @@ use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTra
 use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{spy_events, EventSpy, cheat_caller_address, CheatSpan};
+use snforge_std::{cheat_caller_address, CheatSpan};
 
 fn setup() -> (IControllerDispatcher, IBookManagerDispatcher, IERC20Dispatcher, IERC20Dispatcher) {
     let mut calldata = array![];
@@ -31,7 +31,7 @@ fn setup() -> (IControllerDispatcher, IBookManagerDispatcher, IERC20Dispatcher, 
     let mut calldata = array![];
     calldata.append_serde(book_manager);
     let controller = utils::declare_and_deploy("Controller", calldata);
-    let (base, quote) = deploy_token_pairs(WAD * 1000000, WAD * WAD, OWNER(), OWNER());
+    let (base, quote) = deploy_token_pairs(WAD * WAD, WAD * WAD, OWNER(), OWNER());
 
     cheat_caller_address(quote.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     quote.transfer(MAKER1(), 1000 * WAD);
@@ -53,7 +53,7 @@ fn test_make() {
     let before_balance = quote.balance_of(MAKER1());
 
     cheat_caller_address(controller.contract_address, MAKER1(), CheatSpan::TargetCalls(1));
-    let id = make_order(controller, key, PRICE_TICK(), QUOTE_AMOUNT1(), base, quote, MAKER1());
+    let id = make_order(controller, key, PRICE_TICK(), QUOTE_AMOUNT1());
     assert_eq!(
         IERC721Dispatcher { contract_address: book_manager.contract_address }
             .owner_of(id.encode().into()),

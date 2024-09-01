@@ -27,7 +27,7 @@ fn setup() -> (IControllerDispatcher, IBookManagerDispatcher, IERC20Dispatcher, 
     let mut calldata = array![];
     calldata.append_serde(book_manager);
     let controller = utils::declare_and_deploy("Controller", calldata);
-    let (base, quote) = deploy_token_pairs(WAD * WAD, WAD * 1000000, OWNER(), OWNER());
+    let (base, quote) = deploy_token_pairs(WAD * WAD, WAD * WAD, OWNER(), OWNER());
 
     (
         IControllerDispatcher { contract_address: controller },
