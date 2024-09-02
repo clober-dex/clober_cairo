@@ -31,8 +31,9 @@ fuzzer_runs = 1000
 test = "snforge test"
 
 [[target.starknet-contract]]
-allowed-libfuncs = false
-# allowed-libfuncs-list.name = "experimental"
+sierra = true
+casm = false
+allowed-libfuncs-list.name = "experimental"
 build-external-contracts = [
     "openzeppelin_presets::erc20::ERC20Upgradeable",
 ]
