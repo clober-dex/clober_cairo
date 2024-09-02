@@ -7,7 +7,7 @@ use clober_cairo::libraries::tick::Tick;
 use clober_cairo::interfaces::controller::{IControllerDispatcher, IControllerDispatcherTrait};
 use clober_cairo::utils::constants::{WAD, TWO_POW_248};
 
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin_token::erc20::interface::IERC20Dispatcher;
 
 pub fn PRICE_TICK() -> Tick {
     2848

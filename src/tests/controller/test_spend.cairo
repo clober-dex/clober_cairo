@@ -1,11 +1,7 @@
-use starknet::{ContractAddress, get_block_timestamp};
-use clober_cairo::interfaces::book_manager::{IBookManagerDispatcher, IBookManagerDispatcherTrait};
+use starknet::get_block_timestamp;
+use clober_cairo::interfaces::book_manager::IBookManagerDispatcher;
 use clober_cairo::interfaces::controller::{IControllerDispatcher, IControllerDispatcherTrait};
-use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
-use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
-use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait};
 use clober_cairo::libraries::tick::{Tick, TickTrait};
-use clober_cairo::libraries::i257::I257Trait;
 use clober_cairo::utils::constants::WAD;
 use clober_cairo::tests::controller::common::{
     valid_key, make_order, spend_order, PRICE_TICK, MAKER1, MAKER2, MAKER3, TAKER1, TAKER2, TAKER3,
@@ -14,10 +10,8 @@ use clober_cairo::tests::controller::common::{
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ZERO, OWNER};
+use openzeppelin_testing::constants::OWNER;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
-use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{cheat_caller_address, CheatSpan};
 

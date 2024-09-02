@@ -1,4 +1,4 @@
-use core::poseidon::{HashState, poseidon_hash_span, PoseidonTrait};
+use core::poseidon::{HashState, PoseidonTrait};
 use core::hash::{Hash, HashStateTrait, HashStateExTrait};
 use starknet::storage_access::{
     Store, StorageBaseAddress, storage_address_from_base, storage_base_address_from_felt252

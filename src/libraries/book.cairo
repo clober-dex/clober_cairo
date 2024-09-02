@@ -2,20 +2,17 @@ use clober_cairo::libraries::tick::Tick;
 use clober_cairo::libraries::tick_bitmap::TickBitmap;
 use clober_cairo::libraries::tick_bitmap::TickBitmapTrait;
 use clober_cairo::libraries::total_claimable_map::{TotalClaimableOf, TotalClaimableOfTrait};
-use clober_cairo::libraries::fee_policy::FeePolicy;
 use clober_cairo::libraries::segmented_segment_tree::{
     SegmentedSegmentTree, SegmentedSegmentTreeTrait
 };
 use clober_cairo::libraries::order_id::OrderId;
-use clober_cairo::libraries::hooks::Hooks;
 use clober_cairo::libraries::storage_map::{StorageMap, Felt252Map, Felt252MapTrait};
 use starknet::ContractAddress;
 use starknet::storage_access::{
     StorageBaseAddress, storage_address_from_base, storage_base_address_from_felt252
 };
-use starknet::storage::{Vec, VecTrait};
-use starknet::{Store, SyscallResult, SyscallResultTrait};
-use clober_cairo::utils::constants::{TWO_POW_15, MASK_15, ZERO_ADDRESS};
+use starknet::{Store, SyscallResult};
+use clober_cairo::utils::constants::{TWO_POW_15, MASK_15};
 use clober_cairo::libraries::storage_array::{StorageArray, StorageArrayTrait};
 
 const NOT_IMPLEMENTED: felt252 = 'Not implemented';

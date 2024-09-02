@@ -3,10 +3,9 @@ pub mod TakeRouter {
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use clober_cairo::interfaces::book_manager::{
-        IBookManager, IBookManagerDispatcher, IBookManagerDispatcherTrait, TakeParams
+        IBookManagerDispatcher, IBookManagerDispatcherTrait, TakeParams
     };
     use clober_cairo::interfaces::locker::ILocker;
-    use clober_cairo::libraries::book_key::BookKey;
 
     #[storage]
     struct Storage {

@@ -1,6 +1,5 @@
-use clober_cairo::libraries::tick::Tick;
 use clober_cairo::libraries::tick::TickImpl;
-use clober_cairo::utils::constants::{MIN_TICK, MAX_TICK};
+use clober_cairo::utils::constants::MIN_TICK;
 
 #[test]
 fn test_tick_to_price() {

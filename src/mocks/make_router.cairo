@@ -4,10 +4,9 @@ pub mod MakeRouter {
     use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use clober_cairo::interfaces::book_manager::{
-        IBookManager, IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams
+        IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams
     };
     use clober_cairo::interfaces::locker::ILocker;
-    use clober_cairo::libraries::book_key::BookKey;
 
     #[storage]
     struct Storage {

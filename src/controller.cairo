@@ -5,16 +5,15 @@ pub mod Controller {
     use openzeppelin_security::reentrancyguard::ReentrancyGuardComponent;
     use starknet::{ContractAddress, get_caller_address, get_contract_address, get_block_timestamp};
     use clober_cairo::interfaces::book_manager::{
-        IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams, TakeParams, CancelParams,
-        OrderInfo
+        IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams, TakeParams, CancelParams
     };
     use clober_cairo::interfaces::controller::IController;
     use clober_cairo::interfaces::locker::ILocker;
     use clober_cairo::libraries::tick::{Tick, TickTrait};
-    use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
-    use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
-    use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait};
-    use clober_cairo::libraries::i257::{i257, I257Trait};
+    use clober_cairo::libraries::book_key::BookKey;
+    use clober_cairo::libraries::order_id::OrderIdTrait;
+    use clober_cairo::libraries::fee_policy::FeePolicyTrait;
+    use clober_cairo::libraries::i257::I257Trait;
     use clober_cairo::utils::constants::ZERO_ADDRESS;
     use clober_cairo::utils::math::{divide};
 

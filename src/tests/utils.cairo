@@ -1,5 +1,5 @@
 use starknet::{ContractAddress, contract_address_const};
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin_token::erc20::interface::IERC20Dispatcher;
 use openzeppelin_testing as utils;
 use openzeppelin_utils::serde::SerializedAppend;
 

@@ -1,7 +1,7 @@
 use clober_cairo::libraries::segmented_segment_tree::{
     SegmentedSegmentTree, SegmentedSegmentTreeTrait
 };
-use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
+use clober_cairo::libraries::storage_map::Felt252MapTrait;
 use starknet::storage_access::storage_base_address_from_felt252;
 
 fn _init(ref tree: SegmentedSegmentTree) {

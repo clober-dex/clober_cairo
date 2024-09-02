@@ -2,7 +2,7 @@
 pub mod OpenRouter {
     use starknet::{ContractAddress, get_contract_address, get_caller_address};
     use clober_cairo::interfaces::book_manager::{
-        IBookManager, IBookManagerDispatcher, IBookManagerDispatcherTrait
+        IBookManagerDispatcher, IBookManagerDispatcherTrait
     };
     use clober_cairo::interfaces::locker::ILocker;
     use clober_cairo::libraries::book_key::BookKey;

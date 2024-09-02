@@ -1,6 +1,4 @@
 use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait};
-use clober_cairo::libraries::i257::i257;
-use starknet::storage_access::{StorePacking};
 
 #[test]
 fn encode() {

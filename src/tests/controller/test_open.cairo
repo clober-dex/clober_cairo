@@ -1,19 +1,15 @@
-use starknet::{ContractAddress, get_block_timestamp};
+use starknet::get_block_timestamp;
 use clober_cairo::interfaces::book_manager::{IBookManagerDispatcher, IBookManagerDispatcherTrait};
 use clober_cairo::interfaces::controller::{IControllerDispatcher, IControllerDispatcherTrait};
-use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
-use clober_cairo::libraries::fee_policy::FeePolicy;
+use clober_cairo::libraries::book_key::BookKeyTrait;
 use clober_cairo::utils::constants::WAD;
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 use clober_cairo::tests::controller::common::valid_key;
 
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ZERO, OWNER};
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::constants::OWNER;
+use openzeppelin_token::erc20::interface::IERC20Dispatcher;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{spy_events, EventSpy, cheat_caller_address, CheatSpan};
 
 fn setup() -> (IControllerDispatcher, IBookManagerDispatcher, IERC20Dispatcher, IERC20Dispatcher) {
     let mut calldata = array![];

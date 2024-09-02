@@ -1,7 +1,5 @@
 use clober_cairo::libraries::order_id::OrderId;
 use clober_cairo::libraries::order_id::OrderIdImpl;
-use clober_cairo::libraries::tick::Tick;
-use clober_cairo::utils::constants::{TWO_POW_24};
 
 #[test]
 fn encode() {

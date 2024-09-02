@@ -1,5 +1,4 @@
-use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
-use clober_cairo::libraries::tick::Tick;
+use clober_cairo::libraries::storage_map::Felt252MapTrait;
 use clober_cairo::libraries::tick_bitmap::TickBitmap;
 use clober_cairo::libraries::tick_bitmap::TickBitmapImpl;
 use starknet::storage_access::storage_base_address_from_felt252;

@@ -13,11 +13,11 @@ pub mod BookManager {
     use clober_cairo::interfaces::locker::{ILockerDispatcher, ILockerDispatcherTrait};
     use clober_cairo::libraries::i257::{i257, I257Trait};
     use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
-    use clober_cairo::libraries::book::{Book, BookTrait, Order};
+    use clober_cairo::libraries::book::{Book, BookTrait};
     use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait};
     use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
     use clober_cairo::libraries::tick::{Tick, TickTrait};
-    use clober_cairo::libraries::hooks::{Hooks, HooksTrait};
+    use clober_cairo::libraries::hooks::HooksTrait;
     use clober_cairo::libraries::hooks_list::{HooksList, HooksListTrait};
     use clober_cairo::libraries::lockers::{Lockers, LockersTrait};
 

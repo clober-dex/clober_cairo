@@ -1,7 +1,7 @@
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::libraries::storage_map::{Felt252Map, Felt252MapTrait};
 use clober_cairo::utils::math::{least_significant_bit, fast_power};
-use clober_cairo::utils::constants::{TWO_POW_128, MIN_TICK};
+use clober_cairo::utils::constants::MIN_TICK;
 
 const B0_BITMAP_KEY: felt252 = 'TickBitmap';
 

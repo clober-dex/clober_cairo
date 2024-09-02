@@ -1,12 +1,10 @@
-use starknet::ContractAddress;
 use clober_cairo::interfaces::book_manager::{IBookManagerDispatcher, IBookManagerDispatcherTrait};
 use clober_cairo::tests::book_manager::common::{BookManagerSpyHelpers};
 use clober_cairo::tests::utils::{BASE_URI, CONTRACT_URI};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ZERO, OWNER, RECIPIENT, OTHER};
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::constants::{OWNER, RECIPIENT, OTHER};
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{spy_events, EventSpy, cheat_caller_address, CheatSpan};
+use snforge_std::{spy_events, cheat_caller_address, CheatSpan};
 
 fn setup() -> IBookManagerDispatcher {
     let mut calldata = array![];

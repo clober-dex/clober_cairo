@@ -1,4 +1,3 @@
-use starknet::ContractAddress;
 use clober_cairo::interfaces::book_manager::{
     IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams
 };
@@ -18,9 +17,8 @@ use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ZERO, OWNER, OTHER};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
-use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{spy_events, EventSpy, cheat_caller_address, CheatSpan};
+use snforge_std::{spy_events, cheat_caller_address, CheatSpan};
 
 fn setup() -> (
     IBookManagerDispatcher,

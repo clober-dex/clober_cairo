@@ -1,18 +1,15 @@
-use starknet::ContractAddress;
 use clober_cairo::interfaces::book_manager::{IBookManagerDispatcher, IBookManagerDispatcherTrait};
-use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
-use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait, MAX_FEE_RATE, MIN_FEE_RATE};
+use clober_cairo::libraries::book_key::BookKeyTrait;
+use clober_cairo::libraries::fee_policy::{FeePolicy, MAX_FEE_RATE, MIN_FEE_RATE};
 use clober_cairo::mocks::open_router::OpenRouter::{
     IOpenRouterDispatcher, IOpenRouterDispatcherTrait
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 use clober_cairo::tests::book_manager::common::{BookManagerSpyHelpers, valid_key};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{OWNER, SPENDER, RECIPIENT, OTHER};
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::constants::OWNER;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{spy_events, EventSpy, cheat_caller_address, CheatSpan};
+use snforge_std::{spy_events, cheat_caller_address, CheatSpan};
 
 fn setup() -> (IBookManagerDispatcher, IOpenRouterDispatcher) {
     let mut calldata = array![];
