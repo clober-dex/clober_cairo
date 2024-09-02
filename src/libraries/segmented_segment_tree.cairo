@@ -31,7 +31,6 @@ pub impl SegmentedSegmentTreeImpl of SegmentedSegmentTreeTrait {
         get_u62(self.read_at(key), (index & P_M).try_into().unwrap())
     }
 
-    // Todo total can be overflow
     fn total(self: @SegmentedSegmentTree) -> u64 {
         sum_u62(self.read_at(0), 0, P) + sum_u62(self.read_at(1), 0, P.into())
     }
