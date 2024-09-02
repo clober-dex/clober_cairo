@@ -62,14 +62,49 @@ esac
 scarb build
 
 # Declare the contract and capture the command output
-command_output=$(starkli declare ../target/dev/clober_cairo_BookManager.contract_class.json --rpc=$rpc --compiler-version=2.7.1 --account $account $key_command2)
+command_output=$(starkli declare ./target/dev/clober_cairo_BookManager.contract_class.json --rpc=$rpc --compiler-version=2.7.1 --account $account $key_command)
 
 from_string="Class hash declared:"
 class_hash="${command_output#*$from_string}"
 
-base_uri=$(echo -n "${args[2]}" | xxd -p | tr -d '\n')
+echo "$class_hash"
 
-contract_uri=$(echo -n "${args[3]}" | xxd -p | tr -d '\n')
+parse_string() {
+    local input_string="$1"
+
+    # All comments MUST be English
+    # Convert the string to hex
+    local hex_string=$(echo -n "$input_string" | xxd -p | tr -d '\n')
+
+    # Divide the string into 31-byte chunks
+    local chunk_size=62  # 31 bytes is 62 hex characters (31 bytes)
+    local chunks=()
+    while [ -n "$hex_string" ]; do
+        local chunk="${hex_string:0:$chunk_size}"
+        chunks+=("$chunk")
+        hex_string="${hex_string:$chunk_size}"
+    done
+
+    # Number of 31-byte chunks - 1
+    local chunk_count_minus_one=$((${#chunks[@]} - 1))
+
+    # Calculate the length of the last chunk
+    local last_chunk="${chunks[${#chunks[@]}-1]}"
+    local last_chunk_length=$((${#last_chunk} / 2))  # Convert the length of the hex string to bytes by dividing by 2
+
+    # Output the result as a single line (0x format)
+    local result="0x$chunk_count_minus_one"
+    for chunk in "${chunks[@]}"; do
+        result+=" 0x$chunk"
+    done
+    result+=" 0x$last_chunk_length"
+
+    echo "$result"
+}
+
+base_uri=$(parse_string "${args[2]}")
+
+contract_uri=$(parse_string "${args[3]}")
 
 # Deploy the contract using the extracted class hash
-starkli deploy $class_hash $1 $2 0 $base_uri ${#base_uri} 0 $contract_uri ${#contract_uri} --rpc=$rpc --account $account $key_command
+starkli deploy $class_hash ${args[0]} ${args[1]} $base_uri $contract_uri --rpc=$rpc --account $account $key_command
