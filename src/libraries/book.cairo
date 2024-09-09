@@ -30,6 +30,12 @@ pub struct Queue {
     orders: StorageArray<Order>
 }
 
+pub mod Errors {
+    pub const ZERO_UNIT: felt252 = 'Zero unit';
+    pub const QUEUE_REPLACE_FAILED: felt252 = 'Queue replace failed';
+    pub const CANCEL_FAILED: felt252 = 'Cancel failed';
+}
+
 impl BookStoreImpl of Store<Book> {
     #[inline(always)]
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Book> {
@@ -178,7 +184,7 @@ pub impl BookImpl of BookTrait {
     }
 
     fn make(ref self: Book, tick: Tick, unit: u64, provider: ContractAddress) -> u64 {
-        assert(unit != 0, 'Zero unit');
+        assert(unit != 0, Errors::ZERO_UNIT);
         if !self.tick_bitmap.has(tick) {
             self.tick_bitmap.set(tick);
         }
@@ -192,7 +198,7 @@ pub impl BookImpl of BookTrait {
             let stale_pending_unit = Self::_get_order(@queue, stale_order_index).pending;
             if stale_pending_unit > 0 {
                 let claimable = Self::calculate_claimable_unit(@self, tick, stale_order_index);
-                assert(claimable == stale_pending_unit, 'Queue replace failed');
+                assert(claimable == stale_pending_unit, Errors::QUEUE_REPLACE_FAILED);
             }
 
             let stale_ordered_unit = queue.tree.get_node((order_index & MASK_15).into());
@@ -227,7 +233,7 @@ pub impl BookImpl of BookTrait {
         let order = Self::_get_order(@queue, order_index);
         let claimable_unit = Self::calculate_claimable_unit(@self, tick, order_index);
         let after_pending = to + claimable_unit;
-        assert(after_pending <= order.pending, 'Cancel failed');
+        assert(after_pending <= order.pending, Errors::CANCEL_FAILED);
         let canceled = order.pending - after_pending;
         queue
             .tree

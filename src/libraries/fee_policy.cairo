@@ -11,6 +11,10 @@ pub struct FeePolicy {
     pub rate: i32,
 }
 
+pub mod Errors {
+    pub const INVALID_FEE: felt252 = 'Invalid fee';
+}
+
 #[generate_trait]
 pub impl FeePolicyImpl of FeePolicyTrait {
     fn is_valid(self: FeePolicy) -> bool {
@@ -50,7 +54,7 @@ pub impl FeePolicyImpl of FeePolicyTrait {
     }
 
     fn encode(self: FeePolicy) -> u32 {
-        assert(self.rate < MAX_FEE_RATE, 'invalid_fee_rate');
+        assert(self.rate < MAX_FEE_RATE, Errors::INVALID_FEE);
         let mask: u32 = if (self.uses_quote) {
             0x800000
         } else {

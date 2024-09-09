@@ -275,7 +275,7 @@ pub fn divide(a: u256, b: u256, rounding_up: bool) -> u256 {
 }
 
 pub fn least_significant_bit(x: u256) -> u8 {
-    assert!(x != 0, "x must be non-zero");
+    assert(x != 0, 'x must be non-zero');
     let (mul, _) = OverflowingMul::overflowing_mul(x & (~x + 1), DEBRUIJN_SEQ);
     let index = mul / TWO_POW_248;
     *DEBRUIJN_INDEX.span()[index.try_into().unwrap()]
@@ -283,7 +283,7 @@ pub fn least_significant_bit(x: u256) -> u8 {
 
 
 pub fn log_2(mut x: u256) -> u8 {
-    assert(x > 0, 'Undefined');
+    assert(x > 0, 'undefined');
 
     let mut r: u8 = 0;
 
@@ -385,7 +385,7 @@ pub fn fast_power<
 >(
     base: T, mut power: T
 ) -> T {
-    assert!(base != 0_u8.into(), "fast_power: invalid input");
+    assert(base != 0_u8.into(), 'invalid input');
 
     let mut base: u256 = base.into();
     let mut result: u256 = 1;
@@ -427,7 +427,7 @@ pub fn fast_power_mod<
 >(
     base: T, mut power: T, modulus: T
 ) -> T {
-    assert!(base != 0_u8.into(), "fast_power: invalid input");
+    assert(base != 0_u8.into(), 'fast_power: invalid input');
 
     if modulus == 1_u8.into() {
         return 0_u8.into();

@@ -7,6 +7,10 @@ use clober_cairo::interfaces::book_manager::{MakeParams, TakeParams, CancelParam
 
 pub type HooksList = StorageArray<Hooks>;
 
+pub mod Errors {
+    pub const INVALID_HOOK_RESPONSE: felt252 = 'Invalid hook response';
+}
+
 #[generate_trait]
 pub impl HooksListImpl of HooksListTrait {
     fn get_current_hook(self: @HooksList) -> ContractAddress {
@@ -36,7 +40,7 @@ pub impl HooksListImpl of HooksListTrait {
         // @dev Clear current hook here
         self.pop();
 
-        assert(selector == expected_selector, 'InvalidHookResponse');
+        assert(selector == expected_selector, Errors::INVALID_HOOK_RESPONSE);
     }
 
     fn before_open(ref self: HooksList, hooks: @Hooks, key: @BookKey, hook_data: Span<felt252>) {

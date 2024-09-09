@@ -28,6 +28,10 @@ pub mod Permission {
     pub const AFTER_CLAIM: u256 = 0x200; // 1 << 9
 }
 
+pub mod Errors {
+    pub const INVALID_HOOK_ADDRESS: felt252 = 'Invalid hook address';
+}
+
 #[generate_trait]
 pub impl HooksImpl of HooksTrait {
     fn has_permission(self: @Hooks, flag: u256) -> bool {
@@ -47,7 +51,7 @@ pub impl HooksImpl of HooksTrait {
                 && *permissions.afterCancel == self.has_permission(Permission::AFTER_CANCEL)
                 && *permissions.beforeClaim == self.has_permission(Permission::BEFORE_CLAIM)
                 && *permissions.afterClaim == self.has_permission(Permission::AFTER_CLAIM),
-            'HookAddressNotValid'
+            Errors::INVALID_HOOK_ADDRESS
         )
     }
 

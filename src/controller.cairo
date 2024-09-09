@@ -49,7 +49,12 @@ pub mod Controller {
         Claim,
     }
 
-    pub mod Errors {}
+    pub mod Errors {
+        pub const INVALID_CALLER: felt252 = 'Invalid caller';
+        pub const INVALID_LOCK_CALLER: felt252 = 'Invalid lock caller';
+        pub const DEADLINE: felt252 = 'Deadline';
+        pub const SLIPPAGE: felt252 = 'Slippage';
+    }
 
     #[constructor]
     fn constructor(ref self: ContractState, book_manager: ContractAddress,) {
@@ -290,8 +295,8 @@ pub mod Controller {
         fn lock_acquired(
             ref self: ContractState, lock_caller: ContractAddress, mut data: Span<felt252>
         ) -> Span<felt252> {
-            assert!(self.book_manager.read() == get_caller_address(), "Invalid caller");
-            assert!(lock_caller == get_contract_address(), "Invalid lock caller");
+            assert(self.book_manager.read() == get_caller_address(), Errors::INVALID_CALLER);
+            assert(lock_caller == get_contract_address(), Errors::INVALID_LOCK_CALLER);
 
             let (user, action, mut params) = Serde::<
                 (ContractAddress, Actions, Span<felt252>)
@@ -403,7 +408,7 @@ pub mod Controller {
     impl InternalImpl of InternalTrait {
         #[inline(always)]
         fn _check_deadline(self: @ContractState, deadline: u64) {
-            assert!(deadline >= get_block_timestamp(), "ControllerDeadline");
+            assert(deadline >= get_block_timestamp(), Errors::DEADLINE);
         }
 
         fn _make(
@@ -494,7 +499,7 @@ pub mod Controller {
                 spent_base_amount += base_amount;
             };
 
-            assert!(max_base_amount >= spent_base_amount, "ControllerSlippage");
+            assert(max_base_amount >= spent_base_amount, Errors::SLIPPAGE);
             let mut tokens = ArrayTrait::new();
             Serde::serialize(@key.quote, ref tokens);
             Serde::serialize(@key.base, ref tokens);
@@ -550,7 +555,7 @@ pub mod Controller {
                 taken_quote_amount += quote_amount;
                 spent_base_amount += base_amount;
             };
-            assert!(min_quote_amount <= taken_quote_amount, "ControllerSlippage");
+            assert(min_quote_amount <= taken_quote_amount, Errors::SLIPPAGE);
             let mut tokens = ArrayTrait::new();
             Serde::serialize(@key.quote, ref tokens);
             Serde::serialize(@key.base, ref tokens);
