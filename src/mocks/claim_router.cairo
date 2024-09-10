@@ -49,7 +49,7 @@ pub mod ClaimRouter {
             >::deserialize(ref data)
                 .unwrap();
             let claimed_amount = bm.claim(id, hook_data);
-            if (claimed_amount > 0) {
+            if claimed_amount > 0 {
                 let base = bm.get_book_key(OrderIdTrait::decode(id).book_id).base;
                 bm.withdraw(base, payer, claimed_amount);
             }

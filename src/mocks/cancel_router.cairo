@@ -49,7 +49,7 @@ pub mod CancelRouter {
             >::deserialize(ref data)
                 .unwrap();
             let canceled_amount = bm.cancel(params, hook_data);
-            if (canceled_amount > 0) {
+            if canceled_amount > 0 {
                 let quote = bm.get_book_key(OrderIdTrait::decode(params.id).book_id).quote;
                 bm.withdraw(quote, payer, canceled_amount);
             }

@@ -320,7 +320,7 @@ pub mod Controller {
                     >::deserialize(ref params)
                         .unwrap();
                     let (order_id, tokens) = self._make(book_id, tick, quote_amount, hook_data);
-                    if (order_id != 0) {
+                    if order_id != 0 {
                         let book_manager = IERC721Dispatcher {
                             contract_address: self.book_manager.read()
                         };
@@ -352,7 +352,7 @@ pub mod Controller {
                             take_hook_data,
                             make_hook_data
                         );
-                    if (order_id != 0) {
+                    if order_id != 0 {
                         let book_manager = IERC721Dispatcher {
                             contract_address: self.book_manager.read()
                         };

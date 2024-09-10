@@ -20,11 +20,11 @@ fn test_get_u62_out_of_bounds() {
 fn test_update_62() {
     let packed = 0x11111111111111103333333333333330888888888888888111111111111111;
     let mut i = 0;
-    while (i < 4) {
+    while i < 4 {
         let updated = update_62(packed, i, 0x0123456789ABCDEF);
         let mut j = 0;
-        while (j < 4) {
-            if (j == i) {
+        while j < 4 {
+            if j == i {
                 assert_eq!(get_u62(updated, j), 0x0123456789ABCDEF);
             } else {
                 assert_eq!(get_u62(updated, j), get_u62(packed, j));
@@ -47,11 +47,11 @@ fn test_add_u62() {
     let packed = 0x11111111111111103333333333333330888888888888888111111111111111;
     let base_hex = 0x0111111111111111;
     let mut i = 0;
-    while (i < 4) {
+    while i < 4 {
         let updated = add_u62(packed, i, base_hex);
         let mut j = 0;
-        while (j < 4) {
-            if (j == i) {
+        while j < 4 {
+            if j == i {
                 assert_eq!(get_u62(updated, j), base_hex * (i + 2).into());
             } else {
                 assert_eq!(get_u62(updated, j), get_u62(packed, j));
@@ -81,11 +81,11 @@ fn test_sub_u62() {
     let packed = 0x11111111111111103333333333333330888888888888888111111111111111;
     let base_hex = 0x0111111111111111;
     let mut i = 0;
-    while (i < 4) {
+    while i < 4 {
         let updated = sub_u62(packed, i, base_hex * i.into());
         let mut j = 0;
-        while (j < 4) {
-            if (j == i) {
+        while j < 4 {
+            if j == i {
                 assert_eq!(get_u62(updated, j), base_hex);
             } else {
                 assert_eq!(get_u62(updated, j), get_u62(packed, j));

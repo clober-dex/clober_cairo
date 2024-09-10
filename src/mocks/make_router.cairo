@@ -57,7 +57,7 @@ pub mod MakeRouter {
             >::deserialize(ref data)
                 .unwrap();
             let (id, quote_amount) = bm.make(params, hook_data);
-            if (quote_amount > 0) {
+            if quote_amount > 0 {
                 let currency = IERC20Dispatcher { contract_address: params.key.quote };
                 currency.transfer_from(payer, bm.contract_address, quote_amount);
                 bm.settle(params.key.quote);

@@ -44,7 +44,7 @@ pub impl HooksListImpl of HooksListTrait {
     }
 
     fn before_open(ref self: HooksList, hooks: @Hooks, key: @BookKey, hook_data: Span<felt252>) {
-        if (hooks.has_permission(Permission::BEFORE_OPEN)) {
+        if hooks.has_permission(Permission::BEFORE_OPEN) {
             let caller = get_caller_address();
             let mut data: Array<felt252> = ArrayTrait::new();
             Serde::serialize(@caller, ref data);
@@ -56,7 +56,7 @@ pub impl HooksListImpl of HooksListTrait {
     }
 
     fn after_open(ref self: HooksList, hooks: @Hooks, key: @BookKey, hook_data: Span<felt252>) {
-        if (hooks.has_permission(Permission::AFTER_OPEN)) {
+        if hooks.has_permission(Permission::AFTER_OPEN) {
             let caller = get_caller_address();
             let mut data: Array<felt252> = ArrayTrait::new();
             Serde::serialize(@caller, ref data);
@@ -70,7 +70,7 @@ pub impl HooksListImpl of HooksListTrait {
     fn before_make(
         ref self: HooksList, hooks: @Hooks, params: @MakeParams, hook_data: Span<felt252>
     ) {
-        if (hooks.has_permission(Permission::BEFORE_MAKE)) {
+        if hooks.has_permission(Permission::BEFORE_MAKE) {
             let caller = get_caller_address();
             let mut data: Array<felt252> = ArrayTrait::new();
             Serde::serialize(@caller, ref data);
@@ -88,7 +88,7 @@ pub impl HooksListImpl of HooksListTrait {
         order_id: felt252,
         hook_data: Span<felt252>
     ) {
-        if (hooks.has_permission(Permission::AFTER_MAKE)) {
+        if hooks.has_permission(Permission::AFTER_MAKE) {
             let caller = get_caller_address();
             let mut data: Array<felt252> = ArrayTrait::new();
             Serde::serialize(@caller, ref data);
@@ -103,7 +103,7 @@ pub impl HooksListImpl of HooksListTrait {
     fn before_take(
         ref self: HooksList, hooks: @Hooks, params: @TakeParams, hook_data: Span<felt252>
     ) {
-        if (hooks.has_permission(Permission::BEFORE_TAKE)) {
+        if hooks.has_permission(Permission::BEFORE_TAKE) {
             let caller = get_caller_address();
             let mut data: Array<felt252> = ArrayTrait::new();
             Serde::serialize(@caller, ref data);
@@ -121,7 +121,7 @@ pub impl HooksListImpl of HooksListTrait {
         taken_unit: u64,
         hook_data: Span<felt252>
     ) {
-        if (hooks.has_permission(Permission::AFTER_TAKE)) {
+        if hooks.has_permission(Permission::AFTER_TAKE) {
             let caller = get_caller_address();
             let mut data: Array<felt252> = ArrayTrait::new();
             Serde::serialize(@caller, ref data);
@@ -136,7 +136,7 @@ pub impl HooksListImpl of HooksListTrait {
     fn before_cancel(
         ref self: HooksList, hooks: @Hooks, params: @CancelParams, hook_data: Span<felt252>
     ) {
-        if (hooks.has_permission(Permission::BEFORE_CANCEL)) {
+        if hooks.has_permission(Permission::BEFORE_CANCEL) {
             let caller = get_caller_address();
             let mut data: Array<felt252> = ArrayTrait::new();
             Serde::serialize(@caller, ref data);
@@ -154,7 +154,7 @@ pub impl HooksListImpl of HooksListTrait {
         canceled_unit: u64,
         hook_data: Span<felt252>
     ) {
-        if (hooks.has_permission(Permission::AFTER_CANCEL)) {
+        if hooks.has_permission(Permission::AFTER_CANCEL) {
             let caller = get_caller_address();
             let mut data: Array<felt252> = ArrayTrait::new();
             Serde::serialize(@caller, ref data);
@@ -169,7 +169,7 @@ pub impl HooksListImpl of HooksListTrait {
     fn before_claim(
         ref self: HooksList, hooks: @Hooks, order_id: felt252, hook_data: Span<felt252>
     ) {
-        if (hooks.has_permission(Permission::BEFORE_CLAIM)) {
+        if hooks.has_permission(Permission::BEFORE_CLAIM) {
             let caller = get_caller_address();
             let mut data: Array<felt252> = ArrayTrait::new();
             Serde::serialize(@caller, ref data);
@@ -187,7 +187,7 @@ pub impl HooksListImpl of HooksListTrait {
         claimed_unit: u64,
         hook_data: Span<felt252>
     ) {
-        if (hooks.has_permission(Permission::AFTER_CLAIM)) {
+        if hooks.has_permission(Permission::AFTER_CLAIM) {
             let caller = get_caller_address();
             let mut data: Array<felt252> = ArrayTrait::new();
             Serde::serialize(@caller, ref data);

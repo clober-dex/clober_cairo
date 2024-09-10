@@ -395,7 +395,7 @@ pub fn fast_power<
             result *= base;
         }
         power = power / 2_u8.into();
-        if (power == 0_u8.into()) {
+        if power == 0_u8.into() {
             break;
         }
         base *= base;
@@ -442,7 +442,7 @@ pub fn fast_power_mod<
             result = (result * base) % modulus;
         }
         power = power / 2_u8.into();
-        if (power == 0_u8.into()) {
+        if power == 0_u8.into() {
             break;
         }
         base = (base * base) % modulus;

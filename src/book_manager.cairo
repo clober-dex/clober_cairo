@@ -205,7 +205,7 @@ pub mod BookManager {
         }
 
         fn _account_delta(ref self: ContractState, currency: ContractAddress, delta: i257) {
-            if (delta.is_zero()) {
+            if delta.is_zero() {
                 return;
             }
 
@@ -214,9 +214,9 @@ pub mod BookManager {
             let next = self.currency_delta.read((locker, currency)) + delta;
             self.currency_delta.write((locker, currency), next);
 
-            if (next.is_zero()) {
+            if next.is_zero() {
                 lockers.decrement_nonzero_delta_count();
-            } else if (next == delta) {
+            } else if next == delta {
                 lockers.increment_nonzero_delta_count();
             }
         }
@@ -335,7 +335,7 @@ pub mod BookManager {
                 Errors::INVALID_FEE_POLICY
             );
             assert(key.maker_policy.rate + key.taker_policy.rate >= 0, Errors::INVALID_FEE_POLICY);
-            if (key.maker_policy.rate < 0 || key.taker_policy.rate < 0) {
+            if key.maker_policy.rate < 0 || key.taker_policy.rate < 0 {
                 assert(
                     key.maker_policy.uses_quote == key.taker_policy.uses_quote,
                     Errors::INVALID_FEE_POLICY
@@ -413,7 +413,7 @@ pub mod BookManager {
             let order_id = (OrderId { book_id, tick: params.tick, index: order_index }).encode();
             let mut quote_amount: u256 = params.unit.into() * params.key.unit_size.into();
             let mut quote_delta: i257 = quote_amount.into();
-            if (params.key.maker_policy.uses_quote) {
+            if params.key.maker_policy.uses_quote {
                 quote_delta += params.key.maker_policy.calculate_fee(quote_amount, false);
                 quote_amount = quote_delta.try_into().unwrap();
             }
@@ -458,7 +458,7 @@ pub mod BookManager {
 
             let mut quote_delta: i257 = quote_amount.into();
             let mut base_delta: i257 = base_amount.into();
-            if (params.key.taker_policy.uses_quote) {
+            if params.key.taker_policy.uses_quote {
                 quote_delta -= params.key.taker_policy.calculate_fee(quote_amount, false);
                 quote_amount = quote_delta.try_into().unwrap();
             } else {
@@ -500,12 +500,12 @@ pub mod BookManager {
             let (canceled_unit, pending_unit) = book.cancel(decoded_order_id, params.to_unit);
 
             let mut canceled_amount: u256 = canceled_unit.into() * key.unit_size.into();
-            if (key.maker_policy.uses_quote) {
+            if key.maker_policy.uses_quote {
                 let fee = key.maker_policy.calculate_fee(canceled_amount, true);
                 canceled_amount = (canceled_amount.into() + fee).try_into().unwrap();
             }
 
-            if (pending_unit == 0) {
+            if pending_unit == 0 {
                 self.erc721.burn(params.id.into());
             }
 
@@ -538,13 +538,13 @@ pub mod BookManager {
             let claimed_in_quote: u256 = claimed_unit.into() * key.unit_size.into();
             let mut claimed_amount = decoded_order_id.tick.quote_to_base(claimed_in_quote, false);
 
-            let (mut quote_fee, mut base_fee) = if (key.taker_policy.uses_quote) {
+            let (mut quote_fee, mut base_fee) = if key.taker_policy.uses_quote {
                 (key.taker_policy.calculate_fee(claimed_in_quote, true), 0.into())
             } else {
                 (0.into(), key.taker_policy.calculate_fee(claimed_amount, true))
             };
 
-            if (key.maker_policy.uses_quote) {
+            if key.maker_policy.uses_quote {
                 quote_fee += key.maker_policy.calculate_fee(claimed_in_quote, true);
             } else {
                 let make_fee = key.maker_policy.calculate_fee(claimed_amount, false);
@@ -553,12 +553,12 @@ pub mod BookManager {
             }
 
             let order = book.get_order(decoded_order_id.tick, decoded_order_id.index);
-            let provider: ContractAddress = if (order.provider.is_zero()) {
+            let provider: ContractAddress = if order.provider.is_zero() {
                 self.default_provier.read()
             } else {
                 order.provider
             };
-            if (quote_fee > 0.into()) {
+            if quote_fee > 0.into() {
                 self
                     .token_owed
                     .write(
@@ -566,7 +566,7 @@ pub mod BookManager {
                         self.token_owed.read((provider, key.quote)) + quote_fee.abs()
                     );
             }
-            if (base_fee > 0.into()) {
+            if base_fee > 0.into() {
                 self
                     .token_owed
                     .write(
@@ -575,7 +575,7 @@ pub mod BookManager {
                     );
             }
 
-            if (order.pending == 0) {
+            if order.pending == 0 {
                 self.erc721.burn(id.into());
             }
 
@@ -606,7 +606,7 @@ pub mod BookManager {
         ) {
             self._check_locker();
 
-            if (amount > 0) {
+            if amount > 0 {
                 self._account_delta(currency, -amount.into());
                 self.reserves_of.write(currency, self.reserves_of.read(currency) - amount);
                 let erc20_dispatcher = IERC20Dispatcher { contract_address: currency };

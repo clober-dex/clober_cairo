@@ -23,19 +23,19 @@ pub impl FeePolicyImpl of FeePolicyTrait {
 
     fn calculate_fee(self: FeePolicy, amount: u256, reverse_rounding: bool) -> i257 {
         let is_positive = self.rate > 0;
-        let abs_rate: u32 = if (is_positive) {
+        let abs_rate: u32 = if is_positive {
             self.rate.try_into().unwrap()
         } else {
             (-self.rate).try_into().unwrap()
         };
-        let rounding_up: bool = if (reverse_rounding) {
+        let rounding_up: bool = if reverse_rounding {
             !is_positive
         } else {
             is_positive
         };
         let abs_fee: i257 = divide(amount * abs_rate.into(), RATE_PRECISION.into(), rounding_up)
             .into();
-        if (is_positive) {
+        if is_positive {
             abs_fee
         } else {
             -abs_fee
@@ -45,7 +45,7 @@ pub impl FeePolicyImpl of FeePolicyTrait {
     fn calculate_original_amount(self: FeePolicy, amount: u256, reverse_fee: bool) -> u256 {
         let mut rate = self.rate;
         let positive = rate > 0;
-        if (reverse_fee) {
+        if reverse_fee {
             rate = -rate;
         }
         let divider: u32 = (RATE_PRECISION.try_into().unwrap() + rate).try_into().unwrap();
@@ -55,7 +55,7 @@ pub impl FeePolicyImpl of FeePolicyTrait {
 
     fn encode(self: FeePolicy) -> u32 {
         assert(self.rate < MAX_FEE_RATE, Errors::INVALID_FEE);
-        let mask: u32 = if (self.uses_quote) {
+        let mask: u32 = if self.uses_quote {
             0x800000
         } else {
             0
@@ -69,7 +69,7 @@ pub impl FeePolicyImpl of FeePolicyTrait {
         let rate: u32 = self & 0x7fffff;
         let max_u32: u32 = MAX_FEE_RATE.try_into().unwrap();
 
-        if (rate < max_u32) {
+        if rate < max_u32 {
             FeePolicy { uses_quote, rate: -(max_u32 - rate).try_into().unwrap(), }
         } else {
             FeePolicy { uses_quote, rate: (rate - max_u32).try_into().unwrap(), }
