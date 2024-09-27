@@ -1,84 +1,119 @@
-#[starknet::component]
-mod Lockers {
-    use starknet::ContractAddress;
+use starknet::{ContractAddress, Store, SyscallResultTrait, SyscallResult};
+use starknet::storage_access::StorageBaseAddress;
+use clober_cairo::utils::constants::{ZERO_ADDRESS, TWO_POW_32};
+use clober_cairo::libraries::storage_map::{StorageMap, Felt252MapTrait};
 
-    #[storage]
-    struct Storage {
-        lockers: LegacyMap::<u128, ContractAddress>, // use Array<ContractAddress>,
-        lock_callers: LegacyMap::<u128, ContractAddress>,
-        // optimistic storage
-        length: u128,
-        non_zero_delta_count: u128
+const NOT_IMPLEMENTED: felt252 = 'Not implemented';
+
+pub type Lockers = StorageMap<u32, (ContractAddress, ContractAddress)>;
+
+impl StoreLockers of Store<Lockers> {
+    #[inline(always)]
+    fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<Lockers> {
+        SyscallResult::Ok(Felt252MapTrait::fetch(address_domain, base))
     }
 
-    #[generate_trait]
-    pub impl InternalImpl<
-        TContractState, +HasComponent<TContractState>
-    > of InternalTrait<TContractState> {
-        fn push(
-            ref self: ComponentState<TContractState>,
-            locker: ContractAddress,
-            lock_caller: ContractAddress
-        ) {
-            let length = self.length.read();
-            self.lockers.write(length, locker);
-            self.lock_callers.write(length, locker);
-            self.length.write(length + 1);
-        }
+    #[inline(always)]
+    fn write(address_domain: u32, base: StorageBaseAddress, value: Lockers) -> SyscallResult<()> {
+        SyscallResult::Err(array![NOT_IMPLEMENTED])
+    }
 
-        fn pop(ref self: ComponentState<TContractState>) {
-            let length = self.length.read();
-            assert(length > 0, 'LOCKER_POP_FAILED');
+    #[inline(always)]
+    fn read_at_offset(
+        address_domain: u32, base: StorageBaseAddress, offset: u8
+    ) -> SyscallResult<Lockers> {
+        SyscallResult::Err(array![NOT_IMPLEMENTED])
+    }
 
-            // let locker = self.lockers.read(length);
-            // let lock_caller = self.lock_callers.read(length);
-            self.length.write(length - 1);
-        // check if it's better to reset locker and lock_caller
-        }
+    #[inline(always)]
+    fn write_at_offset(
+        address_domain: u32, base: StorageBaseAddress, offset: u8, value: Lockers
+    ) -> SyscallResult<()> {
+        SyscallResult::Err(array![NOT_IMPLEMENTED])
+    }
 
-        fn lock_data(ref self: ComponentState<TContractState>) -> (u128, u128) {
-            let length = self.length.read();
-            let non_zero_delta_count = self.non_zero_delta_count.read();
-            (length, non_zero_delta_count)
-        }
+    #[inline(always)]
+    fn size() -> u8 {
+        1_u8
+    }
+}
 
-        fn length(ref self: ComponentState<TContractState>) -> u128 {
-            self.length.read()
-        }
+#[generate_trait]
+pub impl LockersImpl of LockersTrait {
+    fn update_data(ref self: Lockers, length: u32, non_zero_delta_count: u128) {
+        let packed: u256 = (non_zero_delta_count * TWO_POW_32.into() + length.into()).into();
+        let (address_domain, base) = self.get_base_storage_address();
+        Store::write(address_domain, base, packed.into()).unwrap_syscall();
+    }
 
-        fn get_locker(ref self: ComponentState<TContractState>, index: u128) -> ContractAddress {
-            self.lockers.read(index)
-        }
+    fn push(ref self: Lockers, locker: ContractAddress, lock_caller: ContractAddress) {
+        let (length, non_zero_delta_count) = self.lock_data();
+        self.write_at(length.into(), (locker, lock_caller));
+        self.update_data(length + 1, non_zero_delta_count);
+    }
 
-        fn get_lock_caller(
-            ref self: ComponentState<TContractState>, index: u128
-        ) -> ContractAddress {
-            self.lock_callers.read(index)
-        }
+    fn pop(ref self: Lockers) {
+        let (length, non_zero_delta_count) = self.lock_data();
+        assert(length > 0, 'LOCKER_POP_FAILED');
 
-        fn get_current_locker(ref self: ComponentState<TContractState>) -> ContractAddress {
-            let length = self.length.read();
-            if length == 0 { // return ContractAddress::zero();
-            }
-            self.lockers.read(length - 1)
-        }
+        let new_length = length - 1;
+        self.write_at(new_length.into(), (ZERO_ADDRESS(), ZERO_ADDRESS()));
+        self.update_data(new_length, non_zero_delta_count);
+    }
 
-        fn get_current_lock_caller(ref self: ComponentState<TContractState>) -> ContractAddress {
-            let length = self.length.read();
-            if length == 0 { // return ContractAddress::zero();
-            }
-            self.lock_callers.read(length - 1)
-        }
+    fn lock_data(self: @Lockers) -> (u32, u128) {
+        let (address_domain, base) = self.get_base_storage_address();
+        let packed: felt252 = Store::read(address_domain, base).unwrap_syscall();
+        let packed_u256: u256 = packed.into();
+        let length: u32 = (packed_u256 & TWO_POW_32.into() - 1).try_into().unwrap();
+        let non_zero_delta_count: u128 = (packed_u256 / TWO_POW_32.into()).try_into().unwrap();
+        (length, non_zero_delta_count)
+    }
 
-        fn increment_nonzero_delta_count(ref self: ComponentState<TContractState>) {
-            let non_zero_delta_count = self.non_zero_delta_count.read();
-            self.non_zero_delta_count.write(non_zero_delta_count + 1);
-        }
+    fn length(self: @Lockers) -> u32 {
+        let (length, _) = self.lock_data();
+        length
+    }
 
-        fn decrement_nonzero_delta_count(ref self: ComponentState<TContractState>) {
-            let non_zero_delta_count = self.non_zero_delta_count.read();
-            // assert(non_zero_delta_count > 0, 'NON_ZERO_DELTA_COUNT_DECREMENT_FAILED');
-            self.non_zero_delta_count.write(non_zero_delta_count - 1);
+    fn get_lock(self: @Lockers, index: u32) -> (ContractAddress, ContractAddress) {
+        self.read_at(index.into())
+    }
+
+    fn get_locker(self: @Lockers, index: u32) -> ContractAddress {
+        let (locker, _) = self.read_at(index.into());
+        locker
+    }
+
+    fn get_lock_caller(self: @Lockers, index: u32) -> ContractAddress {
+        let (_, locker_caller) = self.read_at(index.into());
+        locker_caller
+    }
+
+    fn get_current_locker(self: @Lockers) -> ContractAddress {
+        let length = self.length();
+        if length == 0 {
+            ZERO_ADDRESS()
+        } else {
+            self.get_locker(length - 1)
         }
+    }
+
+    fn get_current_lock_caller(self: @Lockers) -> ContractAddress {
+        let length = self.length();
+        if length == 0 {
+            ZERO_ADDRESS()
+        } else {
+            self.get_lock_caller(length - 1)
+        }
+    }
+
+    fn increment_nonzero_delta_count(ref self: Lockers) {
+        let (length, non_zero_delta_count) = self.lock_data();
+        self.update_data(length, non_zero_delta_count + 1);
+    }
+
+    fn decrement_nonzero_delta_count(ref self: Lockers) {
+        let (length, non_zero_delta_count) = self.lock_data();
+        self.update_data(length, non_zero_delta_count - 1);
     }
 }

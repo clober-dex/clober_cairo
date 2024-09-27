@@ -4,15 +4,25 @@ use core::ops::SubAssign;
 use core::ops::MulAssign;
 use core::ops::DivAssign;
 use core::ops::RemAssign;
+use core::fmt::{Display, Formatter, Error};
 // ====================== INT 257 ======================
 
 // i257 represents a 129-bit integer.
 // The abs field holds the absolute value of the integer.
 // The is_negative field is true for negative integers, and false for non-negative integers.
-#[derive(Serde, Copy, Drop, Hash)]
+#[derive(Serde, Copy, Drop, Hash, starknet::Store)]
 pub struct i257 {
     abs: u256,
     is_negative: bool,
+}
+
+pub impl DisplayI257Impl of Display<i257> {
+    fn fmt(self: @i257, ref f: Formatter) -> Result<(), Error> {
+        if *self.is_negative {
+            write!(f, "-")?;
+        }
+        self.abs.fmt(ref f)
+    }
 }
 
 #[generate_trait]
@@ -350,11 +360,38 @@ impl U256IntoI257 of Into<u256, i257> {
     }
 }
 
+// Convert u128 to i257
+impl U128IntoI257 of Into<u128, i257> {
+    fn into(self: u128) -> i257 {
+        i257 { abs: self.into(), is_negative: false }
+    }
+}
+
+// Convert u32 to i257
+impl U32IntoI257 of Into<u32, i257> {
+    fn into(self: u32) -> i257 {
+        i257 { abs: self.into(), is_negative: false }
+    }
+}
+
 // Convert i128 to i257
 impl I128IntoI257 of Into<i128, i257> {
     fn into(self: i128) -> i257 {
         if self < 0 {
+            let abs: u128 = (-self).try_into().unwrap();
+            i257 { abs: abs.into(), is_negative: true }
+        } else {
             let abs: u128 = self.try_into().unwrap();
+            i257 { abs: abs.into(), is_negative: false }
+        }
+    }
+}
+
+// Convert i32 to i257
+impl I32IntoI257 of Into<i32, i257> {
+    fn into(self: i32) -> i257 {
+        if self < 0 {
+            let abs: u128 = (-self).try_into().unwrap();
             i257 { abs: abs.into(), is_negative: true }
         } else {
             let abs: u128 = self.try_into().unwrap();
@@ -381,5 +418,13 @@ impl I257TryIntoI128 of TryInto<i257, i128> {
         } else {
             Option::Some(abs)
         }
+    }
+}
+
+// Convert i257 to U256IntoI257
+impl I257TryIntoU256 of TryInto<i257, u256> {
+    fn try_into(self: i257) -> Option<u256> {
+        assert(!self.is_negative, 'Cannot convert negative to u256');
+        Option::Some(self.abs)
     }
 }

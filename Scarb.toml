@@ -2,7 +2,8 @@
 name = "clober_cairo"
 version = "0.1.0"
 edition = "2023_11"
-cairo-version = "2.6.3"
+cairo-version = "2.8.0"
+scarb-version = "2.8.1"
 authors = ["Clober <dev@clober.io>"]
 description = "Core Contracts written in Cairo for StarkNet"
 readme = "README.md"
@@ -10,20 +11,29 @@ repository = "https://github.com/clober-dex/clober_cairo"
 # license-file = "LICENSE"
 
 [dependencies]
-starknet = "2.6.3"
+starknet = "2.8.0"
+openzeppelin_access = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.16.0" }
+openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.16.0" }
+openzeppelin_introspection = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.16.0" }
+openzeppelin_utils = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.16.0" }
+openzeppelin_testing = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.16.0" }
+openzeppelin_presets = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.16.0" }
+openzeppelin_security = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.16.0" }
 
 [dev-dependencies]
-snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.25.0" }
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.27.0" }
 
 [tool.snforge]
 fuzzer_runs = 1000
 # exit_first = true # Exit on first error.
 
-# Use with `--profile myprofile`
-# [sncast.myprofile] # or [sncast.default].
-# account = "user"
-# accounts-file = "~/my_accounts.json"
-# url = "http://127.0.0.1:5050/rpc"
-
 [scripts]
 test = "snforge test"
+
+[[target.starknet-contract]]
+sierra = true
+casm = false
+allowed-libfuncs-list.name = "experimental"
+build-external-contracts = [
+    "openzeppelin_presets::erc20::ERC20Upgradeable",
+]

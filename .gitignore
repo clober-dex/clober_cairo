@@ -10,3 +10,7 @@ target
 
 #cache
 .snfoundry_cache/
+
+*key.json
+.env
+*account.json

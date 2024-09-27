@@ -3,9 +3,11 @@ name: Lint and test
 on:
   pull_request:
     branches:
+    - dev
     - master
   push:
     branches:
+    - dev
     - master
 
 jobs:
@@ -16,13 +18,19 @@ jobs:
     - uses: actions/checkout@v3
     - name: Extract scarb version
       run: |
-        SCARB_VERSION=$(grep 'cairo-version = ' Scarb.toml | sed 's/cairo-version = "\(.*\)"/\1/')
+        SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
         echo "SCARB_VERSION=$SCARB_VERSION" >> $GITHUB_ENV
     - uses: software-mansion/setup-scarb@v1
       with:
         scarb-version: ${{ env.SCARB_VERSION }}
+    - name: Extract foundry version
+      run: |
+        FOUNDRY_VERSION=$(grep 'snforge_std = ' Scarb.toml | sed 's/snforge_std = .\+ tag = "v\(.*\)".*/\1/')
+        echo "FOUNDRY_VERSION=$FOUNDRY_VERSION" >> "$GITHUB_ENV"
+    - uses: foundry-rs/setup-snfoundry@v3
+      with:
+        starknet-foundry-version: ${{ env.FOUNDRY_VERSION }}
     - name: Cairo lint
       run: scarb fmt --check
-    - uses: foundry-rs/setup-snfoundry@v3
     - name: Cairo test
-      run: scarb test
+      run: snforge test

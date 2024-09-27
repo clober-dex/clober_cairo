@@ -1,13 +1,6 @@
-use clober_cairo::utils::math::Math::ln_wad;
-use clober_cairo::alexandria::i257::i257;
-use clober_cairo::alexandria::i257::I257Impl;
-
-const TWO_POW_96: u256 = 0x1000000000000000000000000; // 2**96
-const TWO_POW_128: u256 = 0x100000000000000000000000000000000; // 2**128
-const TWO_POW_192: u256 = 0x1000000000000000000000000000000000000000000000000; // 2**192
-
-const MAX_TICK: i32 = 0x7ffff;
-const MIN_TICK: i32 = -MAX_TICK;
+use clober_cairo::utils::math::ln_wad;
+use clober_cairo::libraries::i257::I257Impl;
+use clober_cairo::utils::constants::{TWO_POW_192, TWO_POW_128, TWO_POW_96, MIN_TICK, MAX_TICK};
 
 const MIN_PRICE: u256 = 1350587;
 const MAX_PRICE: u256 = 4647684107270898330752324302845848816923571339324334;
@@ -32,23 +25,22 @@ const R16: u256 = 0x5d6af8dedb81196699c329;
 const R17: u256 = 0x2216e584f5fa1ea92604;
 const R18: u256 = 0x48a170391f7dc42;
 
-#[derive(Copy, Drop, Serde)]
-pub struct Tick {
-    pub value: i32,
-}
+pub type Tick = i32;
 
 #[generate_trait]
 pub impl TickImpl of TickTrait {
-    fn to_price(tick: Tick) -> u256 {
-        assert(tick.value < MIN_TICK || tick.value > MAX_TICK, 'invalid_tick');
+    fn validate(self: Tick) {
+        assert(self >= MIN_TICK && self <= MAX_TICK, 'invalid_tick');
+    }
 
-        let absTick: u32 = (if tick.value < 0 {
-            -tick.value
+    fn to_price(self: Tick) -> u256 {
+        self.validate();
+
+        let absTick: u32 = (if self < 0 {
+            -self
         } else {
-            tick.value
-        })
-            .try_into()
-            .unwrap();
+            self
+        }).try_into().unwrap();
 
         let mut price: u256 = if absTick & 0x1 != 0 {
             R0
@@ -109,7 +101,7 @@ pub impl TickImpl of TickTrait {
         if absTick & 0x40000 != 0 {
             price = (price * R18) / TWO_POW_96;
         }
-        if tick.value > 0 {
+        if self > 0 {
             return TWO_POW_192 / price;
         }
         price
@@ -121,54 +113,26 @@ pub impl TickImpl of TickTrait {
             / TWO_POW_128.into())
             .try_into()
             .unwrap();
-        let tick: i32 = tick.try_into().unwrap();
-        if Self::to_price(Tick { value: tick }) > price {
-            return Tick { value: tick - 1 };
+        let tick: Tick = tick.try_into().unwrap();
+        if Self::to_price(tick) > price {
+            return tick - 1;
         }
-        Tick { value: tick }
+        tick
     }
 
-    fn base_to_quote(tick: Tick, base: u256, rounding_up: bool) -> u256 {
-        let price: u256 = Self::to_price(tick);
+    fn base_to_quote(self: Tick, base: u256, rounding_up: bool) -> u256 {
+        let price: u256 = Self::to_price(self);
         if rounding_up {
             return (base * price + TWO_POW_96 - 1) / TWO_POW_96;
         }
         base * price / TWO_POW_96
     }
 
-    fn quote_to_base(tick: Tick, quote: u256, rounding_up: bool) -> u256 {
-        let price: u256 = Self::to_price(tick);
+    fn quote_to_base(self: Tick, quote: u256, rounding_up: bool) -> u256 {
+        let price: u256 = Self::to_price(self);
         if rounding_up {
             return (quote * TWO_POW_96 + price - 1) / price;
         }
         quote * TWO_POW_96 / price
     }
 }
-
-impl TickPartialEq of PartialEq<Tick> {
-    fn eq(lhs: @Tick, rhs: @Tick) -> bool {
-        lhs.value == rhs.value
-    }
-
-    fn ne(lhs: @Tick, rhs: @Tick) -> bool {
-        !Self::eq(lhs, rhs)
-    }
-}
-
-impl TickPartialOrd of PartialOrd<Tick> {
-    fn le(lhs: Tick, rhs: Tick) -> bool {
-        !Self::gt(lhs, rhs)
-    }
-    fn ge(lhs: Tick, rhs: Tick) -> bool {
-        Self::gt(lhs, rhs) || lhs == rhs
-    }
-
-    fn lt(lhs: Tick, rhs: Tick) -> bool {
-        !Self::gt(lhs, rhs) && lhs != rhs
-    }
-
-    fn gt(lhs: Tick, rhs: Tick) -> bool {
-        lhs.value > rhs.value
-    }
-}
-

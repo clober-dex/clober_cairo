@@ -1,148 +1,78 @@
-use starknet::storage_access::{StorePacking};
-use clober_cairo::utils::math::{Math};
+use clober_cairo::utils::math::divide;
+use clober_cairo::utils::constants::RATE_PRECISION;
+use clober_cairo::libraries::i257::i257;
 
-const MAX_FEE_RATE: u32 = 500000;
-const RATE_PRECISION: u32 = 1000000;
+pub const MAX_FEE_RATE: i32 = 500000;
+pub const MIN_FEE_RATE: i32 = -500000;
 
-#[derive(Copy, Drop, Serde, Debug)]
+#[derive(Copy, Drop, Serde, Hash, PartialEq, Debug)]
 pub struct FeePolicy {
     pub uses_quote: bool,
-    pub sign: bool,
-    pub rate: u32,
+    pub rate: i32,
+}
+
+pub mod Errors {
+    pub const INVALID_FEE: felt252 = 'Invalid fee';
 }
 
 #[generate_trait]
-impl FeePolicyImpl of FeePolicyTrait {
-    fn calculate_fee(self: FeePolicy, amount: u256, reverse_rounding: bool) -> (bool, u256) {
-        let rounding_up: bool = if (reverse_rounding) {
-            self.sign
+pub impl FeePolicyImpl of FeePolicyTrait {
+    fn is_valid(self: FeePolicy) -> bool {
+        self.rate >= MIN_FEE_RATE && self.rate <= MAX_FEE_RATE
+    }
+
+    fn calculate_fee(self: FeePolicy, amount: u256, reverse_rounding: bool) -> i257 {
+        let is_positive = self.rate > 0;
+        let abs_rate: u32 = if is_positive {
+            self.rate.try_into().unwrap()
         } else {
-            !self.sign
+            (-self.rate).try_into().unwrap()
         };
-        let absFee: u256 = Math::divide(
-            amount * self.rate.into(), RATE_PRECISION.into(), rounding_up
-        );
-        (self.sign, absFee)
+        let rounding_up: bool = if reverse_rounding {
+            !is_positive
+        } else {
+            is_positive
+        };
+        let abs_fee: i257 = divide(amount * abs_rate.into(), RATE_PRECISION.into(), rounding_up)
+            .into();
+        if is_positive {
+            abs_fee
+        } else {
+            -abs_fee
+        }
     }
 
     fn calculate_original_amount(self: FeePolicy, amount: u256, reverse_fee: bool) -> u256 {
-        let divider: u32 = if (self.sign ^ reverse_fee) {
-            RATE_PRECISION - self.rate
-        } else {
-            RATE_PRECISION + self.rate
-        };
+        let mut rate = self.rate;
+        let positive = rate > 0;
+        if reverse_fee {
+            rate = -rate;
+        }
+        let divider: u32 = (RATE_PRECISION.try_into().unwrap() + rate).try_into().unwrap();
 
-        Math::divide(amount * RATE_PRECISION.into(), divider.into(), !self.sign)
+        divide(amount * RATE_PRECISION.into(), divider.into(), positive)
     }
-}
 
-impl FeePolicyStorePacking of StorePacking<FeePolicy, u32> {
-    fn pack(value: FeePolicy) -> u32 {
-        assert(value.rate < MAX_FEE_RATE, 'invalid_fee_rate');
-        let mask: u32 = if (value.uses_quote) {
+    fn encode(self: FeePolicy) -> u32 {
+        assert(self.rate < MAX_FEE_RATE, Errors::INVALID_FEE);
+        let mask: u32 = if self.uses_quote {
             0x800000
         } else {
             0
         };
-        let rate: u32 = if (value.sign) {
-            MAX_FEE_RATE - value.rate
-        } else {
-            MAX_FEE_RATE + value.rate
-        };
+        let rate: u32 = (MAX_FEE_RATE + self.rate).try_into().unwrap();
         mask | rate
     }
 
-    fn unpack(value: u32) -> FeePolicy {
-        let uses_quote: bool = value & 0x800000 != 0;
-        let rate: u32 = value & 0x7fffff;
+    fn decode(self: u32) -> FeePolicy {
+        let uses_quote: bool = self & 0x800000 != 0;
+        let rate: u32 = self & 0x7fffff;
+        let max_u32: u32 = MAX_FEE_RATE.try_into().unwrap();
 
-        if (rate < MAX_FEE_RATE) {
-            FeePolicy { uses_quote, sign: true, rate: MAX_FEE_RATE - rate, }
+        if rate < max_u32 {
+            FeePolicy { uses_quote, rate: -(max_u32 - rate).try_into().unwrap(), }
         } else {
-            FeePolicy { uses_quote, sign: false, rate: rate - MAX_FEE_RATE, }
+            FeePolicy { uses_quote, rate: (rate - max_u32).try_into().unwrap(), }
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::FeePolicy;
-    use super::FeePolicyImpl;
-    use super::StorePacking;
-
-    #[test]
-    fn pack() {
-        let fee_policy: FeePolicy = FeePolicy { uses_quote: true, sign: true, rate: 100000, };
-        let packed: u32 = StorePacking::pack(fee_policy);
-        assert_eq!(packed, 8788608);
-
-        let fee_policy: FeePolicy = FeePolicy { uses_quote: true, sign: false, rate: 100000, };
-        let packed: u32 = StorePacking::pack(fee_policy);
-        assert_eq!(packed, 8988608);
-
-        let fee_policy: FeePolicy = FeePolicy { uses_quote: false, sign: true, rate: 100000, };
-        let packed: u32 = StorePacking::pack(fee_policy);
-        assert_eq!(packed, 400000);
-
-        let fee_policy: FeePolicy = FeePolicy { uses_quote: false, sign: false, rate: 100000, };
-        let packed: u32 = StorePacking::pack(fee_policy);
-        assert_eq!(packed, 600000);
-
-        let fee_policy: FeePolicy = FeePolicy { uses_quote: false, sign: false, rate: 0, };
-        let packed: u32 = StorePacking::pack(fee_policy);
-        assert_eq!(packed, 500000);
-    }
-
-    #[test]
-    fn unpack() {
-        let fee_policy: FeePolicy = StorePacking::unpack(8788608);
-        assert_eq!(fee_policy.uses_quote, true);
-        assert_eq!(fee_policy.sign, true);
-        assert_eq!(fee_policy.rate, 100000);
-
-        let fee_policy: FeePolicy = StorePacking::unpack(8988608);
-        assert_eq!(fee_policy.uses_quote, true);
-        assert_eq!(fee_policy.sign, false);
-        assert_eq!(fee_policy.rate, 100000);
-
-        let fee_policy: FeePolicy = StorePacking::unpack(400000);
-        assert_eq!(fee_policy.uses_quote, false);
-        assert_eq!(fee_policy.sign, true);
-        assert_eq!(fee_policy.rate, 100000);
-
-        let fee_policy: FeePolicy = StorePacking::unpack(600000);
-        assert_eq!(fee_policy.uses_quote, false);
-        assert_eq!(fee_policy.sign, false);
-        assert_eq!(fee_policy.rate, 100000);
-
-        let fee_policy: FeePolicy = StorePacking::unpack(500000);
-        assert_eq!(fee_policy.uses_quote, false);
-        assert_eq!(fee_policy.sign, false);
-        assert_eq!(fee_policy.rate, 0);
-    }
-
-    #[test]
-    fn calculate_fee() {
-        _calculate_fee((false, 1000), 1000000, false, (false, 1000));
-        _calculate_fee((true, 1000), 1000000, false, (true, 1000));
-        _calculate_fee((false, 1000), 1000000, true, (false, 1000));
-        _calculate_fee((true, 1000), 1000000, true, (true, 1000));
-        // zero value tests
-        _calculate_fee((false, 0), 1000000, false, (false, 0));
-        _calculate_fee((false, 1000), 0, false, (false, 0));
-        // rounding tests
-        _calculate_fee((false, 1500), 1000, false, (false, 2));
-        _calculate_fee((true, 1500), 1000, false, (true, 1));
-        _calculate_fee((false, 1500), 1000, true, (false, 1));
-        _calculate_fee((true, 1500), 1000, true, (true, 2));
-    }
-
-    fn _calculate_fee(
-        rate: (bool, u32), amount: u256, reverse_rounding: bool, expected: (bool, u256)
-    ) {
-        let (s, r) = rate;
-        let fee_policy: FeePolicy = FeePolicy { uses_quote: true, sign: s, rate: r, };
-        let result = fee_policy.calculate_fee(amount, reverse_rounding);
-        assert_eq!(result, expected);
     }
 }
