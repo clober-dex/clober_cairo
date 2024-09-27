@@ -43,7 +43,7 @@ impl StoreFelt252Map<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of Store<Fel
     }
 }
 
-fn caculate_storage_address(storage_address_felt: felt252, key: felt252) -> felt252 {
+fn calculate_storage_address(storage_address_felt: felt252, key: felt252) -> felt252 {
     PoseidonTrait::new().update_with((storage_address_felt, key)).finalize()
 }
 
@@ -61,13 +61,13 @@ pub impl Felt252MapImpl<T, +Drop<T>, impl TStore: Store<T>> of Felt252MapTrait<T
     fn address_at(self: @Felt252Map<T>, key: felt252) -> felt252 {
         let base_storage_address: felt252 = storage_address_from_base(*self.base).into();
 
-        caculate_storage_address(base_storage_address, key)
+        calculate_storage_address(base_storage_address, key)
     }
 
     fn read_at(self: @Felt252Map<T>, key: felt252) -> T {
         let base_storage_address: felt252 = storage_address_from_base(*self.base).into();
 
-        let element_address = caculate_storage_address(base_storage_address, key);
+        let element_address = calculate_storage_address(base_storage_address, key);
 
         TStore::read(*self.address_domain, storage_base_address_from_felt252(element_address))
             .unwrap_syscall()
@@ -76,7 +76,7 @@ pub impl Felt252MapImpl<T, +Drop<T>, impl TStore: Store<T>> of Felt252MapTrait<T
     fn write_at(ref self: Felt252Map<T>, key: felt252, value: T) {
         let base_storage_address: felt252 = storage_address_from_base(self.base).into();
 
-        let element_address = caculate_storage_address(base_storage_address, key);
+        let element_address = calculate_storage_address(base_storage_address, key);
 
         TStore::write(
             self.address_domain, storage_base_address_from_felt252(element_address), value
