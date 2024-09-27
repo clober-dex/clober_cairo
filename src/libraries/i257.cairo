@@ -139,7 +139,7 @@ impl i257MulAssign of MulAssign<i257, i257> {
 fn i257_div(lhs: i257, rhs: i257) -> i257 {
     i257_assert_no_negative_zero(lhs);
     // Check that the divisor is not zero.
-    assert!(rhs.abs != 0, "b can not be 0");
+    assert(rhs.abs != 0, 'b can not be 0');
 
     // The sign of the quotient is the XOR of the signs of the operands.
     let is_negative = lhs.is_negative ^ rhs.is_negative;
@@ -192,7 +192,7 @@ impl i257DivAssign of DivAssign<i257, i257> {
 fn i257_rem(lhs: i257, rhs: i257) -> i257 {
     i257_assert_no_negative_zero(lhs);
     // Check that the divisor is not zero.
-    assert!(rhs.abs != 0, "b can not be 0");
+    assert(rhs.abs != 0, 'b can not be 0');
     lhs - (rhs * (lhs / rhs))
 }
 
@@ -289,7 +289,7 @@ pub impl i257Zeroable of Zero<i257> {
     }
     fn is_zero(self: @i257) -> bool {
         if *self.abs == 0 {
-            assert!(*self.is_negative, "no negative zero");
+            assert(!*self.is_negative, 'no negative zero');
             true
         } else {
             false
@@ -307,7 +307,7 @@ pub impl i257Zeroable of Zero<i257> {
 // Panics if `x` is zero and is negative
 pub fn i257_assert_no_negative_zero(x: i257) {
     if x.abs == 0 {
-        assert!(x.is_negative, "negative zero");
+        assert(!x.is_negative, 'negative zero');
     }
 }
 
@@ -424,7 +424,7 @@ impl I257TryIntoI128 of TryInto<i257, i128> {
 // Convert i257 to U256IntoI257
 impl I257TryIntoU256 of TryInto<i257, u256> {
     fn try_into(self: i257) -> Option<u256> {
-        assert!(self.is_negative, "Cannot convert negative to u256");
+        assert(!self.is_negative, 'Cannot convert negative to u256');
         Option::Some(self.abs)
     }
 }
