@@ -2,6 +2,7 @@ use starknet::ContractAddress;
 use clober_cairo::libraries::book_key::BookKey;
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::libraries::i257::i257;
+use clober_cairo::libraries::fee_policy::FeePolicy;
 
 #[derive(Copy, Drop, Serde)]
 pub struct MakeParams {
@@ -29,6 +30,96 @@ pub struct OrderInfo {
     pub provider: ContractAddress,
     pub open: u64,
     pub claimable: u64,
+}
+
+#[derive(Drop, starknet::Event)]
+pub struct Open {
+    #[key]
+    pub id: felt252,
+    #[key]
+    pub base: ContractAddress,
+    #[key]
+    pub quote: ContractAddress,
+    pub unit_size: u64,
+    pub maker_policy: FeePolicy,
+    pub taker_policy: FeePolicy,
+    pub hooks: ContractAddress,
+}
+
+#[derive(Drop, starknet::Event)]
+pub struct Make {
+    #[key]
+    pub book_id: felt252,
+    #[key]
+    pub user: ContractAddress,
+    pub tick: i32,
+    pub order_index: u64,
+    pub unit: u64,
+    pub provider: ContractAddress,
+}
+
+#[derive(Drop, starknet::Event)]
+pub struct Take {
+    #[key]
+    pub book_id: felt252,
+    #[key]
+    pub user: ContractAddress,
+    pub tick: i32,
+    pub unit: u64,
+}
+
+#[derive(Drop, starknet::Event)]
+pub struct Cancel {
+    #[key]
+    pub order_id: felt252,
+    pub unit: u64,
+}
+
+#[derive(Drop, starknet::Event)]
+pub struct Claim {
+    #[key]
+    pub order_id: felt252,
+    pub unit: u64,
+}
+
+#[derive(Drop, starknet::Event)]
+pub struct Collect {
+    #[key]
+    pub provider: ContractAddress,
+    #[key]
+    pub recipient: ContractAddress,
+    #[key]
+    pub currency: ContractAddress,
+    pub amount: u256,
+}
+
+#[derive(Drop, starknet::Event)]
+pub struct Whitelist {
+    #[key]
+    pub provider: ContractAddress,
+}
+
+#[derive(Drop, starknet::Event)]
+pub struct Delist {
+    #[key]
+    pub provider: ContractAddress,
+}
+
+#[derive(Drop, starknet::Event)]
+pub struct SetDefaultProvider {
+    #[key]
+    pub provider: ContractAddress,
+}
+
+pub mod Errors {
+    pub const INVALID_UNIT_SIZE: felt252 = 'Invalid unit size';
+    pub const INVALID_FEE_POLICY: felt252 = 'Invalid fee policy';
+    pub const INVALID_PROVIDER: felt252 = 'Invalid provider';
+    pub const INVALID_LOCKER: felt252 = 'Invalid locker';
+    pub const INVALID_HOOKS: felt252 = 'Invalid hooks';
+    pub const BOOK_ALREADY_OPENED: felt252 = 'Book already opened';
+    pub const BOOK_NOT_OPENED: felt252 = 'Book not opened';
+    pub const CURRENCY_NOT_SETTLED: felt252 = 'Currency not settled';
 }
 
 #[starknet::interface]

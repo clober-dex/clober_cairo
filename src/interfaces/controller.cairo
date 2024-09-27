@@ -2,6 +2,24 @@ use starknet::ContractAddress;
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::libraries::book_key::BookKey;
 
+#[derive(Serde, Drop, Copy)]
+pub enum Actions {
+    Open,
+    Make,
+    Limit,
+    Take,
+    Spend,
+    Cancel,
+    Claim,
+}
+
+pub mod Errors {
+    pub const INVALID_CALLER: felt252 = 'Invalid caller';
+    pub const INVALID_LOCK_CALLER: felt252 = 'Invalid lock caller';
+    pub const DEADLINE: felt252 = 'Deadline';
+    pub const SLIPPAGE: felt252 = 'Slippage';
+}
+
 #[starknet::interface]
 pub trait IController<TContractState> {
     fn get_depth(self: @TContractState, book_id: felt252, tick: Tick,) -> u64;

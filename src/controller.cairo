@@ -7,7 +7,7 @@ pub mod Controller {
     use clober_cairo::interfaces::book_manager::{
         IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams, TakeParams, CancelParams
     };
-    use clober_cairo::interfaces::controller::IController;
+    use clober_cairo::interfaces::controller::{IController, Actions, Errors};
     use clober_cairo::interfaces::locker::ILocker;
     use clober_cairo::libraries::tick::{Tick, TickTrait};
     use clober_cairo::libraries::book_key::BookKey;
@@ -36,24 +36,6 @@ pub mod Controller {
     pub enum Event {
         #[flat]
         ReentrancyGuardEvent: ReentrancyGuardComponent::Event,
-    }
-
-    #[derive(Serde, Drop, Copy)]
-    pub enum Actions {
-        Open,
-        Make,
-        Limit,
-        Take,
-        Spend,
-        Cancel,
-        Claim,
-    }
-
-    pub mod Errors {
-        pub const INVALID_CALLER: felt252 = 'Invalid caller';
-        pub const INVALID_LOCK_CALLER: felt252 = 'Invalid lock caller';
-        pub const DEADLINE: felt252 = 'Deadline';
-        pub const SLIPPAGE: felt252 = 'Slippage';
     }
 
     #[constructor]
