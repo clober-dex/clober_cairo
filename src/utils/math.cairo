@@ -62,6 +62,9 @@ pub fn log_2(mut x: u256) -> u8 {
     r
 }
 
+/// @dev Returns `ln(x)`, denominated in `WAD`.
+/// Credit to Remco Bloemen under MIT license: https://2π.com/22/exp-ln
+/// Note: This function is an approximation. Monotonically increasing.
 pub fn ln_wad(mut x: u256) -> i128 {
     let r: u8 = log_2(x);
     let k = if r > 96 {
