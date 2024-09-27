@@ -136,7 +136,7 @@ fn test_success() {
 }
 
 #[test]
-fn test_cancel_to_zero_with_ partially_taken_order() {
+fn test_cancel_to_zero_with_partially_taken_order() {
     let (bm, open_router, make_router, take_router, cancel_router, base, quote) = setup();
     let key = valid_key(base.contract_address, quote.contract_address);
     open_router.open(key, ArrayTrait::new().span());
