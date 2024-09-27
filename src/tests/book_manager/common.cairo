@@ -1,7 +1,7 @@
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_testing::constants::ZERO;
 use clober_cairo::book_manager::BookManager;
-use clober_cairo::book_manager::BookManager::{
+use clober_cairo::interfaces::book_manager::{
     Open, Make, Take, Cancel, Claim, Collect, Whitelist, Delist, SetDefaultProvider
 };
 use clober_cairo::libraries::book_key::BookKey;
