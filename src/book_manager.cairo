@@ -60,7 +60,7 @@ pub mod BookManager {
         hooks_list: HooksList,
         currency_delta: Map<(ContractAddress, ContractAddress), i257>,
         contract_uri: ByteArray,
-        default_provier: ContractAddress,
+        default_provider: ContractAddress,
         reserves_of: Map<ContractAddress, u256>,
         book_keys: Map<felt252, BookKey>,
         books: Map<felt252, Book>,
@@ -133,7 +133,7 @@ pub mod BookManager {
         }
 
         fn _set_default_provider(ref self: ContractState, provider: ContractAddress) {
-            self.default_provier.write(provider);
+            self.default_provider.write(provider);
             self.emit(SetDefaultProvider { provider });
         }
     }
@@ -149,7 +149,7 @@ pub mod BookManager {
         }
 
         fn default_provider(self: @ContractState) -> ContractAddress {
-            self.default_provier.read()
+            self.default_provider.read()
         }
 
         fn reserves_of(self: @ContractState, provider: ContractAddress) -> u256 {
@@ -465,7 +465,7 @@ pub mod BookManager {
 
             let order = book.get_order(decoded_order_id.tick, decoded_order_id.index);
             let provider: ContractAddress = if order.provider.is_zero() {
-                self.default_provier.read()
+                self.default_provider.read()
             } else {
                 order.provider
             };
