@@ -152,8 +152,8 @@ pub mod BookManager {
             self.default_provider.read()
         }
 
-        fn reserves_of(self: @ContractState, provider: ContractAddress) -> u256 {
-            self.reserves_of.read(provider)
+        fn reserves_of(self: @ContractState, currency: ContractAddress) -> u256 {
+            self.reserves_of.read(currency)
         }
 
         fn is_whitelisted(self: @ContractState, provider: ContractAddress) -> bool {

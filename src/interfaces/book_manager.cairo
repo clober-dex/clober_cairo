@@ -127,7 +127,7 @@ pub trait IBookManager<TContractState> {
     fn base_uri(self: @TContractState) -> ByteArray;
     fn contract_uri(self: @TContractState) -> ByteArray;
     fn default_provider(self: @TContractState) -> ContractAddress;
-    fn reserves_of(self: @TContractState, provider: ContractAddress) -> u256;
+    fn reserves_of(self: @TContractState, currency: ContractAddress) -> u256;
     fn is_whitelisted(self: @TContractState, provider: ContractAddress) -> bool;
     fn check_authorized(
         self: @TContractState, owner: ContractAddress, spender: ContractAddress, token_id: felt252
