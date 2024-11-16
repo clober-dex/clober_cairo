@@ -87,3 +87,19 @@ fn test_cancel_all() {
     let (_, _, open_amount, _) = controller.get_order(order_id);
     assert_eq!(open_amount, 0);
 }
+
+#[test]
+#[should_panic(expected: ('Unauthorized',))]
+fn test_cancel_not_owner() {
+    let (controller, book_manager, base, quote) = setup();
+    let key = valid_key(base, quote);
+
+    cheat_caller_address(controller.contract_address, MAKER1(), CheatSpan::TargetCalls(1));
+    let order_id = make_order(controller, key, PRICE_TICK(), QUOTE_AMOUNT1()).encode();
+
+    cheat_caller_address(book_manager.contract_address, MAKER1(), CheatSpan::TargetCalls(1));
+    IERC721Dispatcher { contract_address: book_manager.contract_address }
+        .approve(controller.contract_address, order_id.into());
+
+    cancel_order(controller, order_id, 0);
+}

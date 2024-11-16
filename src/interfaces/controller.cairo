@@ -16,6 +16,7 @@ pub enum Actions {
 pub mod Errors {
     pub const INVALID_CALLER: felt252 = 'Invalid caller';
     pub const INVALID_LOCK_CALLER: felt252 = 'Invalid lock caller';
+    pub const UNAUTHORIZED: felt252 = 'Unauthorized';
     pub const DEADLINE: felt252 = 'Deadline';
     pub const SLIPPAGE: felt252 = 'Slippage';
 }
