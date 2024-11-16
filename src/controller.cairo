@@ -512,6 +512,7 @@ pub mod Controller {
                 }
                 let tick = book_manager.get_highest(book_id);
                 if limit_price > tick.to_price() {
+                    is_base_remained = true;
                     break;
                 }
                 let max_amount = if key.taker_policy.uses_quote {
