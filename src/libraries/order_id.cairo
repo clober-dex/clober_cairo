@@ -1,5 +1,5 @@
 use starknet::storage_access::{StorePacking};
-use clober_cairo::utils::constants::{TWO_POW_192, TWO_POW_64, TWO_POW_40};
+use clober_cairo::utils::constants::{TWO_POW_187, TWO_POW_64, TWO_POW_40};
 use clober_cairo::libraries::tick::Tick;
 
 #[derive(Drop, Copy)]
@@ -12,7 +12,7 @@ pub struct OrderId {
 #[generate_trait]
 pub impl OrderIdImpl of OrderIdTrait {
     fn encode(self: OrderId) -> felt252 {
-        assert(self.book_id.into() < TWO_POW_192, 'book_id overflow');
+        assert(self.book_id.into() < TWO_POW_187, 'book_id overflow');
         assert(self.index < TWO_POW_40, 'index overflow');
         let t = if self.tick.into() < 0_i32 {
             0x1000000 + self.tick.into()
