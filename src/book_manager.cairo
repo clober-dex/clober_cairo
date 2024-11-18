@@ -507,7 +507,7 @@ pub mod BookManager {
             self.token_owed.write((caller, currency), 0);
             self.reserves_of.write(currency, self.reserves_of.read(currency) - amount);
             let erc20_dispatcher = IERC20Dispatcher { contract_address: currency };
-            erc20_dispatcher.transfer(recipient, amount);
+            assert(erc20_dispatcher.transfer(recipient, amount), Errors::ERC20_TRANSFER_FAILED);
             self.emit(Collect { provider: caller, recipient, currency, amount });
             amount
         }
@@ -521,7 +521,7 @@ pub mod BookManager {
                 self._account_delta(currency, -amount.into());
                 self.reserves_of.write(currency, self.reserves_of.read(currency) - amount);
                 let erc20_dispatcher = IERC20Dispatcher { contract_address: currency };
-                erc20_dispatcher.transfer(to, amount);
+                assert(erc20_dispatcher.transfer(to, amount), Errors::ERC20_TRANSFER_FAILED);
             }
         }
 
