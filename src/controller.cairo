@@ -365,7 +365,7 @@ pub mod Controller {
                         (felt252, u256, Span<felt252>)
                     >::deserialize(ref params)
                         .unwrap();
-                    let tokens = self._cancel(order_id, left_quote_amount, hook_data);
+                    let tokens = self._cancel(user, order_id, left_quote_amount, hook_data);
                     (0, tokens)
                 },
                 Actions::Claim => {
@@ -373,7 +373,7 @@ pub mod Controller {
                         (felt252, Span<felt252>)
                     >::deserialize(ref params)
                         .unwrap();
-                    let tokens = self._claim(order_id, hook_data);
+                    let tokens = self._claim(user, order_id, hook_data);
                     (0, tokens)
                 },
             };
@@ -547,6 +547,7 @@ pub mod Controller {
 
         fn _cancel(
             self: @ContractState,
+            user: ContractAddress,
             order_id: felt252,
             left_quote_amount: u256,
             hook_data: Span<felt252>
@@ -554,6 +555,12 @@ pub mod Controller {
             let book_manager = IBookManagerDispatcher {
                 contract_address: self.book_manager.read()
             };
+            assert(
+                IERC721Dispatcher { contract_address: book_manager.contract_address }
+                    .owner_of(order_id.into()) == user,
+                Errors::UNAUTHORIZED
+            );
+
             let key = book_manager.get_book_key(OrderIdTrait::decode(order_id).book_id);
             // Todo try catch
             book_manager
@@ -570,11 +577,16 @@ pub mod Controller {
         }
 
         fn _claim(
-            self: @ContractState, order_id: felt252, hook_data: Span<felt252>
+            self: @ContractState, user: ContractAddress, order_id: felt252, hook_data: Span<felt252>
         ) -> Span<felt252> {
             let book_manager = IBookManagerDispatcher {
                 contract_address: self.book_manager.read()
             };
+            assert(
+                IERC721Dispatcher { contract_address: book_manager.contract_address }
+                    .owner_of(order_id.into()) == user,
+                Errors::UNAUTHORIZED
+            );
             let key = book_manager.get_book_key(OrderIdTrait::decode(order_id).book_id);
             book_manager.claim(order_id, hook_data);
 
