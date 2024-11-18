@@ -607,10 +607,13 @@ pub mod Controller {
                 let token_dispatcher = IERC20Dispatcher { contract_address: token };
 
                 if currency_delta.is_negative() {
-                    token_dispatcher
-                        .transfer_from(
-                            user, book_manager.contract_address, currency_delta.abs().into()
-                        );
+                    assert(
+                        token_dispatcher
+                            .transfer_from(
+                                user, book_manager.contract_address, currency_delta.abs().into()
+                            ),
+                        Errors::ERC20_TRANSFER_FAILED
+                    );
                     book_manager.settle(token);
                 }
 
@@ -621,7 +624,7 @@ pub mod Controller {
 
                 let balance = token_dispatcher.balance_of(controller_address);
                 if balance > 0 {
-                    token_dispatcher.transfer(user, balance);
+                    assert(token_dispatcher.transfer(user, balance), Errors::ERC20_TRANSFER_FAILED);
                 }
             }
         }

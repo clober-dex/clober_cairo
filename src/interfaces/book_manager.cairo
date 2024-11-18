@@ -120,6 +120,7 @@ pub mod Errors {
     pub const BOOK_ALREADY_OPENED: felt252 = 'Book already opened';
     pub const BOOK_NOT_OPENED: felt252 = 'Book not opened';
     pub const CURRENCY_NOT_SETTLED: felt252 = 'Currency not settled';
+    pub const ERC20_TRANSFER_FAILED: felt252 = 'ERC20 transfer failed';
 }
 
 #[starknet::interface]
