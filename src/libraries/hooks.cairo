@@ -58,6 +58,6 @@ pub impl HooksImpl of HooksTrait {
     fn is_valid_hook_address(self: @Hooks) -> bool {
         // If a hook contract is set, it must have at least 1 flag set
         let address_felt252: felt252 = (*self).into();
-        address_felt252 == 0 || address_felt252.into() >= Permission::AFTER_CLAIM
+        address_felt252 == 0 || (address_felt252.into() & (0x200_u256 - 1)) > 0
     }
 }
