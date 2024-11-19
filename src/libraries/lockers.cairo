@@ -65,7 +65,7 @@ pub impl LockersImpl of LockersTrait {
         let (address_domain, base) = self.get_base_storage_address();
         let packed: felt252 = Store::read(address_domain, base).unwrap_syscall();
         let packed_u256: u256 = packed.into();
-        let length: u32 = (packed_u256 & TWO_POW_32.into() - 1).try_into().unwrap();
+        let length: u32 = (packed_u256 & (TWO_POW_32.into() - 1)).try_into().unwrap();
         let non_zero_delta_count: u128 = (packed_u256 / TWO_POW_32.into()).try_into().unwrap();
         (length, non_zero_delta_count)
     }
