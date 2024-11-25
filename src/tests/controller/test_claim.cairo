@@ -82,10 +82,31 @@ fn test_claim() {
     cheat_caller_address(book_manager.contract_address, MAKER1(), CheatSpan::TargetCalls(1));
     IERC721Dispatcher { contract_address: book_manager.contract_address }
         .approve(controller.contract_address, order_id.into());
+
     cheat_caller_address(controller.contract_address, MAKER1(), CheatSpan::TargetCalls(1));
     claim_order(controller, order_id);
 
     assert_eq!(base.balance_of(MAKER1()) - before_balance, claimable_amount);
     let (_, _, _, claimable_amount) = controller.get_order(order_id);
     assert_eq!(claimable_amount, 0);
+}
+
+
+#[test]
+#[should_panic(expected: ('Unauthorized',))]
+fn test_claim_not_owner() {
+    let (controller, book_manager, base, quote) = setup();
+    let key = valid_key(base, quote);
+
+    cheat_caller_address(controller.contract_address, MAKER1(), CheatSpan::TargetCalls(1));
+    let order_id = make_order(controller, key, PRICE_TICK(), QUOTE_AMOUNT1()).encode();
+
+    cheat_caller_address(controller.contract_address, TAKER1(), CheatSpan::TargetCalls(1));
+    take_order(controller, key, QUOTE_AMOUNT1());
+
+    cheat_caller_address(book_manager.contract_address, MAKER1(), CheatSpan::TargetCalls(1));
+    IERC721Dispatcher { contract_address: book_manager.contract_address }
+        .approve(controller.contract_address, order_id.into());
+
+    claim_order(controller, order_id);
 }
