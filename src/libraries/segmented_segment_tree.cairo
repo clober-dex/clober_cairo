@@ -51,7 +51,7 @@ pub impl SegmentedSegmentTreeImpl of SegmentedSegmentTreeTrait {
         let mut right_node_index: u8 = 0;
         let mut l: u32 = (L - 1).into();
 
-        while l >= 0 {
+        loop {
             let left_index: LayerIndex = *left_indices.at(l);
             let right_index: LayerIndex = *right_indices.at(l);
             left_node_index += left_index.node;
@@ -118,6 +118,9 @@ pub impl SegmentedSegmentTreeImpl of SegmentedSegmentTreeTrait {
                 right_node_index = 1;
             }
 
+            if l == 0 {
+                break;
+            }
             l -= 1;
         };
         (ret - deficit).try_into().unwrap()
