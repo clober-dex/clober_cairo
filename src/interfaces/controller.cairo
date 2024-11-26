@@ -19,6 +19,7 @@ pub mod Errors {
     pub const UNAUTHORIZED: felt252 = 'Unauthorized';
     pub const DEADLINE: felt252 = 'Deadline';
     pub const SLIPPAGE: felt252 = 'Slippage';
+    pub const ERC20_TRANSFER_FAILED: felt252 = 'ERC20 transfer failed';
 }
 
 #[starknet::interface]
