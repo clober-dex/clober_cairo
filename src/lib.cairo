@@ -1,5 +1,6 @@
 pub mod interfaces {
     pub mod book_manager;
+    pub mod book_viewer;
     pub mod controller;
     pub mod locker;
 }
@@ -66,3 +67,7 @@ pub use book_manager::BookManager;
 pub mod controller;
 
 pub use controller::Controller;
+
+pub mod book_viewer;
+
+pub use book_viewer::BookViewer;
