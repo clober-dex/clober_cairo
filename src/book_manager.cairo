@@ -243,7 +243,13 @@ pub mod BookManager {
             let order = book.get_order(decoded_order_id.tick, decoded_order_id.index);
             let claimable = book
                 .calculate_claimable_unit(decoded_order_id.tick, decoded_order_id.index);
-            OrderInfo { provider: order.provider, open: order.pending - claimable, claimable }
+            OrderInfo {
+                provider: order.provider,
+                open: order.pending - claimable,
+                claimable,
+                initial: order.initial,
+                canceled: order.canceled,
+            }
         }
 
         fn get_depth(self: @ContractState, book_id: felt252, tick: Tick) -> u64 {

@@ -30,6 +30,8 @@ pub struct OrderInfo {
     pub provider: ContractAddress,
     pub open: u64,
     pub claimable: u64,
+    pub initial: u64,
+    pub canceled: u64,
 }
 
 #[derive(Drop, starknet::Event)]

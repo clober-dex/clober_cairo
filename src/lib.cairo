@@ -14,6 +14,7 @@ pub mod libraries {
     pub mod i257;
     pub mod lockers;
     pub mod order_id;
+    pub mod order;
     pub mod segmented_segment_tree;
     pub mod storage_array;
     pub mod storage_map;

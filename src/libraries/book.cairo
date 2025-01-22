@@ -13,6 +13,7 @@ use starknet::storage_access::{
 };
 use starknet::{Store, SyscallResult};
 use clober_cairo::utils::constants::{TWO_POW_15, MASK_15};
+use clober_cairo::libraries::order::{Order, OrderStorePacking};
 use clober_cairo::libraries::storage_array::{StorageArray, StorageArrayTrait};
 
 const NOT_IMPLEMENTED: felt252 = 'Not implemented';
@@ -125,12 +126,6 @@ impl QueueStoreImpl of Store<Queue> {
     }
 }
 
-#[derive(Drop, starknet::Store)]
-pub struct Order {
-    pub provider: ContractAddress,
-    pub pending: u64,
-}
-
 #[generate_trait]
 pub impl BookImpl of BookTrait {
     fn depth(self: @Book, tick: Tick) -> u64 {
@@ -209,7 +204,9 @@ pub impl BookImpl of BookTrait {
 
         queue.tree.update((order_index & MASK_15).into(), unit);
 
-        Self::_append_order(ref queue, Order { pending: unit, provider });
+        Self::_append_order(
+            ref queue, Order { pending: unit, provider, initial: unit, canceled: 0 },
+        );
         order_index
     }
 
@@ -242,7 +239,14 @@ pub impl BookImpl of BookTrait {
                 queue.tree.get_node((order_index & MASK_15).into()) - canceled,
             );
         Self::_set_order(
-            ref queue, order_index, Order { pending: after_pending, provider: order.provider },
+            ref queue,
+            order_index,
+            Order {
+                pending: after_pending,
+                provider: order.provider,
+                initial: order.initial,
+                canceled: order.canceled + canceled,
+            },
         );
 
         if Self::depth(@self, tick) == 0 {
