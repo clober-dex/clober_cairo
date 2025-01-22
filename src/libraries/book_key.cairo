@@ -25,7 +25,7 @@ pub impl BookKeyImpl of BookKeyTrait {
     }
 }
 
-impl BookKeyStorePacking of StorePacking<BookKey, [felt252; 4]> {
+pub impl BookKeyStorePacking of StorePacking<BookKey, [felt252; 4]> {
     fn pack(value: BookKey) -> [felt252; 4] {
         let packed: u128 = value.unit_size.into()
             + TWO_POW_64 * value.maker_policy.encode().into()
