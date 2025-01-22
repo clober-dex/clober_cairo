@@ -169,4 +169,6 @@ pub trait IBookManager<TContractState> {
     fn whitelist(ref self: TContractState, provider: ContractAddress);
     fn delist(ref self: TContractState, provider: ContractAddress);
     fn set_default_provider(ref self: TContractState, new_default_provider: ContractAddress);
+
+    fn all_tokens_of_owner(self: @TContractState, owner: ContractAddress) -> Span<u256>;
 }

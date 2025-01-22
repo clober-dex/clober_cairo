@@ -2,7 +2,9 @@
 pub mod BookManager {
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
+    use openzeppelin_token::erc721::ERC721Component;
+    use openzeppelin_token::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
+
     use openzeppelin_access::ownable::OwnableComponent;
     use core::num::traits::zero::Zero;
     use starknet::storage::Map;
@@ -23,6 +25,9 @@ pub mod BookManager {
     use clober_cairo::libraries::lockers::{Lockers, LockersTrait};
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
+    component!(
+        path: ERC721EnumerableComponent, storage: erc721_enumerable, event: ERC721EnumerableEvent,
+    );
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
@@ -42,7 +47,11 @@ pub mod BookManager {
     #[abi(embed_v0)]
     impl ERC721MetadataCamelOnly =
         ERC721Component::ERC721MetadataCamelOnlyImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721EnumerableImpl =
+        ERC721EnumerableComponent::ERC721EnumerableImpl<ContractState>;
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+    impl ERC721EnumerableInternalImpl = ERC721EnumerableComponent::InternalImpl<ContractState>;
 
     // SRC5
     #[abi(embed_v0)]
@@ -54,6 +63,8 @@ pub mod BookManager {
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]
         erc721: ERC721Component::Storage,
+        #[substorage(v0)]
+        erc721_enumerable: ERC721EnumerableComponent::Storage,
         #[substorage(v0)]
         src5: SRC5Component::Storage,
         lockers: Lockers,
@@ -77,6 +88,8 @@ pub mod BookManager {
         ERC721Event: ERC721Component::Event,
         #[flat]
         SRC5Event: SRC5Component::Event,
+        #[flat]
+        ERC721EnumerableEvent: ERC721EnumerableComponent::Event,
         Open: Open,
         Make: Make,
         Take: Take,
@@ -98,8 +111,31 @@ pub mod BookManager {
     ) {
         self.ownable.initializer(owner);
         self.erc721.initializer("Clober Orderbook Maker Order", "CLOB-ORDER", base_uri);
+        self.erc721_enumerable.initializer();
         self._set_default_provider(default_provider);
         self.contract_uri.write(contract_uri);
+    }
+
+    impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+        fn before_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress,
+        ) {
+            // Call ERC721Enumerable's before_update
+            let mut state = self.get_contract_mut();
+            ERC721EnumerableComponent::InternalImpl::<
+                ContractState,
+            >::before_update(ref state.erc721_enumerable, to, token_id);
+        }
+
+        fn after_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress,
+        ) {}
     }
 
     #[generate_trait]
@@ -553,6 +589,10 @@ pub mod BookManager {
         fn set_default_provider(ref self: ContractState, new_default_provider: ContractAddress) {
             self.ownable.assert_only_owner();
             self._set_default_provider(new_default_provider);
+        }
+
+        fn all_tokens_of_owner(self: @ContractState, owner: ContractAddress) -> Span<u256> {
+            self.erc721_enumerable.all_tokens_of_owner(owner)
         }
     }
 }
