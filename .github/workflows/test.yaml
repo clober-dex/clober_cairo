@@ -15,22 +15,22 @@ jobs:
     name: Lint and test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Extract scarb version
-      run: |
-        SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
-        echo "SCARB_VERSION=$SCARB_VERSION" >> $GITHUB_ENV
-    - uses: software-mansion/setup-scarb@v1
-      with:
-        scarb-version: ${{ env.SCARB_VERSION }}
-    - name: Extract foundry version
-      run: |
-        FOUNDRY_VERSION=$(grep 'snforge_std = ' Scarb.toml | sed 's/snforge_std = .\+ tag = "v\(.*\)".*/\1/')
-        echo "FOUNDRY_VERSION=$FOUNDRY_VERSION" >> "$GITHUB_ENV"
-    - uses: foundry-rs/setup-snfoundry@v3
-      with:
-        starknet-foundry-version: ${{ env.FOUNDRY_VERSION }}
-    - name: Cairo lint
-      run: scarb fmt --check
-    - name: Cairo test
-      run: snforge test
+      - uses: actions/checkout@v4
+      - name: Extract scarb version
+        run: |
+          SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
+          echo "SCARB_VERSION=$SCARB_VERSION" >> $GITHUB_ENV
+      - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+      - name: Extract foundry version
+        run: |
+          FOUNDRY_VERSION=$(grep 'snforge_std = ' Scarb.toml | sed 's/snforge_std = "\(.*\)"/\1/')
+          echo "FOUNDRY_VERSION=$FOUNDRY_VERSION" >> "$GITHUB_ENV"
+      - uses: foundry-rs/setup-snfoundry@v3
+        with:
+          starknet-foundry-version: ${{ env.FOUNDRY_VERSION }}
+      - name: Cairo lint
+        run: scarb fmt --check
+      - name: Cairo test
+        run: snforge test
