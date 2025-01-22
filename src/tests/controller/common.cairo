@@ -64,8 +64,8 @@ pub fn make_order(
                 tick,
                 quote_amount,
                 ArrayTrait::new().span(),
-                get_block_timestamp()
-            )
+                get_block_timestamp(),
+            ),
     )
 }
 
@@ -86,12 +86,12 @@ pub fn limit_order(
                 quote_amount,
                 ArrayTrait::new().span(),
                 ArrayTrait::new().span(),
-                get_block_timestamp()
-            )
+                get_block_timestamp(),
+            ),
     )
 }
 
-pub fn take_order(controller: IControllerDispatcher, book_key: BookKey, quote_amount: u256,) {
+pub fn take_order(controller: IControllerDispatcher, book_key: BookKey, quote_amount: u256) {
     controller
         .take(
             book_key.to_id(),
@@ -99,14 +99,14 @@ pub fn take_order(controller: IControllerDispatcher, book_key: BookKey, quote_am
             quote_amount,
             TWO_POW_248,
             ArrayTrait::new().span(),
-            get_block_timestamp()
+            get_block_timestamp(),
         );
 }
 
-pub fn spend_order(controller: IControllerDispatcher, book_key: BookKey, base_amount: u256,) {
+pub fn spend_order(controller: IControllerDispatcher, book_key: BookKey, base_amount: u256) {
     controller
         .spend(
-            book_key.to_id(), 0, base_amount, 0, ArrayTrait::new().span(), get_block_timestamp()
+            book_key.to_id(), 0, base_amount, 0, ArrayTrait::new().span(), get_block_timestamp(),
         );
 }
 

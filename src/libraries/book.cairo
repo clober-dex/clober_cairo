@@ -3,13 +3,13 @@ use clober_cairo::libraries::tick_bitmap::TickBitmap;
 use clober_cairo::libraries::tick_bitmap::TickBitmapTrait;
 use clober_cairo::libraries::total_claimable_map::{TotalClaimableOf, TotalClaimableOfTrait};
 use clober_cairo::libraries::segmented_segment_tree::{
-    SegmentedSegmentTree, SegmentedSegmentTreeTrait
+    SegmentedSegmentTree, SegmentedSegmentTreeTrait,
 };
 use clober_cairo::libraries::order_id::OrderId;
 use clober_cairo::libraries::storage_map::{StorageMap, Felt252Map, Felt252MapTrait};
 use starknet::ContractAddress;
 use starknet::storage_access::{
-    StorageBaseAddress, storage_address_from_base, storage_base_address_from_felt252
+    StorageBaseAddress, storage_address_from_base, storage_base_address_from_felt252,
 };
 use starknet::{Store, SyscallResult};
 use clober_cairo::utils::constants::{TWO_POW_15, MASK_15};
@@ -27,7 +27,7 @@ pub struct Book {
 #[derive(Drop)]
 pub struct Queue {
     tree: SegmentedSegmentTree,
-    orders: StorageArray<Order>
+    orders: StorageArray<Order>,
 }
 
 pub mod Errors {
@@ -46,15 +46,15 @@ impl BookStoreImpl of Store<Book> {
             Book {
                 queues: Felt252MapTrait::fetch(address_domain, base),
                 tick_bitmap: Felt252MapTrait::fetch(
-                    address_domain, storage_base_address_from_felt252(base_felt252 + queues_offset)
+                    address_domain, storage_base_address_from_felt252(base_felt252 + queues_offset),
                 ),
                 total_claimable_of: Felt252MapTrait::fetch(
                     address_domain,
                     storage_base_address_from_felt252(
-                        base_felt252 + queues_offset + tick_bitmap_offset
-                    )
-                )
-            }
+                        base_felt252 + queues_offset + tick_bitmap_offset,
+                    ),
+                ),
+            },
         )
     }
 
@@ -65,14 +65,14 @@ impl BookStoreImpl of Store<Book> {
 
     #[inline(always)]
     fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, offset: u8
+        address_domain: u32, base: StorageBaseAddress, offset: u8,
     ) -> SyscallResult<Book> {
         SyscallResult::Err(array![NOT_IMPLEMENTED])
     }
 
     #[inline(always)]
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, offset: u8, value: Book
+        address_domain: u32, base: StorageBaseAddress, offset: u8, value: Book,
     ) -> SyscallResult<()> {
         SyscallResult::Err(array![NOT_IMPLEMENTED])
     }
@@ -94,9 +94,9 @@ impl QueueStoreImpl of Store<Queue> {
             Queue {
                 tree: Felt252MapTrait::fetch(address_domain, base),
                 orders: StorageArrayTrait::fetch(
-                    address_domain, storage_base_address_from_felt252(base_felt252 + tree_offset)
-                )
-            }
+                    address_domain, storage_base_address_from_felt252(base_felt252 + tree_offset),
+                ),
+            },
         )
     }
 
@@ -107,14 +107,14 @@ impl QueueStoreImpl of Store<Queue> {
 
     #[inline(always)]
     fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, offset: u8
+        address_domain: u32, base: StorageBaseAddress, offset: u8,
     ) -> SyscallResult<Queue> {
         SyscallResult::Err(array![NOT_IMPLEMENTED])
     }
 
     #[inline(always)]
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, offset: u8, value: Queue
+        address_domain: u32, base: StorageBaseAddress, offset: u8, value: Queue,
     ) -> SyscallResult<()> {
         SyscallResult::Err(array![NOT_IMPLEMENTED])
     }
@@ -128,7 +128,7 @@ impl QueueStoreImpl of Store<Queue> {
 #[derive(Drop, starknet::Store)]
 pub struct Order {
     pub provider: ContractAddress,
-    pub pending: u64
+    pub pending: u64,
 }
 
 #[generate_trait]
@@ -239,10 +239,10 @@ pub impl BookImpl of BookTrait {
             .tree
             .update(
                 (order_index & MASK_15).into(),
-                queue.tree.get_node((order_index & MASK_15).into()) - canceled
+                queue.tree.get_node((order_index & MASK_15).into()) - canceled,
             );
         Self::_set_order(
-            ref queue, order_index, Order { pending: after_pending, provider: order.provider }
+            ref queue, order_index, Order { pending: after_pending, provider: order.provider },
         );
 
         if Self::depth(@self, tick) == 0 {

@@ -10,7 +10,9 @@ fn test_make() {
     let mut book: Book = Book {
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325)),
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: Felt252MapTrait::fetch(
+            0, storage_base_address_from_felt252(0x87654327),
+        ),
     };
     let mut tick: Tick = 0_i32.into();
     let mut index = book.make(tick, 100, ZERO_ADDRESS());
@@ -38,7 +40,9 @@ fn test_make_with_zero_unit() {
     let mut book: Book = Book {
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325)),
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: Felt252MapTrait::fetch(
+            0, storage_base_address_from_felt252(0x87654327),
+        ),
     };
     let mut tick: Tick = 0_i32.into();
     book.make(tick, 0, ZERO_ADDRESS());
@@ -49,7 +53,9 @@ fn test_take() {
     let mut book: Book = Book {
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325)),
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: Felt252MapTrait::fetch(
+            0, storage_base_address_from_felt252(0x87654327),
+        ),
     };
     let mut tick: Tick = 0_i32.into();
 
@@ -77,7 +83,9 @@ fn test_take_and_clean_tick_bitmap() {
     let mut book: Book = Book {
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325)),
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: Felt252MapTrait::fetch(
+            0, storage_base_address_from_felt252(0x87654327),
+        ),
     };
     let mut tick: Tick = 0_i32.into();
 
@@ -95,7 +103,9 @@ fn test_cancel() {
     let mut book: Book = Book {
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325)),
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: Felt252MapTrait::fetch(
+            0, storage_base_address_from_felt252(0x87654327),
+        ),
     };
 
     let mut tick: Tick = 0_i32.into();
@@ -136,7 +146,9 @@ fn test_cancel_to_too_large_amount() {
     let mut book: Book = Book {
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325)),
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: Felt252MapTrait::fetch(
+            0, storage_base_address_from_felt252(0x87654327),
+        ),
     };
 
     let mut tick: Tick = 0_i32.into();
@@ -160,7 +172,9 @@ fn test_cancel_and_remove() {
     let mut book: Book = Book {
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325)),
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: Felt252MapTrait::fetch(
+            0, storage_base_address_from_felt252(0x87654327),
+        ),
     };
 
     book.make(0_i32.into(), 100, ZERO_ADDRESS());
@@ -183,7 +197,9 @@ fn test_claim() {
     let mut book: Book = Book {
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325)),
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: Felt252MapTrait::fetch(
+            0, storage_base_address_from_felt252(0x87654327),
+        ),
     };
 
     let mut tick: Tick = 0_i32.into();
@@ -219,7 +235,9 @@ fn test_calculate_claimable_unit() {
     let mut book: Book = Book {
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325)),
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: Felt252MapTrait::fetch(
+            0, storage_base_address_from_felt252(0x87654327),
+        ),
     };
 
     book.make(0_i32.into(), 100, ZERO_ADDRESS());
@@ -238,7 +256,9 @@ fn test_calculate_claimable_unit_not_overflow() {
     let mut book: Book = Book {
         queues: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654321)),
         tick_bitmap: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654325)),
-        total_claimable_of: Felt252MapTrait::fetch(0, storage_base_address_from_felt252(0x87654327))
+        total_claimable_of: Felt252MapTrait::fetch(
+            0, storage_base_address_from_felt252(0x87654327),
+        ),
     };
 
     book.make(0_i32.into(), (TWO_POW_62 - 1), ZERO_ADDRESS());

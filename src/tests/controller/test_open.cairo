@@ -29,7 +29,7 @@ fn setup() -> (IControllerDispatcher, IBookManagerDispatcher, IERC20Dispatcher, 
         IControllerDispatcher { contract_address: controller },
         IBookManagerDispatcher { contract_address: book_manager },
         base,
-        quote
+        quote,
     )
 }
 

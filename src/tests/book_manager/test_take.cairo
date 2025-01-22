@@ -1,16 +1,16 @@
 use clober_cairo::interfaces::book_manager::{
-    IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams, TakeParams
+    IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams, TakeParams,
 };
 use clober_cairo::libraries::book_key::BookKeyTrait;
 use clober_cairo::libraries::tick::{Tick, TickTrait};
 use clober_cairo::mocks::open_router::OpenRouter::{
-    IOpenRouterDispatcher, IOpenRouterDispatcherTrait
+    IOpenRouterDispatcher, IOpenRouterDispatcherTrait,
 };
 use clober_cairo::mocks::make_router::MakeRouter::{
-    IMakeRouterDispatcher, IMakeRouterDispatcherTrait
+    IMakeRouterDispatcher, IMakeRouterDispatcherTrait,
 };
 use clober_cairo::mocks::take_router::TakeRouter::{
-    ITakeRouterDispatcher, ITakeRouterDispatcherTrait
+    ITakeRouterDispatcher, ITakeRouterDispatcherTrait,
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 use clober_cairo::tests::book_manager::common::{BookManagerSpyHelpers, valid_key};
@@ -27,7 +27,7 @@ fn setup() -> (
     IMakeRouterDispatcher,
     ITakeRouterDispatcher,
     IERC20Dispatcher,
-    IERC20Dispatcher
+    IERC20Dispatcher,
 ) {
     let mut calldata = array![];
 
@@ -41,7 +41,7 @@ fn setup() -> (
     calldata.append_serde(book_manager);
     let open_router = utils::declare_and_deploy("OpenRouter", calldata);
     let (base, quote) = deploy_token_pairs(
-        1000000000000000000 * 1000000000000000000, 1000000000000000000 * 1000000, OWNER(), OWNER()
+        1000000000000000000 * 1000000000000000000, 1000000000000000000 * 1000000, OWNER(), OWNER(),
     );
 
     let mut calldata = array![];
@@ -66,7 +66,7 @@ fn setup() -> (
         IMakeRouterDispatcher { contract_address: make_router },
         ITakeRouterDispatcher { contract_address: take_router },
         base,
-        quote
+        quote,
     )
 }
 
@@ -80,7 +80,7 @@ fn test_success() {
     cheat_caller_address(make_router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     let (order_id, _) = make_router
         .make(
-            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span()
+            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span(),
         );
 
     let before_quote_balance = quote.balance_of(OWNER());
@@ -95,7 +95,7 @@ fn test_success() {
         .take(TakeParams { key, tick, max_unit: take_unit }, ArrayTrait::new().span());
     spy
         .assert_only_event_take(
-            bm.contract_address, key.to_id(), take_router.contract_address, tick, take_unit
+            bm.contract_address, key.to_id(), take_router.contract_address, tick, take_unit,
         );
 
     let order_info = bm.get_order(order_id);
@@ -106,7 +106,7 @@ fn test_success() {
     assert_eq!(base.balance_of(OWNER()), before_base_balance - base_amount);
     assert_eq!(
         bm.reserves_of(quote.contract_address),
-        make_unit.into() * key.unit_size.into() - quote_amount
+        make_unit.into() * key.unit_size.into() - quote_amount,
     );
     assert_eq!(bm.reserves_of(base.contract_address), base_amount);
     assert_eq!(bm.get_depth(key.to_id(), tick), make_unit - take_unit);
@@ -127,7 +127,7 @@ fn test_success_with_greater_max_unit() {
     cheat_caller_address(make_router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     let (order_id, _) = make_router
         .make(
-            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span()
+            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span(),
         );
 
     let before_quote_balance = quote.balance_of(OWNER());
@@ -142,7 +142,7 @@ fn test_success_with_greater_max_unit() {
         .take(TakeParams { key, tick, max_unit: take_unit }, ArrayTrait::new().span());
     spy
         .assert_only_event_take(
-            bm.contract_address, key.to_id(), take_router.contract_address, tick, make_unit
+            bm.contract_address, key.to_id(), take_router.contract_address, tick, make_unit,
         );
 
     let order_info = bm.get_order(order_id);

@@ -131,7 +131,7 @@ pub trait IBookManager<TContractState> {
     fn reserves_of(self: @TContractState, currency: ContractAddress) -> u256;
     fn is_whitelisted(self: @TContractState, provider: ContractAddress) -> bool;
     fn check_authorized(
-        self: @TContractState, owner: ContractAddress, spender: ContractAddress, token_id: felt252
+        self: @TContractState, owner: ContractAddress, spender: ContractAddress, token_id: felt252,
     );
     fn token_owed(self: @TContractState, owner: ContractAddress, currency: ContractAddress) -> u256;
     fn get_lock(self: @TContractState, i: u32) -> (ContractAddress, ContractAddress);
@@ -151,19 +151,19 @@ pub trait IBookManager<TContractState> {
     fn encode_book_key(self: @TContractState, book_key: BookKey) -> felt252;
     fn open(ref self: TContractState, key: BookKey, hook_data: Span<felt252>) -> felt252;
     fn lock(
-        ref self: TContractState, locker: ContractAddress, data: Span<felt252>
+        ref self: TContractState, locker: ContractAddress, data: Span<felt252>,
     ) -> Span<felt252>;
     fn make(
-        ref self: TContractState, params: MakeParams, hook_data: Span<felt252>
+        ref self: TContractState, params: MakeParams, hook_data: Span<felt252>,
     ) -> (felt252, u256);
     fn take(ref self: TContractState, params: TakeParams, hook_data: Span<felt252>) -> (u256, u256);
     fn cancel(ref self: TContractState, params: CancelParams, hook_data: Span<felt252>) -> u256;
     fn claim(ref self: TContractState, id: felt252, hook_data: Span<felt252>) -> u256;
     fn collect(
-        ref self: TContractState, recipient: ContractAddress, currency: ContractAddress
+        ref self: TContractState, recipient: ContractAddress, currency: ContractAddress,
     ) -> u256;
     fn withdraw(
-        ref self: TContractState, currency: ContractAddress, to: ContractAddress, amount: u256
+        ref self: TContractState, currency: ContractAddress, to: ContractAddress, amount: u256,
     );
     fn settle(ref self: TContractState, currency: ContractAddress) -> u256;
     fn whitelist(ref self: TContractState, provider: ContractAddress);

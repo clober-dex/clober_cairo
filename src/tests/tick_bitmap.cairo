@@ -44,7 +44,7 @@ fn sort<T, +Copy<T>, +Drop<T>, +PartialOrd<T>>(mut array: Span<T>) -> Array<T> {
 #[test]
 fn test_highest() {
     let mut bitmap: TickBitmap = Felt252MapTrait::fetch(
-        0, storage_base_address_from_felt252(0x87654321)
+        0, storage_base_address_from_felt252(0x87654321),
     );
     let numbers = array![
         -263808,
@@ -128,7 +128,7 @@ fn test_highest() {
         -70273,
         91649,
         -613,
-        -433167
+        -433167,
     ];
     let mut elements = sort(_set(ref bitmap, numbers).span());
     assert!(!bitmap.is_empty(), "HAS_TO_BE_OCCUPIED");
@@ -147,7 +147,7 @@ fn test_highest() {
 #[test]
 fn test_clear() {
     let mut bitmap: TickBitmap = Felt252MapTrait::fetch(
-        0, storage_base_address_from_felt252(0x87654321)
+        0, storage_base_address_from_felt252(0x87654321),
     );
     let numbers = array![
         -613,
@@ -223,7 +223,7 @@ fn test_clear() {
         -143436,
         228369,
         295686,
-        163031
+        163031,
     ];
     let mut elements = sort(_set(ref bitmap, numbers).span());
     assert!(!bitmap.is_empty(), "HAS_TO_BE_OCCUPIED");
@@ -250,7 +250,7 @@ fn test_clear() {
 #[should_panic(expected: ('AlreadyExistsError',))]
 fn test_set() {
     let mut bitmap: TickBitmap = Felt252MapTrait::fetch(
-        0, storage_base_address_from_felt252(0x87654321)
+        0, storage_base_address_from_felt252(0x87654321),
     );
     let number: i32 = 5;
 

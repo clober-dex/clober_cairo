@@ -24,18 +24,18 @@ pub mod Errors {
 
 #[starknet::interface]
 pub trait IController<TContractState> {
-    fn get_depth(self: @TContractState, book_id: felt252, tick: Tick,) -> u64;
+    fn get_depth(self: @TContractState, book_id: felt252, tick: Tick) -> u64;
 
-    fn get_highest_price(self: @TContractState, book_id: felt252,) -> u256;
+    fn get_highest_price(self: @TContractState, book_id: felt252) -> u256;
 
-    fn get_order(self: @TContractState, order_id: felt252,) -> (ContractAddress, u256, u256, u256);
+    fn get_order(self: @TContractState, order_id: felt252) -> (ContractAddress, u256, u256, u256);
 
     fn from_price(self: @TContractState, price: u256) -> Tick;
 
     fn to_price(self: @TContractState, tick: Tick) -> u256;
 
     fn open(
-        ref self: TContractState, book_key: BookKey, hook_data: Span<felt252>, deadline: u64
+        ref self: TContractState, book_key: BookKey, hook_data: Span<felt252>, deadline: u64,
     ) -> felt252;
 
     fn make(
@@ -44,7 +44,7 @@ pub trait IController<TContractState> {
         tick: Tick,
         quote_amount: u256,
         hook_data: Span<felt252>,
-        deadline: u64
+        deadline: u64,
     ) -> felt252;
 
     fn limit(
@@ -56,7 +56,7 @@ pub trait IController<TContractState> {
         quote_amount: u256,
         take_hook_data: Span<felt252>,
         make_hook_data: Span<felt252>,
-        deadline: u64
+        deadline: u64,
     ) -> felt252;
 
     fn take(
@@ -66,7 +66,7 @@ pub trait IController<TContractState> {
         quote_amount: u256,
         max_base_amount: u256,
         hook_data: Span<felt252>,
-        deadline: u64
+        deadline: u64,
     );
 
     fn spend(
@@ -76,7 +76,7 @@ pub trait IController<TContractState> {
         base_amount: u256,
         min_quote_amount: u256,
         hook_data: Span<felt252>,
-        deadline: u64
+        deadline: u64,
     );
 
     fn claim(ref self: TContractState, order_id: felt252, hook_data: Span<felt252>, deadline: u64);
@@ -86,6 +86,6 @@ pub trait IController<TContractState> {
         order_id: felt252,
         left_quote_amount: u256,
         hook_data: Span<felt252>,
-        deadline: u64
+        deadline: u64,
     );
 }

@@ -51,7 +51,7 @@ pub impl HooksImpl of HooksTrait {
                 && *permissions.afterCancel == self.has_permission(Permission::AFTER_CANCEL)
                 && *permissions.beforeClaim == self.has_permission(Permission::BEFORE_CLAIM)
                 && *permissions.afterClaim == self.has_permission(Permission::AFTER_CLAIM),
-            Errors::INVALID_HOOK_ADDRESS
+            Errors::INVALID_HOOK_ADDRESS,
         )
     }
 

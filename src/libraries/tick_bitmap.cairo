@@ -46,7 +46,7 @@ pub impl TickBitmapImpl of TickBitmapTrait {
                     ref self,
                     B0_BITMAP_KEY,
                     Self::_get(@self, B0_BITMAP_KEY)
-                        | fast_power(2_u256, (~b1BitmapKey).into()).into()
+                        | fast_power(2_u256, (~b1BitmapKey).into()).into(),
                 );
             }
         }

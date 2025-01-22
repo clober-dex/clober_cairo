@@ -1,19 +1,19 @@
 use clober_cairo::interfaces::book_manager::{
-    IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams, TakeParams
+    IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams, TakeParams,
 };
 use clober_cairo::libraries::book_key::BookKeyTrait;
 use clober_cairo::libraries::tick::{Tick, TickTrait};
 use clober_cairo::mocks::open_router::OpenRouter::{
-    IOpenRouterDispatcher, IOpenRouterDispatcherTrait
+    IOpenRouterDispatcher, IOpenRouterDispatcherTrait,
 };
 use clober_cairo::mocks::make_router::MakeRouter::{
-    IMakeRouterDispatcher, IMakeRouterDispatcherTrait
+    IMakeRouterDispatcher, IMakeRouterDispatcherTrait,
 };
 use clober_cairo::mocks::take_router::TakeRouter::{
-    ITakeRouterDispatcher, ITakeRouterDispatcherTrait
+    ITakeRouterDispatcher, ITakeRouterDispatcherTrait,
 };
 use clober_cairo::mocks::claim_router::ClaimRouter::{
-    IClaimRouterDispatcher, IClaimRouterDispatcherTrait
+    IClaimRouterDispatcher, IClaimRouterDispatcherTrait,
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 use clober_cairo::tests::book_manager::common::{BookManagerSpyHelpers, valid_key};
@@ -32,7 +32,7 @@ fn setup() -> (
     ITakeRouterDispatcher,
     IClaimRouterDispatcher,
     IERC20Dispatcher,
-    IERC20Dispatcher
+    IERC20Dispatcher,
 ) {
     let mut calldata = array![];
 
@@ -46,7 +46,7 @@ fn setup() -> (
     calldata.append_serde(book_manager);
     let open_router = utils::declare_and_deploy("OpenRouter", calldata);
     let (base, quote) = deploy_token_pairs(
-        1000000000000000000 * 1000000000000000000, 1000000000000000000 * 1000000, OWNER(), OWNER()
+        1000000000000000000 * 1000000000000000000, 1000000000000000000 * 1000000, OWNER(), OWNER(),
     );
 
     let mut calldata = array![];
@@ -76,7 +76,7 @@ fn setup() -> (
         ITakeRouterDispatcher { contract_address: take_router },
         IClaimRouterDispatcher { contract_address: claim_router },
         base,
-        quote
+        quote,
     )
 }
 
@@ -90,7 +90,7 @@ fn test_success() {
     cheat_caller_address(make_router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     let (order_id, _) = make_router
         .make(
-            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span()
+            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span(),
         );
 
     let take_unit = 1000;
@@ -119,12 +119,12 @@ fn test_success() {
     assert_eq!(quote.balance_of(OWNER()), before_quote_balance);
     assert_eq!(
         base.balance_of(OWNER()),
-        before_base_balance + tick.quote_to_base(take_unit.into() * key.unit_size.into(), false)
+        before_base_balance + tick.quote_to_base(take_unit.into() * key.unit_size.into(), false),
     );
     assert_eq!(bm.reserves_of(quote.contract_address), before_quote_reserve);
     assert_eq!(
         bm.reserves_of(base.contract_address),
-        before_base_reserve - tick.quote_to_base(take_unit.into() * key.unit_size.into(), false)
+        before_base_reserve - tick.quote_to_base(take_unit.into() * key.unit_size.into(), false),
     );
     assert_eq!(bm.get_depth(key.to_id(), tick), make_unit - take_unit);
     assert_eq!(bm.get_highest(key.to_id()), tick);
@@ -145,7 +145,7 @@ fn test_claim_should_burn_with_zero_pending_order() {
     cheat_caller_address(make_router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     let (order_id, _) = make_router
         .make(
-            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span()
+            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span(),
         );
 
     cheat_caller_address(take_router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
@@ -172,12 +172,12 @@ fn test_claim_should_burn_with_zero_pending_order() {
     assert_eq!(quote.balance_of(OWNER()), before_quote_balance);
     assert_eq!(
         base.balance_of(OWNER()),
-        before_base_balance + tick.quote_to_base(make_unit.into() * key.unit_size.into(), false)
+        before_base_balance + tick.quote_to_base(make_unit.into() * key.unit_size.into(), false),
     );
     assert_eq!(bm.reserves_of(quote.contract_address), before_quote_reserve);
     assert_eq!(
         bm.reserves_of(base.contract_address),
-        before_base_reserve - tick.quote_to_base(make_unit.into() * key.unit_size.into(), false)
+        before_base_reserve - tick.quote_to_base(make_unit.into() * key.unit_size.into(), false),
     );
     assert_eq!(bm.get_depth(key.to_id(), tick), 0);
     assert!(bm.is_empty(key.to_id()));

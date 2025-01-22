@@ -1,15 +1,15 @@
 use clober_cairo::interfaces::book_manager::{
-    IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams
+    IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams,
 };
 use clober_cairo::libraries::book_key::BookKeyTrait;
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
 use clober_cairo::utils::constants::{MAX_TICK, MIN_TICK};
 use clober_cairo::mocks::open_router::OpenRouter::{
-    IOpenRouterDispatcher, IOpenRouterDispatcherTrait
+    IOpenRouterDispatcher, IOpenRouterDispatcherTrait,
 };
 use clober_cairo::mocks::make_router::MakeRouter::{
-    IMakeRouterDispatcher, IMakeRouterDispatcherTrait
+    IMakeRouterDispatcher, IMakeRouterDispatcherTrait,
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 use clober_cairo::tests::book_manager::common::{BookManagerSpyHelpers, valid_key};
@@ -25,7 +25,7 @@ fn setup() -> (
     IOpenRouterDispatcher,
     IMakeRouterDispatcher,
     IERC20Dispatcher,
-    IERC20Dispatcher
+    IERC20Dispatcher,
 ) {
     let mut calldata = array![];
 
@@ -39,7 +39,7 @@ fn setup() -> (
     calldata.append_serde(book_manager);
     let open_router = utils::declare_and_deploy("OpenRouter", calldata);
     let (base, quote) = deploy_token_pairs(
-        1000000000000000000 * 1000000000000000000, 1000000000000000000 * 1000000, OWNER(), OWNER()
+        1000000000000000000 * 1000000000000000000, 1000000000000000000 * 1000000, OWNER(), OWNER(),
     );
 
     let mut calldata = array![];
@@ -57,7 +57,7 @@ fn setup() -> (
         IOpenRouterDispatcher { contract_address: open_router },
         IMakeRouterDispatcher { contract_address: make_router },
         base,
-        quote
+        quote,
     )
 }
 
@@ -76,7 +76,7 @@ fn test_success() {
 
     let (id, quote_amount) = make_router
         .make(
-            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span()
+            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span(),
         );
     let order_info = bm.get_order(id);
     let erc721 = IERC721Dispatcher { contract_address: bm.contract_address };
@@ -89,7 +89,7 @@ fn test_success() {
             tick,
             0,
             make_unit,
-            ZERO()
+            ZERO(),
         );
 
     assert_eq!(OrderId { book_id: key.to_id(), tick, index: 0 }.encode(), id);
@@ -116,7 +116,7 @@ fn test_make_with_invalid_provider() {
     make_router
         .make(
             MakeParams { key, tick: 100000, unit: 10000, provider: OTHER() },
-            ArrayTrait::new().span()
+            ArrayTrait::new().span(),
         );
 }
 
@@ -130,7 +130,7 @@ fn test_make_with_invalid_tick1() {
     make_router
         .make(
             MakeParams { key, tick: MAX_TICK + 1, unit: 10000, provider: ZERO() },
-            ArrayTrait::new().span()
+            ArrayTrait::new().span(),
         );
 }
 
@@ -144,7 +144,7 @@ fn test_make_with_invalid_tick2() {
     make_router
         .make(
             MakeParams { key, tick: MIN_TICK - 1, unit: 10000, provider: ZERO() },
-            ArrayTrait::new().span()
+            ArrayTrait::new().span(),
         );
 }
 
@@ -157,6 +157,6 @@ fn test_make_with_invalid_book_key() {
     make_router
         .make(
             MakeParams { key, tick: 100000, unit: 10000, provider: ZERO() },
-            ArrayTrait::new().span()
+            ArrayTrait::new().span(),
         );
 }

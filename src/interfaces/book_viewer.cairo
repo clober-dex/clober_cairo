@@ -12,7 +12,7 @@ pub trait IBookViewer<TContractState> {
     fn book_manager(self: @TContractState) -> ContractAddress;
 
     fn get_liquidity(
-        self: @TContractState, book_id: felt252, tick: Tick, n: u32
+        self: @TContractState, book_id: felt252, tick: Tick, n: u32,
     ) -> Span<Liquidity>;
 
     fn get_expected_input(

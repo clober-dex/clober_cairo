@@ -4,7 +4,7 @@ pub mod MakeRouter {
     use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use clober_cairo::interfaces::book_manager::{
-        IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams
+        IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams,
     };
     use clober_cairo::interfaces::locker::ILocker;
 
@@ -21,14 +21,14 @@ pub mod MakeRouter {
     #[starknet::interface]
     pub trait IMakeRouter<TContractState> {
         fn make(
-            self: @TContractState, params: MakeParams, hook_data: Span<felt252>
+            self: @TContractState, params: MakeParams, hook_data: Span<felt252>,
         ) -> (felt252, u256);
     }
 
     #[abi(embed_v0)]
     impl MakeRouterImpl of IMakeRouter<ContractState> {
         fn make(
-            self: @ContractState, params: MakeParams, hook_data: Span<felt252>
+            self: @ContractState, params: MakeParams, hook_data: Span<felt252>,
         ) -> (felt252, u256) {
             let mut data: Array<felt252> = ArrayTrait::new();
             Serde::serialize(@get_caller_address(), ref data);
@@ -48,12 +48,12 @@ pub mod MakeRouter {
     #[abi(embed_v0)]
     impl LockerImpl of ILocker<ContractState> {
         fn lock_acquired(
-            ref self: ContractState, lock_caller: ContractAddress, mut data: Span<felt252>
+            ref self: ContractState, lock_caller: ContractAddress, mut data: Span<felt252>,
         ) -> Span<felt252> {
             let bm = IBookManagerDispatcher { contract_address: self.book_manager.read() };
             assert(bm.contract_address == get_caller_address(), 'Invalid caller');
             let (payer, params, hook_data) = Serde::<
-                (ContractAddress, MakeParams, Span<felt252>)
+                (ContractAddress, MakeParams, Span<felt252>),
             >::deserialize(ref data)
                 .unwrap();
             let (id, quote_amount) = bm.make(params, hook_data);

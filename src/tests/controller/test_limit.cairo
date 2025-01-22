@@ -5,7 +5,7 @@ use clober_cairo::libraries::book_key::BookKey;
 use clober_cairo::libraries::fee_policy::FeePolicy;
 use clober_cairo::utils::constants::WAD;
 use clober_cairo::tests::controller::common::{
-    valid_key, make_order, limit_order, PRICE_TICK, MAKER1, TAKER1, QUOTE_AMOUNT1, QUOTE_AMOUNT3
+    valid_key, make_order, limit_order, PRICE_TICK, MAKER1, TAKER1, QUOTE_AMOUNT1, QUOTE_AMOUNT3,
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 

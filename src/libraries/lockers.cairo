@@ -20,14 +20,14 @@ impl StoreLockers of Store<Lockers> {
 
     #[inline(always)]
     fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, offset: u8
+        address_domain: u32, base: StorageBaseAddress, offset: u8,
     ) -> SyscallResult<Lockers> {
         SyscallResult::Err(array![NOT_IMPLEMENTED])
     }
 
     #[inline(always)]
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, offset: u8, value: Lockers
+        address_domain: u32, base: StorageBaseAddress, offset: u8, value: Lockers,
     ) -> SyscallResult<()> {
         SyscallResult::Err(array![NOT_IMPLEMENTED])
     }

@@ -2,7 +2,7 @@
 pub mod ClaimRouter {
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
     use clober_cairo::interfaces::book_manager::{
-        IBookManagerDispatcher, IBookManagerDispatcherTrait
+        IBookManagerDispatcher, IBookManagerDispatcherTrait,
     };
     use clober_cairo::interfaces::locker::ILocker;
     use clober_cairo::libraries::order_id::OrderIdTrait;
@@ -40,12 +40,12 @@ pub mod ClaimRouter {
     #[abi(embed_v0)]
     impl LockerImpl of ILocker<ContractState> {
         fn lock_acquired(
-            ref self: ContractState, lock_caller: ContractAddress, mut data: Span<felt252>
+            ref self: ContractState, lock_caller: ContractAddress, mut data: Span<felt252>,
         ) -> Span<felt252> {
             let bm = IBookManagerDispatcher { contract_address: self.book_manager.read() };
             assert(bm.contract_address == get_caller_address(), 'Invalid caller');
             let (payer, id, hook_data) = Serde::<
-                (ContractAddress, felt252, Span<felt252>)
+                (ContractAddress, felt252, Span<felt252>),
             >::deserialize(ref data)
                 .unwrap();
             let claimed_amount = bm.claim(id, hook_data);

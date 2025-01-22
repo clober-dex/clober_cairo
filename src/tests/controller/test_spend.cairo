@@ -5,7 +5,7 @@ use clober_cairo::libraries::tick::{Tick, TickTrait};
 use clober_cairo::utils::constants::WAD;
 use clober_cairo::tests::controller::common::{
     valid_key, make_order, spend_order, PRICE_TICK, MAKER1, MAKER2, MAKER3, TAKER1, TAKER2, TAKER3,
-    QUOTE_AMOUNT1, QUOTE_AMOUNT2, QUOTE_AMOUNT3, BASE_AMOUNT1
+    QUOTE_AMOUNT1, QUOTE_AMOUNT2, QUOTE_AMOUNT3, BASE_AMOUNT1,
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 

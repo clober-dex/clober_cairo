@@ -1,22 +1,22 @@
 use clober_cairo::interfaces::book_manager::{
-    IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams, TakeParams, CancelParams
+    IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams, TakeParams, CancelParams,
 };
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::libraries::fee_policy::FeePolicy;
 use clober_cairo::mocks::open_router::OpenRouter::{
-    IOpenRouterDispatcher, IOpenRouterDispatcherTrait
+    IOpenRouterDispatcher, IOpenRouterDispatcherTrait,
 };
 use clober_cairo::mocks::make_router::MakeRouter::{
-    IMakeRouterDispatcher, IMakeRouterDispatcherTrait
+    IMakeRouterDispatcher, IMakeRouterDispatcherTrait,
 };
 use clober_cairo::mocks::take_router::TakeRouter::{
-    ITakeRouterDispatcher, ITakeRouterDispatcherTrait
+    ITakeRouterDispatcher, ITakeRouterDispatcherTrait,
 };
 use clober_cairo::mocks::cancel_router::CancelRouter::{
-    ICancelRouterDispatcher, ICancelRouterDispatcherTrait
+    ICancelRouterDispatcher, ICancelRouterDispatcherTrait,
 };
 use clober_cairo::mocks::claim_router::ClaimRouter::{
-    IClaimRouterDispatcher, IClaimRouterDispatcherTrait
+    IClaimRouterDispatcher, IClaimRouterDispatcherTrait,
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 use clober_cairo::tests::book_manager::common::valid_key;
@@ -36,7 +36,7 @@ struct Contracts {
     ccr: ICancelRouterDispatcher,
     clr: IClaimRouterDispatcher,
     base: IERC20Dispatcher,
-    quote: IERC20Dispatcher
+    quote: IERC20Dispatcher,
 }
 
 fn setup() -> Contracts {
@@ -51,34 +51,34 @@ fn setup() -> Contracts {
     let mut calldata = array![];
     calldata.append_serde(book_manager);
     let open_router = IOpenRouterDispatcher {
-        contract_address: utils::declare_and_deploy("OpenRouter", calldata)
+        contract_address: utils::declare_and_deploy("OpenRouter", calldata),
     };
     let (base, quote) = deploy_token_pairs(
-        1000000000000000000 * 1000000000000000000, 1000000000000000000 * 1000000, OWNER(), OWNER()
+        1000000000000000000 * 1000000000000000000, 1000000000000000000 * 1000000, OWNER(), OWNER(),
     );
 
     let mut calldata = array![];
     calldata.append_serde(book_manager);
     let make_router = IMakeRouterDispatcher {
-        contract_address: utils::declare_and_deploy("MakeRouter", calldata)
+        contract_address: utils::declare_and_deploy("MakeRouter", calldata),
     };
 
     let mut calldata = array![];
     calldata.append_serde(book_manager);
     let take_router = ITakeRouterDispatcher {
-        contract_address: utils::declare_and_deploy("TakeRouter", calldata)
+        contract_address: utils::declare_and_deploy("TakeRouter", calldata),
     };
 
     let mut calldata = array![];
     calldata.append_serde(book_manager);
     let cancel_router = ICancelRouterDispatcher {
-        contract_address: utils::declare_and_deploy("CancelRouter", calldata)
+        contract_address: utils::declare_and_deploy("CancelRouter", calldata),
     };
 
     let mut calldata = array![];
     calldata.append_serde(book_manager);
     let claim_router = IClaimRouterDispatcher {
-        contract_address: utils::declare_and_deploy("ClaimRouter", calldata)
+        contract_address: utils::declare_and_deploy("ClaimRouter", calldata),
     };
 
     let erc721 = IERC721Dispatcher { contract_address: book_manager };
@@ -103,7 +103,7 @@ fn setup() -> Contracts {
         ccr: cancel_router,
         clr: claim_router,
         base: base,
-        quote: quote
+        quote: quote,
     }
 }
 
@@ -118,7 +118,7 @@ struct TestParams {
     claim_base: u256,
     cancel_quote: u256,
     collect_base: u256,
-    collect_quote: u256
+    collect_quote: u256,
 }
 
 fn _test_fee(p: TestParams) {
@@ -137,7 +137,7 @@ fn _test_fee(p: TestParams) {
     let (order_id, _) = c
         .mr
         .make(
-            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span()
+            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span(),
         );
     // check fee
     let (_bb, _qb) = (c.base.balance_of(OWNER()), c.quote.balance_of(OWNER()));
@@ -176,7 +176,7 @@ fn _test_fee(p: TestParams) {
     // collect
     let (collected_base, collected_quote) = (
         c.bm.token_owed(OWNER(), c.base.contract_address),
-        c.bm.token_owed(OWNER(), c.quote.contract_address)
+        c.bm.token_owed(OWNER(), c.quote.contract_address),
     );
     cheat_caller_address(c.bm.contract_address, OWNER(), CheatSpan::TargetCalls(2));
     c.bm.collect(OWNER(), c.quote.contract_address);
@@ -206,8 +206,8 @@ fn test_maker_QN_taker_QP() {
             claim_base: 29797659217,
             cancel_quote: 89910000,
             collect_base: 0,
-            collect_quote: 10000
-        }
+            collect_quote: 10000,
+        },
     );
 }
 
@@ -224,8 +224,8 @@ fn test_maker_BN_taker_BP() {
             claim_base: 29827456876,
             cancel_quote: 90000000,
             collect_base: 29797659,
-            collect_quote: 0
-        }
+            collect_quote: 0,
+        },
     );
 }
 
@@ -242,8 +242,8 @@ fn test_maker_QP_taker_QN() {
             claim_base: 29797659217,
             cancel_quote: 90180000,
             collect_base: 0,
-            collect_quote: 10000
-        }
+            collect_quote: 10000,
+        },
     );
 }
 
@@ -260,8 +260,8 @@ fn test_maker_BP_taker_BN() {
             claim_base: 29738063898,
             cancel_quote: 90000000,
             collect_base: 29797659,
-            collect_quote: 0
-        }
+            collect_quote: 0,
+        },
     );
 }
 
@@ -278,8 +278,8 @@ fn test_maker_QP_taker_QP() {
             claim_base: 29797659217,
             cancel_quote: 90090000,
             collect_base: 0,
-            collect_quote: 20000
-        }
+            collect_quote: 20000,
+        },
     );
 }
 
@@ -296,8 +296,8 @@ fn test_maker_QP_taker_BP() {
             claim_base: 29797659217,
             cancel_quote: 90090000,
             collect_base: 29797659,
-            collect_quote: 10000
-        }
+            collect_quote: 10000,
+        },
     );
 }
 
@@ -314,8 +314,8 @@ fn test_maker_BP_taker_QP() {
             claim_base: 29767861557,
             cancel_quote: 90000000,
             collect_base: 29797660,
-            collect_quote: 10000
-        }
+            collect_quote: 10000,
+        },
     );
 }
 
@@ -332,7 +332,7 @@ fn test_maker_BP_taker_BP() {
             claim_base: 29767861557,
             cancel_quote: 90000000,
             collect_base: 59595319,
-            collect_quote: 0
-        }
+            collect_quote: 0,
+        },
     );
 }

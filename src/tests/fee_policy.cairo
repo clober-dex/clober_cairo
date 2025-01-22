@@ -2,23 +2,23 @@ use clober_cairo::libraries::fee_policy::{FeePolicy, FeePolicyTrait};
 
 #[test]
 fn encode() {
-    let fee_policy: FeePolicy = FeePolicy { uses_quote: true, rate: -100000, };
+    let fee_policy: FeePolicy = FeePolicy { uses_quote: true, rate: -100000 };
     let packed: u32 = fee_policy.encode();
     assert_eq!(packed, 8788608);
 
-    let fee_policy: FeePolicy = FeePolicy { uses_quote: true, rate: 100000, };
+    let fee_policy: FeePolicy = FeePolicy { uses_quote: true, rate: 100000 };
     let packed: u32 = fee_policy.encode();
     assert_eq!(packed, 8988608);
 
-    let fee_policy: FeePolicy = FeePolicy { uses_quote: false, rate: -100000, };
+    let fee_policy: FeePolicy = FeePolicy { uses_quote: false, rate: -100000 };
     let packed: u32 = fee_policy.encode();
     assert_eq!(packed, 400000);
 
-    let fee_policy: FeePolicy = FeePolicy { uses_quote: false, rate: 100000, };
+    let fee_policy: FeePolicy = FeePolicy { uses_quote: false, rate: 100000 };
     let packed: u32 = fee_policy.encode();
     assert_eq!(packed, 600000);
 
-    let fee_policy: FeePolicy = FeePolicy { uses_quote: false, rate: 0, };
+    let fee_policy: FeePolicy = FeePolicy { uses_quote: false, rate: 0 };
     let packed: u32 = fee_policy.encode();
     assert_eq!(packed, 500000);
 }
@@ -63,7 +63,7 @@ fn calculate_fee() {
 }
 
 fn _calculate_fee(rate: i32, amount: u256, reverse_rounding: bool, expected: i128) {
-    let fee_policy: FeePolicy = FeePolicy { uses_quote: true, rate: rate, };
+    let fee_policy: FeePolicy = FeePolicy { uses_quote: true, rate: rate };
     let result = fee_policy.calculate_fee(amount, reverse_rounding);
     assert_eq!(result.try_into().unwrap(), expected);
 }

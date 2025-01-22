@@ -1,7 +1,7 @@
 use core::poseidon::{HashState, PoseidonTrait};
 use core::hash::{Hash, HashStateTrait, HashStateExTrait};
 use starknet::storage_access::{
-    Store, StorageBaseAddress, storage_address_from_base, storage_base_address_from_felt252
+    Store, StorageBaseAddress, storage_address_from_base, storage_base_address_from_felt252,
 };
 use starknet::{SyscallResult, SyscallResultTrait};
 
@@ -10,7 +10,7 @@ const NOT_IMPLEMENTED: felt252 = 'Not implemented';
 #[derive(Copy, Drop)]
 pub struct Felt252Map<T> {
     address_domain: u32,
-    base: StorageBaseAddress
+    base: StorageBaseAddress,
 }
 
 impl StoreFelt252Map<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of Store<Felt252Map<T>> {
@@ -20,19 +20,19 @@ impl StoreFelt252Map<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of Store<Fel
     }
     #[inline(always)]
     fn write(
-        address_domain: u32, base: StorageBaseAddress, value: Felt252Map<T>
+        address_domain: u32, base: StorageBaseAddress, value: Felt252Map<T>,
     ) -> SyscallResult<()> {
         SyscallResult::Err(array![NOT_IMPLEMENTED])
     }
     #[inline(always)]
     fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, offset: u8
+        address_domain: u32, base: StorageBaseAddress, offset: u8,
     ) -> SyscallResult<Felt252Map<T>> {
         SyscallResult::Err(array![NOT_IMPLEMENTED])
     }
     #[inline(always)]
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, offset: u8, value: Felt252Map<T>
+        address_domain: u32, base: StorageBaseAddress, offset: u8, value: Felt252Map<T>,
     ) -> SyscallResult<()> {
         SyscallResult::Err(array![NOT_IMPLEMENTED])
     }
@@ -79,7 +79,7 @@ pub impl Felt252MapImpl<T, +Drop<T>, impl TStore: Store<T>> of Felt252MapTrait<T
         let element_address = calculate_storage_address(base_storage_address, key);
 
         TStore::write(
-            self.address_domain, storage_base_address_from_felt252(element_address), value
+            self.address_domain, storage_base_address_from_felt252(element_address), value,
         )
             .unwrap_syscall()
     }
@@ -96,7 +96,7 @@ pub trait StorageMapTrait<K, V> {
 }
 
 impl StorageMapIntoImpl<
-    K, V, +Into<K, felt252>, +Drop<K>, +Drop<V>, impl TStore: Store<V>
+    K, V, +Into<K, felt252>, +Drop<K>, +Drop<V>, impl TStore: Store<V>,
 > of StorageMapTrait<K, V> {
     #[inline]
     fn fetch(address_domain: u32, base: StorageBaseAddress) -> StorageMap<K, V> {
@@ -121,7 +121,7 @@ impl StorageMapIntoImpl<
 }
 
 impl StorageMapHashImpl<
-    K, V, +Hash<K, HashState>, +Drop<K>, +Drop<V>, impl TStore: Store<V>
+    K, V, +Hash<K, HashState>, +Drop<K>, +Drop<V>, impl TStore: Store<V>,
 > of StorageMapTrait<K, V> {
     #[inline]
     fn fetch(address_domain: u32, base: StorageBaseAddress) -> StorageMap<K, V> {

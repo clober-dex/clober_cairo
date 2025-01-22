@@ -2,7 +2,7 @@ use clober_cairo::interfaces::book_manager::{IBookManagerDispatcher, IBookManage
 use clober_cairo::libraries::book_key::BookKeyTrait;
 use clober_cairo::libraries::fee_policy::{FeePolicy, MAX_FEE_RATE, MIN_FEE_RATE};
 use clober_cairo::mocks::open_router::OpenRouter::{
-    IOpenRouterDispatcher, IOpenRouterDispatcherTrait
+    IOpenRouterDispatcher, IOpenRouterDispatcherTrait,
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 use clober_cairo::tests::book_manager::common::{BookManagerSpyHelpers, valid_key};
@@ -26,7 +26,7 @@ fn setup() -> (IBookManagerDispatcher, IOpenRouterDispatcher) {
 
     (
         IBookManagerDispatcher { contract_address: book_manager },
-        IOpenRouterDispatcher { contract_address: open_router }
+        IOpenRouterDispatcher { contract_address: open_router },
     )
 }
 
@@ -52,7 +52,7 @@ fn test_success() {
             key.unit_size,
             key.maker_policy,
             key.taker_policy,
-            key.hooks
+            key.hooks,
         );
 
     let remote_book_key = bm.get_book_key(book_id);

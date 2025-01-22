@@ -6,7 +6,7 @@ use clober_cairo::libraries::fee_policy::FeePolicyTrait;
 use clober_cairo::libraries::i257::I257Trait;
 use clober_cairo::utils::constants::WAD;
 use clober_cairo::tests::controller::common::{
-    valid_key, make_order, PRICE_TICK, MAKER1, QUOTE_AMOUNT1
+    valid_key, make_order, PRICE_TICK, MAKER1, QUOTE_AMOUNT1,
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 
@@ -55,13 +55,13 @@ fn test_make() {
     assert_eq!(
         IERC721Dispatcher { contract_address: book_manager.contract_address }
             .owner_of(id.encode().into()),
-        MAKER1()
+        MAKER1(),
     );
     let (provider, price, open_quote_amount, claimable_quote_amount) = controller
         .get_order(id.encode());
     assert_eq!(
         open_quote_amount - key.maker_policy.calculate_fee(open_quote_amount, true).abs(),
-        before_balance - quote.balance_of(MAKER1())
+        before_balance - quote.balance_of(MAKER1()),
     );
     assert_eq!(price, controller.to_price(PRICE_TICK()));
     assert_eq!(claimable_quote_amount, 0);

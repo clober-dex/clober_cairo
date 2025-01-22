@@ -1,5 +1,5 @@
 use clober_cairo::libraries::segmented_segment_tree::{
-    SegmentedSegmentTree, SegmentedSegmentTreeTrait
+    SegmentedSegmentTree, SegmentedSegmentTreeTrait,
 };
 use clober_cairo::libraries::storage_map::Felt252MapTrait;
 use starknet::storage_access::storage_base_address_from_felt252;
@@ -48,7 +48,7 @@ fn _init(ref tree: SegmentedSegmentTree) {
         890884549488,
         57429745012,
         367522674167,
-        790157236238
+        790157236238,
     ];
 
     let length = values.len();

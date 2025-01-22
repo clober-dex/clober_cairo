@@ -5,7 +5,7 @@ use clober_cairo::libraries::order_id::OrderIdTrait;
 use clober_cairo::utils::constants::WAD;
 use clober_cairo::tests::controller::common::{
     valid_key, make_order, cancel_order, PRICE_TICK, MAKER1, MAKER2, MAKER3, TAKER1, TAKER2, TAKER3,
-    QUOTE_AMOUNT1
+    QUOTE_AMOUNT1,
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 
@@ -82,7 +82,7 @@ fn test_cancel_all() {
     cheat_caller_address(controller.contract_address, MAKER1(), CheatSpan::TargetCalls(1));
     cancel_order(controller, order_id, 0);
     assert_eq!(
-        quote.balance_of(MAKER1()) - before_balance, open_amount * (1000000 - 100) / 1000000
+        quote.balance_of(MAKER1()) - before_balance, open_amount * (1000000 - 100) / 1000000,
     );
     let (_, _, open_amount, _) = controller.get_order(order_id);
     assert_eq!(open_amount, 0);

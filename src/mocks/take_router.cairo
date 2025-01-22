@@ -3,7 +3,7 @@ pub mod TakeRouter {
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use clober_cairo::interfaces::book_manager::{
-        IBookManagerDispatcher, IBookManagerDispatcherTrait, TakeParams
+        IBookManagerDispatcher, IBookManagerDispatcherTrait, TakeParams,
     };
     use clober_cairo::interfaces::locker::ILocker;
 
@@ -20,14 +20,14 @@ pub mod TakeRouter {
     #[starknet::interface]
     pub trait ITakeRouter<TContractState> {
         fn take(
-            self: @TContractState, params: TakeParams, hook_data: Span<felt252>
+            self: @TContractState, params: TakeParams, hook_data: Span<felt252>,
         ) -> (u256, u256);
     }
 
     #[abi(embed_v0)]
     impl TakeRouterImpl of ITakeRouter<ContractState> {
         fn take(
-            self: @ContractState, params: TakeParams, hook_data: Span<felt252>
+            self: @ContractState, params: TakeParams, hook_data: Span<felt252>,
         ) -> (u256, u256) {
             let mut data: Array<felt252> = ArrayTrait::new();
             Serde::serialize(@get_caller_address(), ref data);
@@ -46,12 +46,12 @@ pub mod TakeRouter {
     #[abi(embed_v0)]
     impl LockerImpl of ILocker<ContractState> {
         fn lock_acquired(
-            ref self: ContractState, lock_caller: ContractAddress, mut data: Span<felt252>
+            ref self: ContractState, lock_caller: ContractAddress, mut data: Span<felt252>,
         ) -> Span<felt252> {
             let bm = IBookManagerDispatcher { contract_address: self.book_manager.read() };
             assert(bm.contract_address == get_caller_address(), 'Invalid caller');
             let (payer, params, hook_data) = Serde::<
-                (ContractAddress, TakeParams, Span<felt252>)
+                (ContractAddress, TakeParams, Span<felt252>),
             >::deserialize(ref data)
                 .unwrap();
             let (quote_amount, base_amount) = bm.take(params, hook_data);

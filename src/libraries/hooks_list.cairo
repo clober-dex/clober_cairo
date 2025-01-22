@@ -27,7 +27,7 @@ pub impl HooksListImpl of HooksListTrait {
     }
 
     fn call_hook(
-        ref self: HooksList, hooks: @Hooks, expected_selector: felt252, hook_data: Span<felt252>
+        ref self: HooksList, hooks: @Hooks, expected_selector: felt252, hook_data: Span<felt252>,
     ) {
         // @dev Set current hook here
         self.append(*hooks);
@@ -68,7 +68,7 @@ pub impl HooksListImpl of HooksListTrait {
     }
 
     fn before_make(
-        ref self: HooksList, hooks: @Hooks, params: @MakeParams, hook_data: Span<felt252>
+        ref self: HooksList, hooks: @Hooks, params: @MakeParams, hook_data: Span<felt252>,
     ) {
         if hooks.has_permission(Permission::BEFORE_MAKE) {
             let caller = get_caller_address();
@@ -86,7 +86,7 @@ pub impl HooksListImpl of HooksListTrait {
         hooks: @Hooks,
         params: @MakeParams,
         order_id: felt252,
-        hook_data: Span<felt252>
+        hook_data: Span<felt252>,
     ) {
         if hooks.has_permission(Permission::AFTER_MAKE) {
             let caller = get_caller_address();
@@ -101,7 +101,7 @@ pub impl HooksListImpl of HooksListTrait {
     }
 
     fn before_take(
-        ref self: HooksList, hooks: @Hooks, params: @TakeParams, hook_data: Span<felt252>
+        ref self: HooksList, hooks: @Hooks, params: @TakeParams, hook_data: Span<felt252>,
     ) {
         if hooks.has_permission(Permission::BEFORE_TAKE) {
             let caller = get_caller_address();
@@ -119,7 +119,7 @@ pub impl HooksListImpl of HooksListTrait {
         hooks: @Hooks,
         params: @TakeParams,
         taken_unit: u64,
-        hook_data: Span<felt252>
+        hook_data: Span<felt252>,
     ) {
         if hooks.has_permission(Permission::AFTER_TAKE) {
             let caller = get_caller_address();
@@ -134,7 +134,7 @@ pub impl HooksListImpl of HooksListTrait {
     }
 
     fn before_cancel(
-        ref self: HooksList, hooks: @Hooks, params: @CancelParams, hook_data: Span<felt252>
+        ref self: HooksList, hooks: @Hooks, params: @CancelParams, hook_data: Span<felt252>,
     ) {
         if hooks.has_permission(Permission::BEFORE_CANCEL) {
             let caller = get_caller_address();
@@ -152,7 +152,7 @@ pub impl HooksListImpl of HooksListTrait {
         hooks: @Hooks,
         params: @CancelParams,
         canceled_unit: u64,
-        hook_data: Span<felt252>
+        hook_data: Span<felt252>,
     ) {
         if hooks.has_permission(Permission::AFTER_CANCEL) {
             let caller = get_caller_address();
@@ -167,7 +167,7 @@ pub impl HooksListImpl of HooksListTrait {
     }
 
     fn before_claim(
-        ref self: HooksList, hooks: @Hooks, order_id: felt252, hook_data: Span<felt252>
+        ref self: HooksList, hooks: @Hooks, order_id: felt252, hook_data: Span<felt252>,
     ) {
         if hooks.has_permission(Permission::BEFORE_CLAIM) {
             let caller = get_caller_address();
@@ -185,7 +185,7 @@ pub impl HooksListImpl of HooksListTrait {
         hooks: @Hooks,
         order_id: felt252,
         claimed_unit: u64,
-        hook_data: Span<felt252>
+        hook_data: Span<felt252>,
     ) {
         if hooks.has_permission(Permission::AFTER_CLAIM) {
             let caller = get_caller_address();

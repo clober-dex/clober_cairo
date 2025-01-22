@@ -7,7 +7,7 @@ pub mod BookViewer {
     use clober_cairo::utils::constants::MIN_TICK;
     use clober_cairo::interfaces::book_viewer::{IBookViewer, Liquidity};
     use clober_cairo::interfaces::book_manager::{
-        IBookManagerDispatcher, IBookManagerDispatcherTrait
+        IBookManagerDispatcher, IBookManagerDispatcherTrait,
     };
     use clober_cairo::libraries::fee_policy::FeePolicyTrait;
     use clober_cairo::libraries::tick::{Tick, TickTrait};
@@ -43,9 +43,7 @@ pub mod BookViewer {
     }
 
     #[constructor]
-    fn constructor(
-        ref self: ContractState, book_manager: ContractAddress, owner: ContractAddress,
-    ) {
+    fn constructor(ref self: ContractState, book_manager: ContractAddress, owner: ContractAddress) {
         self.ownable.initializer(owner);
         self.book_manager.write(book_manager);
     }
@@ -57,11 +55,11 @@ pub mod BookViewer {
         }
 
         fn get_liquidity(
-            self: @ContractState, book_id: felt252, tick: Tick, n: u32
+            self: @ContractState, book_id: felt252, tick: Tick, n: u32,
         ) -> Span<Liquidity> {
             let mut liquidities = ArrayTrait::new();
             let book_manager = IBookManagerDispatcher {
-                contract_address: self.book_manager.read()
+                contract_address: self.book_manager.read(),
             };
             let mut tick = tick;
             if (book_manager.get_depth(book_id, tick) == 0) {
@@ -72,9 +70,7 @@ pub mod BookViewer {
                     break;
                 }
                 liquidities
-                    .append(
-                        Liquidity { tick: tick, depth: book_manager.get_depth(book_id, tick), }
-                    );
+                    .append(Liquidity { tick: tick, depth: book_manager.get_depth(book_id, tick) });
                 tick = book_manager.max_less_than(book_id, tick);
             };
             return liquidities.span();
@@ -89,7 +85,7 @@ pub mod BookViewer {
             hook_data: Span<felt252>,
         ) -> (u256, u256) {
             let book_manager = IBookManagerDispatcher {
-                contract_address: self.book_manager.read()
+                contract_address: self.book_manager.read(),
             };
             let key = book_manager.get_book_key(book_id);
 
@@ -159,7 +155,7 @@ pub mod BookViewer {
             hook_data: Span<felt252>,
         ) -> (u256, u256) {
             let book_manager = IBookManagerDispatcher {
-                contract_address: self.book_manager.read()
+                contract_address: self.book_manager.read(),
             };
             let key = book_manager.get_book_key(book_id);
 

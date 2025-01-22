@@ -1,19 +1,19 @@
 use clober_cairo::interfaces::book_manager::{
-    IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams, TakeParams, CancelParams
+    IBookManagerDispatcher, IBookManagerDispatcherTrait, MakeParams, TakeParams, CancelParams,
 };
 use clober_cairo::libraries::book_key::BookKeyTrait;
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::mocks::open_router::OpenRouter::{
-    IOpenRouterDispatcher, IOpenRouterDispatcherTrait
+    IOpenRouterDispatcher, IOpenRouterDispatcherTrait,
 };
 use clober_cairo::mocks::make_router::MakeRouter::{
-    IMakeRouterDispatcher, IMakeRouterDispatcherTrait
+    IMakeRouterDispatcher, IMakeRouterDispatcherTrait,
 };
 use clober_cairo::mocks::take_router::TakeRouter::{
-    ITakeRouterDispatcher, ITakeRouterDispatcherTrait
+    ITakeRouterDispatcher, ITakeRouterDispatcherTrait,
 };
 use clober_cairo::mocks::cancel_router::CancelRouter::{
-    ICancelRouterDispatcher, ICancelRouterDispatcherTrait
+    ICancelRouterDispatcher, ICancelRouterDispatcherTrait,
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 use clober_cairo::tests::book_manager::common::{BookManagerSpyHelpers, valid_key};
@@ -33,7 +33,7 @@ fn setup() -> (
     ITakeRouterDispatcher,
     ICancelRouterDispatcher,
     IERC20Dispatcher,
-    IERC20Dispatcher
+    IERC20Dispatcher,
 ) {
     let mut calldata = array![];
 
@@ -47,7 +47,7 @@ fn setup() -> (
     calldata.append_serde(book_manager);
     let open_router = utils::declare_and_deploy("OpenRouter", calldata);
     let (base, quote) = deploy_token_pairs(
-        1000000000000000000 * 1000000000000000000, 1000000000000000000 * 1000000, OWNER(), OWNER()
+        1000000000000000000 * 1000000000000000000, 1000000000000000000 * 1000000, OWNER(), OWNER(),
     );
 
     let mut calldata = array![];
@@ -77,7 +77,7 @@ fn setup() -> (
         ITakeRouterDispatcher { contract_address: take_router },
         ICancelRouterDispatcher { contract_address: cancel_router },
         base,
-        quote
+        quote,
     )
 }
 
@@ -91,7 +91,7 @@ fn test_success() {
     cheat_caller_address(make_router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     let (order_id, _) = make_router
         .make(
-            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span()
+            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span(),
         );
 
     let erc721 = IERC721Dispatcher { contract_address: bm.contract_address };
@@ -108,7 +108,7 @@ fn test_success() {
     let canceled_amount = cancel_router
         .cancel(
             CancelParams { id: order_id, to_unit: make_unit - cancel_amount },
-            ArrayTrait::new().span()
+            ArrayTrait::new().span(),
         );
     spy.assert_only_event_cancel(bm.contract_address, order_id, cancel_amount);
 
@@ -117,12 +117,12 @@ fn test_success() {
     assert_eq!(canceled_amount, cancel_amount.into() * key.unit_size.into());
     assert_eq!(
         quote.balance_of(OWNER()),
-        before_quote_balance + cancel_amount.into() * key.unit_size.into()
+        before_quote_balance + cancel_amount.into() * key.unit_size.into(),
     );
     assert_eq!(base.balance_of(OWNER()), before_base_balance);
     assert_eq!(
         bm.reserves_of(quote.contract_address),
-        (make_unit - cancel_amount).into() * key.unit_size.into()
+        (make_unit - cancel_amount).into() * key.unit_size.into(),
     );
     assert_eq!(bm.reserves_of(base.contract_address), 0);
     assert_eq!(bm.get_depth(key.to_id(), tick), make_unit - cancel_amount);
@@ -145,7 +145,7 @@ fn test_cancel_to_zero_with_partially_taken_order() {
     cheat_caller_address(make_router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     let (order_id, _) = make_router
         .make(
-            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span()
+            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span(),
         );
 
     let take_unit = 1000;
@@ -173,12 +173,12 @@ fn test_cancel_to_zero_with_partially_taken_order() {
     assert_eq!(canceled_amount, (make_unit - take_unit).into() * key.unit_size.into());
     assert_eq!(
         quote.balance_of(OWNER()),
-        before_quote_balance + (make_unit - take_unit).into() * key.unit_size.into()
+        before_quote_balance + (make_unit - take_unit).into() * key.unit_size.into(),
     );
     assert_eq!(base.balance_of(OWNER()), before_base_balance);
     assert_eq!(
         bm.reserves_of(quote.contract_address),
-        before_quote_reserve - (make_unit - take_unit).into() * key.unit_size.into()
+        before_quote_reserve - (make_unit - take_unit).into() * key.unit_size.into(),
     );
     assert_eq!(bm.reserves_of(base.contract_address), before_base_reserve);
     assert_eq!(bm.get_depth(key.to_id(), tick), 0);
@@ -200,7 +200,7 @@ fn test_cancel_to_zero_should_burn_with_zero_claimable() {
     cheat_caller_address(make_router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     let (order_id, _) = make_router
         .make(
-            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span()
+            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span(),
         );
 
     let before_quote_balance = quote.balance_of(OWNER());
@@ -223,12 +223,12 @@ fn test_cancel_to_zero_should_burn_with_zero_claimable() {
 
     assert_eq!(canceled_amount, make_unit.into() * key.unit_size.into());
     assert_eq!(
-        quote.balance_of(OWNER()), before_quote_balance + make_unit.into() * key.unit_size.into()
+        quote.balance_of(OWNER()), before_quote_balance + make_unit.into() * key.unit_size.into(),
     );
     assert_eq!(base.balance_of(OWNER()), before_base_balance);
     assert_eq!(
         bm.reserves_of(quote.contract_address),
-        before_quote_reserve - make_unit.into() * key.unit_size.into()
+        before_quote_reserve - make_unit.into() * key.unit_size.into(),
     );
     assert_eq!(bm.reserves_of(base.contract_address), before_base_reserve);
     assert_eq!(bm.get_depth(key.to_id(), tick), 0);
@@ -261,7 +261,7 @@ fn test_cancel_auth() {
     cheat_caller_address(make_router.contract_address, OWNER(), CheatSpan::TargetCalls(1));
     let (order_id, _) = make_router
         .make(
-            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span()
+            MakeParams { key, tick, unit: make_unit, provider: ZERO() }, ArrayTrait::new().span(),
         );
 
     cancel_router.cancel(CancelParams { id: order_id, to_unit: 0 }, ArrayTrait::new().span());

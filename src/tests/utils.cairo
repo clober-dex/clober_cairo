@@ -24,7 +24,7 @@ fn QUOTE_SYMBOL() -> ByteArray {
 }
 
 pub fn deploy_token_pairs(
-    base_supply: u256, quote_supply: u256, recipient: ContractAddress, owner: ContractAddress
+    base_supply: u256, quote_supply: u256, recipient: ContractAddress, owner: ContractAddress,
 ) -> (IERC20Dispatcher, IERC20Dispatcher) {
     let contract = utils::declare_class("ERC20Upgradeable");
 
@@ -48,7 +48,7 @@ pub fn deploy_token_pairs(
 
     (
         IERC20Dispatcher { contract_address: base_address },
-        IERC20Dispatcher { contract_address: quote_address }
+        IERC20Dispatcher { contract_address: quote_address },
     )
 }
 
@@ -58,7 +58,7 @@ pub fn deploy_erc20_at(
     symbol: ByteArray,
     fixed_supply: u256,
     recipient: ContractAddress,
-    owner: ContractAddress
+    owner: ContractAddress,
 ) -> IERC20Dispatcher {
     let mut calldata = array![];
     calldata.append_serde(name);

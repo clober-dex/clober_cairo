@@ -20,7 +20,7 @@ pub type SegmentedSegmentTree = Felt252Map<felt252>;
 #[derive(Copy, Drop)]
 struct LayerIndex {
     pub group: u64,
-    pub node: u8
+    pub node: u8,
 }
 
 #[generate_trait]
@@ -135,8 +135,8 @@ pub impl SegmentedSegmentTreeImpl of SegmentedSegmentTreeTrait {
                 .append(
                     LayerIndex {
                         group: index / shifter,
-                        node: ((index / (shifter / P.into())) & P_M).try_into().unwrap()
-                    }
+                        node: ((index / (shifter / P.into())) & P_M).try_into().unwrap(),
+                    },
                 );
             shifter /= 16;
             l += 1;
@@ -160,7 +160,7 @@ pub impl SegmentedSegmentTreeImpl of SegmentedSegmentTreeTrait {
                 self
                     .write_at(
                         key,
-                        update_62(node, layer_index.node, get_u62(node, layer_index.node) - diff)
+                        update_62(node, layer_index.node, get_u62(node, layer_index.node) - diff),
                     );
                 l += 1;
             }
@@ -173,7 +173,7 @@ pub impl SegmentedSegmentTreeImpl of SegmentedSegmentTreeTrait {
                 self
                     .write_at(
                         key,
-                        update_62(node, layer_index.node, get_u62(node, layer_index.node) + diff)
+                        update_62(node, layer_index.node, get_u62(node, layer_index.node) + diff),
                     );
                 l += 1;
             }

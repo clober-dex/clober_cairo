@@ -38,10 +38,10 @@ impl BookKeyStorePacking of StorePacking<BookKey, [felt252; 4]> {
         let packed: u256 = (*v[3]).into();
         let unit_size = packed % TWO_POW_64.into();
         let maker_policy = FeePolicyTrait::decode(
-            ((packed / TWO_POW_64.into()) % TWO_POW_32.into()).try_into().unwrap()
+            ((packed / TWO_POW_64.into()) % TWO_POW_32.into()).try_into().unwrap(),
         );
         let taker_policy = FeePolicyTrait::decode(
-            ((packed / TWO_POW_96) % TWO_POW_32.into()).try_into().unwrap()
+            ((packed / TWO_POW_96) % TWO_POW_32.into()).try_into().unwrap(),
         );
 
         BookKey {

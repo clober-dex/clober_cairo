@@ -9,7 +9,7 @@ pub mod BookManager {
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
     use clober_cairo::interfaces::book_manager::{
         IBookManager, MakeParams, TakeParams, CancelParams, OrderInfo, Open, Make, Take, Cancel,
-        Claim, Collect, Whitelist, Delist, SetDefaultProvider, Errors
+        Claim, Collect, Whitelist, Delist, SetDefaultProvider, Errors,
     };
     use clober_cairo::interfaces::locker::{ILockerDispatcher, ILockerDispatcherTrait};
     use clober_cairo::libraries::i257::{i257, I257Trait};
@@ -94,7 +94,7 @@ pub mod BookManager {
         owner: ContractAddress,
         default_provider: ContractAddress,
         base_uri: ByteArray,
-        contract_uri: ByteArray
+        contract_uri: ByteArray,
     ) {
         self.ownable.initializer(owner);
         self.erc721.initializer("Clober Orderbook Maker Order", "CLOB-ORDER", base_uri);
@@ -164,13 +164,13 @@ pub mod BookManager {
             self: @ContractState,
             owner: ContractAddress,
             spender: ContractAddress,
-            token_id: felt252
+            token_id: felt252,
         ) {
             self.erc721._check_authorized(owner, spender, token_id.into())
         }
 
         fn token_owed(
-            self: @ContractState, owner: ContractAddress, currency: ContractAddress
+            self: @ContractState, owner: ContractAddress, currency: ContractAddress,
         ) -> u256 {
             self.token_owed.read((owner, currency))
         }
@@ -243,13 +243,13 @@ pub mod BookManager {
             assert(key.unit_size > 0, Errors::INVALID_UNIT_SIZE);
             assert(
                 key.maker_policy.is_valid() && key.taker_policy.is_valid(),
-                Errors::INVALID_FEE_POLICY
+                Errors::INVALID_FEE_POLICY,
             );
             assert(key.maker_policy.rate + key.taker_policy.rate >= 0, Errors::INVALID_FEE_POLICY);
             if key.maker_policy.rate < 0 || key.taker_policy.rate < 0 {
                 assert(
                     key.maker_policy.uses_quote == key.taker_policy.uses_quote,
-                    Errors::INVALID_FEE_POLICY
+                    Errors::INVALID_FEE_POLICY,
                 );
             }
 
@@ -271,8 +271,8 @@ pub mod BookManager {
                         unit_size: key.unit_size,
                         maker_policy: key.maker_policy,
                         taker_policy: key.taker_policy,
-                        hooks: key.hooks
-                    }
+                        hooks: key.hooks,
+                    },
                 );
 
             hooks_list.after_open(@key.hooks, @key, hook_data);
@@ -281,7 +281,7 @@ pub mod BookManager {
         }
 
         fn lock(
-            ref self: ContractState, locker: ContractAddress, data: Span<felt252>
+            ref self: ContractState, locker: ContractAddress, data: Span<felt252>,
         ) -> Span<felt252> {
             // Add the locker to the stack
             let lock_caller = get_caller_address();
@@ -303,13 +303,13 @@ pub mod BookManager {
         }
 
         fn make(
-            ref self: ContractState, params: MakeParams, hook_data: Span<felt252>
+            ref self: ContractState, params: MakeParams, hook_data: Span<felt252>,
         ) -> (felt252, u256) {
             self._check_locker();
 
             assert(
                 params.provider.is_zero() || self.is_whitelisted.read(params.provider),
-                Errors::INVALID_PROVIDER
+                Errors::INVALID_PROVIDER,
             );
             params.tick.validate();
 
@@ -341,8 +341,8 @@ pub mod BookManager {
                         tick: params.tick.into(),
                         order_index,
                         unit: params.unit,
-                        provider: params.provider
-                    }
+                        provider: params.provider,
+                    },
                 );
 
             hooks_list.after_make(@params.key.hooks, @params, order_id, hook_data);
@@ -351,7 +351,7 @@ pub mod BookManager {
         }
 
         fn take(
-            ref self: ContractState, params: TakeParams, hook_data: Span<felt252>
+            ref self: ContractState, params: TakeParams, hook_data: Span<felt252>,
         ) -> (u256, u256) {
             self._check_locker();
             params.tick.validate();
@@ -385,8 +385,8 @@ pub mod BookManager {
                         book_id,
                         user: get_caller_address(),
                         tick: params.tick.into(),
-                        unit: taken_unit
-                    }
+                        unit: taken_unit,
+                    },
                 );
 
             hooks_list.after_take(@params.key.hooks, @params, taken_unit, hook_data);
@@ -398,7 +398,7 @@ pub mod BookManager {
             self
                 .erc721
                 ._check_authorized(
-                    self.erc721._owner_of(params.id.into()), get_caller_address(), params.id.into()
+                    self.erc721._owner_of(params.id.into()), get_caller_address(), params.id.into(),
                 );
 
             let decoded_order_id = OrderIdTrait::decode(params.id);
@@ -434,7 +434,7 @@ pub mod BookManager {
             self
                 .erc721
                 ._check_authorized(
-                    self.erc721._owner_of(id.into()), get_caller_address(), id.into()
+                    self.erc721._owner_of(id.into()), get_caller_address(), id.into(),
                 );
 
             let decoded_order_id = OrderIdTrait::decode(id);
@@ -474,7 +474,7 @@ pub mod BookManager {
                     .token_owed
                     .write(
                         (provider, key.quote),
-                        self.token_owed.read((provider, key.quote)) + quote_fee.abs()
+                        self.token_owed.read((provider, key.quote)) + quote_fee.abs(),
                     );
             }
             if base_fee > 0.into() {
@@ -482,7 +482,7 @@ pub mod BookManager {
                     .token_owed
                     .write(
                         (provider, key.base),
-                        self.token_owed.read((provider, key.base)) + base_fee.abs()
+                        self.token_owed.read((provider, key.base)) + base_fee.abs(),
                     );
             }
 
@@ -500,7 +500,7 @@ pub mod BookManager {
         }
 
         fn collect(
-            ref self: ContractState, recipient: ContractAddress, currency: ContractAddress
+            ref self: ContractState, recipient: ContractAddress, currency: ContractAddress,
         ) -> u256 {
             let caller = get_caller_address();
             let amount = self.token_owed.read((caller, currency));
@@ -513,7 +513,7 @@ pub mod BookManager {
         }
 
         fn withdraw(
-            ref self: ContractState, currency: ContractAddress, to: ContractAddress, amount: u256
+            ref self: ContractState, currency: ContractAddress, to: ContractAddress, amount: u256,
         ) {
             self._check_locker();
 

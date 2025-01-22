@@ -6,7 +6,7 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
 use starknet::storage_access::{
-    StorageBaseAddress, storage_address_from_base, storage_base_address_from_felt252
+    StorageBaseAddress, storage_address_from_base, storage_base_address_from_felt252,
 };
 use starknet::syscalls::{storage_read_syscall, storage_write_syscall};
 use starknet::{Store, SyscallResultTrait, SyscallResult};
@@ -17,7 +17,7 @@ const NOT_IMPLEMENTED: felt252 = 'Not implemented';
 #[derive(Copy, Drop)]
 pub struct StorageArray<T> {
     address_domain: u32,
-    base: StorageBaseAddress
+    base: StorageBaseAddress,
 }
 
 impl StoreStorageArray<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of Store<StorageArray<T>> {
@@ -27,19 +27,19 @@ impl StoreStorageArray<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of Store<S
     }
     #[inline(always)]
     fn write(
-        address_domain: u32, base: StorageBaseAddress, value: StorageArray<T>
+        address_domain: u32, base: StorageBaseAddress, value: StorageArray<T>,
     ) -> SyscallResult<()> {
         SyscallResult::Err(array![NOT_IMPLEMENTED])
     }
     #[inline(always)]
     fn read_at_offset(
-        address_domain: u32, base: StorageBaseAddress, offset: u8
+        address_domain: u32, base: StorageBaseAddress, offset: u8,
     ) -> SyscallResult<StorageArray<T>> {
         SyscallResult::Err(array![NOT_IMPLEMENTED])
     }
     #[inline(always)]
     fn write_at_offset(
-        address_domain: u32, base: StorageBaseAddress, offset: u8, value: StorageArray<T>
+        address_domain: u32, base: StorageBaseAddress, offset: u8, value: StorageArray<T>,
     ) -> SyscallResult<()> {
         SyscallResult::Err(array![NOT_IMPLEMENTED])
     }
@@ -90,7 +90,7 @@ impl StorageArrayImpl<T, +Drop<T>, impl TStore: Store<T>> of StorageArrayTrait<T
 
         // Write the element to storage
         TStore::write(
-            self.address_domain, storage_base_address_from_felt252(element_address), value
+            self.address_domain, storage_base_address_from_felt252(element_address), value,
         )
             .unwrap_syscall()
     }

@@ -6,7 +6,7 @@ use clober_cairo::libraries::tick::Tick;
 pub struct OrderId {
     pub book_id: felt252, // u187
     pub tick: Tick, // i24
-    pub index: u64, // u40
+    pub index: u64 // u40
 }
 
 #[generate_trait]

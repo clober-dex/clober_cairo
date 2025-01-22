@@ -70,9 +70,9 @@ pub impl FeePolicyImpl of FeePolicyTrait {
         let max_u32: u32 = MAX_FEE_RATE.try_into().unwrap();
 
         if rate < max_u32 {
-            FeePolicy { uses_quote, rate: -(max_u32 - rate).try_into().unwrap(), }
+            FeePolicy { uses_quote, rate: -(max_u32 - rate).try_into().unwrap() }
         } else {
-            FeePolicy { uses_quote, rate: (rate - max_u32).try_into().unwrap(), }
+            FeePolicy { uses_quote, rate: (rate - max_u32).try_into().unwrap() }
         }
     }
 }

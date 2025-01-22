@@ -5,7 +5,7 @@ use clober_cairo::libraries::order_id::OrderIdTrait;
 use clober_cairo::utils::constants::WAD;
 use clober_cairo::tests::controller::common::{
     valid_key, make_order, take_order, claim_order, PRICE_TICK, MAKER1, MAKER2, MAKER3, TAKER1,
-    TAKER2, TAKER3, QUOTE_AMOUNT1
+    TAKER2, TAKER3, QUOTE_AMOUNT1,
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 
