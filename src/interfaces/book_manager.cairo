@@ -27,6 +27,7 @@ pub struct CancelParams {
 
 #[derive(Copy, Drop, Serde)]
 pub struct OrderInfo {
+    pub id: felt252,
     pub provider: ContractAddress,
     pub open: u64,
     pub claimable: u64,

@@ -244,6 +244,7 @@ pub mod BookManager {
             let claimable = book
                 .calculate_claimable_unit(decoded_order_id.tick, decoded_order_id.index);
             OrderInfo {
+                id: order_id,
                 provider: order.provider,
                 open: order.pending - claimable,
                 claimable,
