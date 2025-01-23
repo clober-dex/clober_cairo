@@ -173,4 +173,5 @@ pub trait IBookManager<TContractState> {
     fn set_default_provider(ref self: TContractState, new_default_provider: ContractAddress);
 
     fn all_tokens_of_owner(self: @TContractState, owner: ContractAddress) -> Span<u256>;
+    fn all_orders_of_owner(self: @TContractState, owner: ContractAddress) -> Span<OrderInfo>;
 }

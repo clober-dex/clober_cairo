@@ -600,5 +600,15 @@ pub mod BookManager {
         fn all_tokens_of_owner(self: @ContractState, owner: ContractAddress) -> Span<u256> {
             self.erc721_enumerable.all_tokens_of_owner(owner)
         }
+
+        fn all_orders_of_owner(self: @ContractState, owner: ContractAddress) -> Span<OrderInfo> {
+            let orderIds: Span<u256> = self.erc721_enumerable.all_tokens_of_owner(owner);
+            let mut orders = ArrayTrait::new();
+            for orderId in orderIds {
+                let order = self.get_order((*orderId).try_into().unwrap());
+                orders.append(order);
+            };
+            orders.span()
+        }
     }
 }
