@@ -468,9 +468,12 @@ pub mod Controller {
                     break;
                 }
 
-                let max_unit: u64 = divide(max_amount, key.unit_size.into(), true)
-                    .try_into()
-                    .unwrap();
+                let max_unit_u256 = divide(max_amount, key.unit_size.into(), true);
+                let max_unit: u64 = if max_unit_u256 > 0xffffffffffffffff {
+                    0xffffffffffffffff_u64
+                } else {
+                    max_unit_u256.try_into().unwrap()
+                };
                 let (quote_amount, base_amount) = book_manager
                     .take(TakeParams { key, tick, max_unit }, hook_data);
                 if quote_amount == 0 {
@@ -526,9 +529,13 @@ pub mod Controller {
                     break;
                 }
 
-                let max_unit: u64 = (tick.base_to_quote(max_amount, false) / key.unit_size.into())
-                    .try_into()
-                    .unwrap();
+                let mut max_unit_u256 = tick.base_to_quote(max_amount, false) / key.unit_size.into();
+                let max_unit: u64 = if max_unit_u256 > 0xffffffffffffffff {
+                    0xffffffffffffffff_u64
+                } else {
+                    max_unit_u256.try_into().unwrap()
+                };
+
                 let (quote_amount, base_amount) = book_manager
                     .take(TakeParams { key, tick, max_unit }, hook_data);
                 if base_amount == 0 {
