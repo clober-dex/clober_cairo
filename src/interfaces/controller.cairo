@@ -43,6 +43,7 @@ pub trait IController<TContractState> {
         book_id: felt252,
         tick: Tick,
         quote_amount: u256,
+        provider: ContractAddress,
         hook_data: Span<felt252>,
         deadline: u64,
     ) -> felt252;
@@ -54,6 +55,7 @@ pub trait IController<TContractState> {
         limit_price: u256,
         tick: Tick,
         quote_amount: u256,
+        provider: ContractAddress,
         take_hook_data: Span<felt252>,
         make_hook_data: Span<felt252>,
         deadline: u64,

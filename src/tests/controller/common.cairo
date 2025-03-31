@@ -5,7 +5,7 @@ use clober_cairo::libraries::fee_policy::FeePolicy;
 use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
 use clober_cairo::libraries::tick::Tick;
 use clober_cairo::interfaces::controller::{IControllerDispatcher, IControllerDispatcherTrait};
-use clober_cairo::utils::constants::{WAD, TWO_POW_248};
+use clober_cairo::utils::constants::{ZERO_ADDRESS, WAD, TWO_POW_248};
 
 use openzeppelin_token::erc20::interface::IERC20Dispatcher;
 
@@ -63,6 +63,7 @@ pub fn make_order(
                 book_key.to_id(),
                 tick,
                 quote_amount,
+                ZERO_ADDRESS(),
                 ArrayTrait::new().span(),
                 get_block_timestamp(),
             ),
@@ -84,6 +85,7 @@ pub fn limit_order(
                 0,
                 tick,
                 quote_amount,
+                ZERO_ADDRESS(),
                 ArrayTrait::new().span(),
                 ArrayTrait::new().span(),
                 get_block_timestamp(),

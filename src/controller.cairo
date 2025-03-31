@@ -14,7 +14,6 @@ pub mod Controller {
     use clober_cairo::libraries::order_id::OrderIdTrait;
     use clober_cairo::libraries::fee_policy::FeePolicyTrait;
     use clober_cairo::libraries::i257::I257Trait;
-    use clober_cairo::utils::constants::ZERO_ADDRESS;
     use clober_cairo::utils::math::{divide};
 
     component!(
@@ -123,6 +122,7 @@ pub mod Controller {
             book_id: felt252,
             tick: Tick,
             quote_amount: u256,
+            provider: ContractAddress,
             hook_data: Span<felt252>,
             deadline: u64,
         ) -> felt252 {
@@ -134,6 +134,7 @@ pub mod Controller {
             Serde::serialize(@book_id, ref params);
             Serde::serialize(@tick, ref params);
             Serde::serialize(@quote_amount, ref params);
+            Serde::serialize(@provider, ref params);
             Serde::serialize(@hook_data, ref params);
 
             let mut data = ArrayTrait::new();
@@ -151,6 +152,7 @@ pub mod Controller {
             limit_price: u256,
             tick: Tick,
             quote_amount: u256,
+            provider: ContractAddress,
             take_hook_data: Span<felt252>,
             make_hook_data: Span<felt252>,
             deadline: u64,
@@ -165,6 +167,7 @@ pub mod Controller {
             Serde::serialize(@limit_price, ref params);
             Serde::serialize(@tick, ref params);
             Serde::serialize(@quote_amount, ref params);
+            Serde::serialize(@provider, ref params);
             Serde::serialize(@take_hook_data, ref params);
             Serde::serialize(@make_hook_data, ref params);
 
@@ -297,11 +300,12 @@ pub mod Controller {
                     (book_manager.open(key, hook_data), ArrayTrait::new().span())
                 },
                 Actions::Make => {
-                    let (book_id, tick, quote_amount, hook_data) = Serde::<
-                        (felt252, Tick, u256, Span<felt252>),
+                    let (book_id, tick, quote_amount, provider, hook_data) = Serde::<
+                        (felt252, Tick, u256, ContractAddress, Span<felt252>),
                     >::deserialize(ref params)
                         .unwrap();
-                    let (order_id, tokens) = self._make(book_id, tick, quote_amount, hook_data);
+                    let (order_id, tokens) = self
+                        ._make(book_id, tick, quote_amount, provider, hook_data);
                     if order_id != 0 {
                         let book_manager = IERC721Dispatcher {
                             contract_address: self.book_manager.read(),
@@ -317,11 +321,21 @@ pub mod Controller {
                         limit_price,
                         tick,
                         quote_amount,
+                        provider,
                         take_hook_data,
                         make_hook_data,
                     ) =
                         Serde::<
-                        (felt252, felt252, u256, Tick, u256, Span<felt252>, Span<felt252>),
+                        (
+                            felt252,
+                            felt252,
+                            u256,
+                            Tick,
+                            u256,
+                            ContractAddress,
+                            Span<felt252>,
+                            Span<felt252>,
+                        ),
                     >::deserialize(ref params)
                         .unwrap();
                     let (order_id, tokens) = self
@@ -331,6 +345,7 @@ pub mod Controller {
                             limit_price,
                             tick,
                             quote_amount,
+                            provider,
                             take_hook_data,
                             make_hook_data,
                         );
@@ -398,6 +413,7 @@ pub mod Controller {
             book_id: felt252,
             tick: Tick,
             quote_amount: u256,
+            provider: ContractAddress,
             hook_data: Span<felt252>,
         ) -> (felt252, Span<felt252>) {
             let book_manager = IBookManagerDispatcher {
@@ -410,7 +426,7 @@ pub mod Controller {
                 return (0, tokens.span());
             }
             let (order_id, _) = book_manager
-                .make(MakeParams { key, tick, unit, provider: ZERO_ADDRESS() }, hook_data);
+                .make(MakeParams { key, tick, unit, provider }, hook_data);
             Serde::serialize(@key.quote, ref tokens);
             (order_id, tokens.span())
         }
@@ -422,6 +438,7 @@ pub mod Controller {
             limit_price: u256,
             tick: Tick,
             mut quote_amount: u256,
+            provider: ContractAddress,
             take_hook_data: Span<felt252>,
             make_hook_data: Span<felt252>,
         ) -> (felt252, Span<felt252>) {
@@ -429,7 +446,8 @@ pub mod Controller {
                 ._spend(take_book_id, limit_price, quote_amount, 0, take_hook_data);
             quote_amount -= spent_quote_amount;
             if is_quote_remained {
-                let (order_id, _) = self._make(make_book_id, tick, quote_amount, make_hook_data);
+                let (order_id, _) = self
+                    ._make(make_book_id, tick, quote_amount, provider, make_hook_data);
                 (order_id, tokens)
             } else {
                 (0, tokens)
@@ -529,7 +547,8 @@ pub mod Controller {
                     break;
                 }
 
-                let mut max_unit_u256 = tick.base_to_quote(max_amount, false) / key.unit_size.into();
+                let mut max_unit_u256 = tick.base_to_quote(max_amount, false)
+                    / key.unit_size.into();
                 let max_unit: u64 = if max_unit_u256 > 0xffffffffffffffff {
                     0xffffffffffffffff_u64
                 } else {
