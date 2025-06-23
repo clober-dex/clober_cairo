@@ -15,7 +15,7 @@ use clober_cairo::mocks::take_router::TakeRouter::{
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 use clober_cairo::tests::book_manager::common::{BookManagerSpyHelpers, valid_key, EventSpyExt};
 use openzeppelin_testing as utils;
-use clober_cairo::tests::constants::{ZERO, OWNER, OTHER};
+use clober_cairo::tests::constants::{ZERO, OWNER};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
 use openzeppelin_utils::serde::SerializedAppend;

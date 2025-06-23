@@ -1,5 +1,5 @@
 use starknet::{ContractAddress, get_block_timestamp};
-use clober_cairo::tests::constants::{ZERO, OWNER, OTHER};
+use clober_cairo::tests::constants::{ZERO};
 use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
 use clober_cairo::libraries::fee_policy::FeePolicy;
 use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
