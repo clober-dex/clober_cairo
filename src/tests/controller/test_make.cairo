@@ -11,7 +11,7 @@ use clober_cairo::tests::controller::common::{
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ZERO, OWNER};
+use clober_cairo::tests::constants::{ZERO, OWNER, OTHER};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;

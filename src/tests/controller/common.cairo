@@ -1,5 +1,5 @@
-use starknet::{ContractAddress, contract_address_const, get_block_timestamp};
-use openzeppelin_testing::constants::ZERO;
+use starknet::{ContractAddress, get_block_timestamp};
+use clober_cairo::tests::constants::{ZERO, OWNER, OTHER};
 use clober_cairo::libraries::book_key::{BookKey, BookKeyTrait};
 use clober_cairo::libraries::fee_policy::FeePolicy;
 use clober_cairo::libraries::order_id::{OrderId, OrderIdTrait};
@@ -25,22 +25,22 @@ pub fn BASE_AMOUNT1() -> u256 {
     12 * WAD + 23432
 }
 pub fn MAKER1() -> ContractAddress {
-    contract_address_const::<'maker1'>()
+    'maker1'.try_into().unwrap()
 }
 pub fn MAKER2() -> ContractAddress {
-    contract_address_const::<'maker2'>()
+    'maker2'.try_into().unwrap()
 }
 pub fn MAKER3() -> ContractAddress {
-    contract_address_const::<'maker3'>()
+    'maker3'.try_into().unwrap()
 }
 pub fn TAKER1() -> ContractAddress {
-    contract_address_const::<'taker1'>()
+    'taker1'.try_into().unwrap()
 }
 pub fn TAKER2() -> ContractAddress {
-    contract_address_const::<'taker2'>()
+    'taker2'.try_into().unwrap()
 }
 pub fn TAKER3() -> ContractAddress {
-    contract_address_const::<'taker3'>()
+    'taker3'.try_into().unwrap()
 }
 
 pub fn valid_key(base: IERC20Dispatcher, quote: IERC20Dispatcher) -> BookKey {

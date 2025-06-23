@@ -7,7 +7,7 @@ use clober_cairo::mocks::open_router::OpenRouter::{
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
 use clober_cairo::tests::book_manager::common::{BookManagerSpyHelpers, valid_key};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::OWNER;
+use clober_cairo::tests::constants::{OWNER, ZERO, OTHER};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{spy_events, cheat_caller_address, CheatSpan};
 

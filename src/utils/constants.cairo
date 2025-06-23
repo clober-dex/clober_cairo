@@ -1,5 +1,4 @@
 use starknet::ContractAddress;
-use starknet::contract_address_const;
 
 pub(crate) const TWO_POW_248: u256 =
     0x100000000000000000000000000000000000000000000000000000000000000; // 2**248
@@ -27,5 +26,5 @@ pub(crate) const MAX_TICK: i32 = 0x7ffff;
 pub(crate) const MIN_TICK: i32 = -MAX_TICK;
 
 pub(crate) fn ZERO_ADDRESS() -> ContractAddress {
-    contract_address_const::<0>()
+    0.try_into().unwrap()
 }

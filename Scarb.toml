@@ -2,27 +2,33 @@
 name = "clober_cairo"
 version = "0.1.0"
 edition = "2023_11"
-cairo-version = "2.9.2"
-scarb-version = "2.9.2"
+cairo-version = "2.11.4"
+scarb-version = "2.11.4"
 authors = ["Clober <dev@clober.io>"]
 description = "Core Contracts written in Cairo for StarkNet"
 readme = "README.md"
 repository = "https://github.com/clober-dex/clober_cairo"
 # license-file = "LICENSE"
 
+[workspace.dependencies]
+assert_macros = "2.11.4"
+starknet = "2.11.4"
+snforge_std = "0.44.0"
+
 [dependencies]
-starknet = "2.9.2"
-openzeppelin_access = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.20.0" }
-openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.20.0" }
-openzeppelin_introspection = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.20.0" }
-openzeppelin_utils = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.20.0" }
-openzeppelin_testing = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.20.0" }
-openzeppelin_presets = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.20.0" }
-openzeppelin_security = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.20.0" }
-openzeppelin_upgrades = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.20.0" }
+starknet.workspace = true
+openzeppelin_access = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v2.0.0" }
+openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v2.0.0" }
+openzeppelin_introspection = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v2.0.0" }
+openzeppelin_utils = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v2.0.0" }
+openzeppelin_testing = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v2.0.0" }
+openzeppelin_presets = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v2.0.0" }
+openzeppelin_security = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v2.0.0" }
+openzeppelin_upgrades = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v2.0.0" }
 
 [dev-dependencies]
-snforge_std = "0.34.0"
+snforge_std.workspace = true
+assert_macros.workspace = true
 
 [tool.snforge]
 fuzzer_runs = 1000

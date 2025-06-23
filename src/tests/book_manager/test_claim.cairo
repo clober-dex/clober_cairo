@@ -16,12 +16,12 @@ use clober_cairo::mocks::claim_router::ClaimRouter::{
     IClaimRouterDispatcher, IClaimRouterDispatcherTrait,
 };
 use clober_cairo::tests::utils::{deploy_token_pairs, BASE_URI, CONTRACT_URI};
-use clober_cairo::tests::book_manager::common::{BookManagerSpyHelpers, valid_key};
+use clober_cairo::tests::book_manager::common::{BookManagerSpyHelpers, valid_key, EventSpyExt};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ZERO, OWNER};
+use clober_cairo::tests::constants::{ZERO, OWNER, OTHER};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
-use openzeppelin_testing::events::EventSpyExt;
+
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{spy_events, cheat_caller_address, CheatSpan};
 

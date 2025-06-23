@@ -1,4 +1,4 @@
-use starknet::{ContractAddress, contract_address_const};
+use starknet::ContractAddress;
 use openzeppelin_token::erc20::interface::IERC20Dispatcher;
 use openzeppelin_testing as utils;
 use openzeppelin_utils::serde::SerializedAppend;
@@ -23,6 +23,18 @@ fn QUOTE_SYMBOL() -> ByteArray {
     "QUOTE"
 }
 
+pub fn OWNER() -> ContractAddress {
+    'owner'.try_into().unwrap()
+}
+
+pub fn ZERO() -> ContractAddress {
+    0.try_into().unwrap()
+}
+
+pub fn OTHER() -> ContractAddress {
+    'other'.try_into().unwrap()
+}
+
 pub fn deploy_token_pairs(
     base_supply: u256, quote_supply: u256, recipient: ContractAddress, owner: ContractAddress,
 ) -> (IERC20Dispatcher, IERC20Dispatcher) {
@@ -34,7 +46,7 @@ pub fn deploy_token_pairs(
     base_calldata.append_serde(base_supply);
     base_calldata.append_serde(recipient);
     base_calldata.append_serde(owner);
-    let base_address = contract_address_const::<'base'>();
+    let base_address: ContractAddress = 'base'.try_into().unwrap();
     utils::deploy_at(contract, base_address, base_calldata);
 
     let mut quote_calldata = array![];
@@ -43,7 +55,7 @@ pub fn deploy_token_pairs(
     quote_calldata.append_serde(quote_supply);
     quote_calldata.append_serde(recipient);
     quote_calldata.append_serde(owner);
-    let quote_address = contract_address_const::<'quote'>();
+    let quote_address: ContractAddress = 'quote'.try_into().unwrap();
     utils::deploy_at(contract, quote_address, quote_calldata);
 
     (
